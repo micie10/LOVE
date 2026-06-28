@@ -65,58 +65,6 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .add-pair-card span{font-size:1.8rem;}
 .is-admin .add-pair-card{display:flex;}
 
-/* ── PAIR SWITCHER (드래그 가능한 동그라미) ── */
-.pair-switcher{
-  position:fixed;top:1rem;left:1rem;z-index:500;
-  display:flex;flex-direction:column;align-items:flex-start;gap:0.4rem;
-  /* 드래그용 */
-  cursor:grab;
-  user-select:none;
-  touch-action:none;
-}
-.pair-switcher.dragging{
-  cursor:grabbing;
-}
-/* 드래그 중에는 드로어 클릭 안 되게 */
-.pair-switcher.dragging *{pointer-events:none;}
-
-.switcher-toggle{
-  width:48px;height:48px;border-radius:50%;overflow:hidden;
-  border:2.5px solid var(--surface);box-shadow:0 2px 12px rgba(180,130,180,0.25);
-  cursor:grab;background:linear-gradient(135deg,var(--p1),var(--p2));
-  display:flex;align-items:center;justify-content:center;
-  transition:transform 0.15s;
-}
-.pair-switcher.dragging .switcher-toggle{cursor:grabbing;}
-.switcher-toggle:hover{transform:scale(1.08);}
-.switcher-toggle img{width:100%;height:100%;object-fit:cover;display:none;}
-.switcher-toggle img.loaded{display:block;}
-.switcher-toggle .sw-placeholder{font-size:1.2rem;color:white;opacity:0.8;}
-.switcher-label{font-size:0.62rem;color:var(--text-muted);text-align:left;max-width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-
-.switcher-drawer{
-  display:none;flex-direction:column;align-items:flex-end;gap:0.4rem;
-  background:var(--surface);border:1.5px solid var(--border);border-radius:14px;
-  padding:0.6rem;box-shadow:0 4px 20px rgba(180,130,180,0.15);
-}
-.switcher-drawer.open{display:flex;}
-.sw-item{
-  display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0.5rem;
-  border-radius:10px;cursor:pointer;transition:background 0.12s;width:100%;
-}
-.sw-item:hover{background:var(--bg);}
-.sw-item-avatar{
-  width:32px;height:32px;border-radius:50%;overflow:hidden;flex-shrink:0;
-  background:linear-gradient(135deg,var(--p1),var(--p2));
-  display:flex;align-items:center;justify-content:center;font-size:0.85rem;
-}
-.sw-item-avatar img{width:100%;height:100%;object-fit:cover;display:none;}
-.sw-item-avatar img.loaded{display:block;}
-.sw-item-name{font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;}
-.sw-item.active-pair .sw-item-name{color:var(--accent);}
-.sw-back{font-size:0.72rem;color:var(--text-muted);padding:0.3rem 0.5rem;cursor:pointer;border-top:1px solid var(--border);margin-top:0.2rem;text-align:right;}
-.sw-back:hover{color:var(--accent);}
-
 /* ══ PAIR PAGE ══ */
 #pairPage{position:relative;}
 
@@ -390,26 +338,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
-<!-- ══ PAIR SWITCHER (드래그 가능한 동그라미) ══ -->
-<div class="pair-switcher" id="pairSwitcher" style="display:none;">
-  <div>
-    <div class="switcher-toggle" id="switcherToggle" onclick="handleSwitcherClick()">
-      <img id="switcherImg" alt="">
-      <span class="sw-placeholder" id="switcherPlaceholder">🌸</span>
-    </div>
-    <div class="switcher-label" id="switcherLabel"></div>
-  </div>
-  <div class="switcher-drawer" id="switcherDrawer">
-    <div id="switcherList"></div>
-    <div class="sw-back" onclick="goHub()">← 메인으로</div>
-  </div>
-</div>
-
 <!-- ══ HUB PAGE ══ -->
 <div id="hub" class="page active">
   <div class="hub-header">
-    <div class="hub-title"> LOVE </div>
-    <div class="hub-sub">선택해서 바보들(♡)을 열어보세요!</div>
+    <div class="hub-title">LOVE</div>
+    <div class="hub-sub">선택해서 바보들(♡)을 구경해요!</div>
     <div class="hub-admin-bar">
       <button class="go-archive-btn viewer-only" id="hubLoginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub);font-size:0.82rem;padding:0.45rem 1rem;" onclick="openLock()">🔑 관리자 로그인</button>
       <span class="admin-badge" id="hubAdminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
@@ -497,7 +430,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
 
     <div class="home-recent">
-      <div class="section-label">고정</div>
+      <div class="section-label"> ♡ </div>
       <div class="recent-row" id="recentRow"></div>
     </div>
   </div>
@@ -763,7 +696,6 @@ function openPair(pid) {
   applyCfg();
   showPage('pairPage');
   showSubPage('home');
-  updateSwitcher(pair);
   renderTabBar();
   renderHome();
   renderDecos();
@@ -784,43 +716,7 @@ function openPair(pid) {
   document.getElementById('coverSub').textContent = cfg.sub || '✦ 드림 백업 · 로그 · 이미지 모음';
 }
 
-function updateSwitcher(pair) {
-  document.getElementById('pairSwitcher').style.display = 'flex';
-  const img = document.getElementById('switcherImg');
-  const ph = document.getElementById('switcherPlaceholder');
-  document.getElementById('switcherLabel').textContent = pair.name;
-  if (pair.avatar) {
-    img.src = pair.avatar;
-    img.onload = () => img.classList.add('loaded');
-    ph.style.display = 'none';
-  } else {
-    img.classList.remove('loaded');
-    ph.style.display = '';
-  }
-  renderSwitcherList();
-}
-function renderSwitcherList() {
-  const list = document.getElementById('switcherList');
-  list.innerHTML = pairs.map(p => {
-    const active = p.id === currentPairId ? 'active-pair' : '';
-    const avatarHtml = p.avatar
-      ? `<img src="${esc(p.avatar)}" onload="this.classList.add('loaded')" alt="">`
-      : '';
-    return `<div class="sw-item ${active}" onclick="switchPair('${p.id}')">
-      <div class="sw-item-avatar">${avatarHtml}</div>
-      <span class="sw-item-name">${esc(p.name)}</span>
-    </div>`;
-  }).join('');
-}
-function toggleSwitcherDrawer() {
-  document.getElementById('switcherDrawer').classList.toggle('open');
-}
-function switchPair(pid) {
-  document.getElementById('switcherDrawer').classList.remove('open');
-  openPair(pid);
-}
 function goHub() {
-  document.getElementById('pairSwitcher').style.display = 'none';
   showPage('hub');
   renderHub();
   applyAdminUI();
@@ -1496,102 +1392,6 @@ function getSamples() {
     {id:4,type:'memo',title:'학교물 설정 메모',body:'배경: 2000년대 초 고등학교\n상대: 밴드부 드러머\n계절: 가을학기\n핵심: 옥상 일몰 장면',tags:['설정','학교물'],date:'2025-06-10',img:''},
     {id:5,type:'log',title:'[완결] 별밤 캠핑 로그',body:'드디어 완결! 5편짜리 캠핑 AU. 마지막 고백씬 쓰면서 혼자 설레서 못 잔 게 함정ㅠ',tags:['완결','캠핑','로맨스'],date:'2025-06-05',img:''},
   ];
-}
-
-/* ══ 드래그 가능한 페어 스위처 ══ */
-(function() {
-  const el = document.getElementById('pairSwitcher');
-  let dragging = false;
-  let startX = 0, startY = 0;      // 드래그 시작 시 마우스 좌표
-  let startLeft = 0, startTop = 0;  // 드래그 시작 시 엘리먼트 위치
-  let moved = false;                 // 클릭 vs 드래그 구분용
-
-  /* 저장된 위치 불러오기 */
-  function loadPos() {
-    try {
-      const p = JSON.parse(localStorage.getItem('da_switcher_pos') || 'null');
-      if (p && typeof p.x === 'number' && typeof p.y === 'number') {
-        el.style.left   = p.x + 'px';
-        el.style.top    = p.y + 'px';
-        el.style.right  = 'auto';
-        el.style.bottom = 'auto';
-      }
-    } catch(e) {}
-  }
-
-  /* 위치 저장 */
-  function savePos() {
-    localStorage.setItem('da_switcher_pos', JSON.stringify({
-      x: parseInt(el.style.left) || 16,
-      y: parseInt(el.style.top)  || 16
-    }));
-  }
-
-  /* 화면 경계 안으로 제한 */
-  function clamp(val, min, max) { return Math.min(max, Math.max(min, val)); }
-
-  function onStart(cx, cy) {
-    const r = el.getBoundingClientRect();
-    startX    = cx;
-    startY    = cy;
-    startLeft = r.left;
-    startTop  = r.top;
-    moved     = false;
-    dragging  = true;
-    el.classList.add('dragging');
-    document.body.style.userSelect = 'none';
-  }
-
-  function onMove(cx, cy) {
-    if (!dragging) return;
-    const dx = cx - startX;
-    const dy = cy - startY;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;  // 4px 넘으면 드래그로 간주
-    if (!moved) return;
-
-    const x = clamp(startLeft + dx, 0, window.innerWidth  - el.offsetWidth);
-    const y = clamp(startTop  + dy, 0, window.innerHeight - el.offsetHeight);
-    el.style.left   = x + 'px';
-    el.style.top    = y + 'px';
-    el.style.right  = 'auto';
-    el.style.bottom = 'auto';
-  }
-
-  function onEnd() {
-    if (!dragging) return;
-    dragging = false;
-    el.classList.remove('dragging');
-    document.body.style.userSelect = '';
-    if (moved) savePos();
-  }
-
-  /* 마우스 이벤트 */
-  el.addEventListener('mousedown', e => {
-    if (e.button !== 0) return;
-    e.preventDefault();
-    onStart(e.clientX, e.clientY);
-  });
-  document.addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-  document.addEventListener('mouseup', onEnd);
-
-  /* 터치 이벤트 */
-  el.addEventListener('touchstart', e => {
-    e.preventDefault();
-    onStart(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-  document.addEventListener('touchmove', e => {
-    if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: true });
-  document.addEventListener('touchend', onEnd);
-
-  loadPos();
-})();
-
-/* 드로어 토글: 드래그했으면 열지 않음 */
-function handleSwitcherClick() {
-  // 드래그 중엔 switcher-toggle의 onclick이 호출되지 않도록 moved 플래그로 막음
-  // (dragging 클래스 중에는 pointer-events:none 이므로 실제로는 이 함수가 드래그 후 호출 안 됨)
-  toggleSwitcherDrawer();
 }
 
 /* ── INIT ── */
