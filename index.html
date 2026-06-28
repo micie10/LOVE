@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOVE</title>
+<title>드림 아카이브</title>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <style>
 :root {
@@ -312,6 +312,12 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .detail-body{font-size:0.88rem;color:var(--text-sub);white-space:pre-wrap;line-height:1.8;}
 .detail-tags{display:flex;gap:0.35rem;flex-wrap:wrap;}
 .detail-date{font-size:0.75rem;color:var(--text-muted);}
+.detail-html-render{font-size:0.88rem;line-height:1.8;}
+.detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
+.detail-html-render table{max-width:100%;border-collapse:collapse;}
+.html-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--accent));color:#fff;border-radius:999px;padding:2px 7px;margin-left:4px;}
+.card-html-render{font-size:0.78rem;color:var(--text-sub);line-height:1.55;max-height:5.2em;overflow:hidden;position:relative;}
+.card-html-render::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.6em;background:linear-gradient(to bottom,transparent,var(--surface));}
 
 /* tab edit list */
 .tab-list{display:flex;flex-direction:column;gap:0.4rem;}
@@ -402,7 +408,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <!-- ══ HUB PAGE ══ -->
 <div id="hub" class="page active">
   <div class="hub-header">
-    <div class="hub-title">LOVE</div>
+    <div class="hub-title">✦ 드림 아카이브</div>
     <div class="hub-sub">페어를 선택해서 아카이브를 열어보세요</div>
     <div class="hub-admin-bar">
       <button class="go-archive-btn viewer-only" id="hubLoginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub);font-size:0.82rem;padding:0.45rem 1rem;" onclick="openLock()">🔑 관리자 로그인</button>
@@ -555,7 +561,11 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div><div class="field-lbl">유형</div><div class="type-chips" id="typeChips"></div></div>
     <div><div class="field-lbl">제목</div><input type="text" class="field-inp" id="inp-title" placeholder="제목을 입력하세요"></div>
     <div id="imgUrlWrap" style="display:none"><div class="field-lbl">이미지 URL</div><input type="text" class="field-inp" id="inp-img" placeholder="https://..."></div>
-    <div><div class="field-lbl">내용</div><textarea class="field-ta" id="inp-body" placeholder="내용을 입력하세요..."></textarea></div>
+    <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:var(--text-sub);cursor:pointer;">
+      <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
+      🧩 HTML 게시물로 작성 (입력한 HTML이 그대로 출력돼요)
+    </label>
+    <div><div class="field-lbl" id="bodyFieldLbl">내용</div><textarea class="field-ta" id="inp-body" placeholder="내용을 입력하세요..."></textarea></div>
     <div><div class="field-lbl">태그 (쉼표로 구분)</div><input type="text" class="field-inp" id="inp-tags" placeholder="예: AU, 로맨스, 완결"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addModal')">취소</button>
@@ -569,7 +579,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl" id="d-ttl"></span><button class="x-btn" onclick="closeModal('detailModal')">✕</button></div>
     <img class="detail-img" id="d-img" style="display:none">
-    <p class="detail-body" id="d-body"></p>
+    <p class="detail-body" id="d-body" style="display:none"></p>
+    <div class="detail-body detail-html-render" id="d-body-html" style="display:none"></div>
     <div class="detail-tags" id="d-tags"></div>
     <div class="detail-date" id="d-date"></div>
     <div class="modal-actions">
@@ -975,10 +986,10 @@ function cardHTML(it) {
   </div>` : '';
   return `<div class="card${pinned?' pinned':''}" onclick="openDetail(${it.id})">
     ${acts}
-    <div class="card-type-badge">${getTabName(it.type)}</div>
+    <div class="card-type-badge">${getTabName(it.type)}${it.isHtml?'<span class="html-badge">🧩 HTML</span>':''}</div>
     <div class="card-title">${esc(it.title)}</div>
     ${thumb}
-    <div class="card-body">${esc(it.body)}</div>
+    ${it.isHtml ? `<div class="card-html-render">${it.body}</div>` : `<div class="card-body">${esc(it.body)}</div>`}
     <div class="card-foot"><div class="tags">${tags}</div><span class="card-date">${it.date||''}</span></div>
   </div>`;
 }
@@ -990,22 +1001,42 @@ function openAddModal() {
   currentType = currentTabs[0]?.id||'log';
   ['inp-title','inp-body','inp-tags','inp-img'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('imgUrlWrap').style.display='none';
+  document.getElementById('inp-ishtml').checked=false;
+  toggleHtmlMode();
   document.getElementById('addModal').classList.add('open');
 }
 function pickType(btn) {
   currentType=btn.dataset.v;
   document.querySelectorAll('.type-chip').forEach(c=>c.classList.remove('on'));
   btn.classList.add('on');
-  document.getElementById('imgUrlWrap').style.display = currentType==='gallery'?'block':'none';
+  document.getElementById('imgUrlWrap').style.display = (currentType==='gallery' && !document.getElementById('inp-ishtml').checked)?'block':'none';
+}
+function toggleHtmlMode() {
+  const isHtml = document.getElementById('inp-ishtml').checked;
+  const ta = document.getElementById('inp-body');
+  const lbl = document.getElementById('bodyFieldLbl');
+  if (isHtml) {
+    lbl.textContent = '🧩 HTML 코드';
+    ta.placeholder = '<div style="..."> ... </div>\n게시물로 출력될 HTML을 그대로 입력하세요.';
+    ta.style.fontFamily = "'SFMono-Regular',Consolas,Menlo,monospace";
+    document.getElementById('imgUrlWrap').style.display='none';
+  } else {
+    lbl.textContent = '내용';
+    ta.placeholder = '내용을 입력하세요...';
+    ta.style.fontFamily = '';
+    document.getElementById('imgUrlWrap').style.display = currentType==='gallery'?'block':'none';
+  }
 }
 function saveItem() {
   if (!requireAdmin()) return;
   const title=document.getElementById('inp-title').value.trim();
   if (!title){alert('제목을 입력해주세요.');return;}
+  const isHtml = document.getElementById('inp-ishtml').checked;
   currentItems.unshift({
     id:Date.now(),type:currentType,title,
     body:document.getElementById('inp-body').value.trim(),
-    img:currentType==='gallery'?document.getElementById('inp-img').value.trim():'',
+    isHtml,
+    img:(currentType==='gallery' && !isHtml)?document.getElementById('inp-img').value.trim():'',
     tags:document.getElementById('inp-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
     date:new Date().toISOString().slice(0,10)
   });
@@ -1018,7 +1049,15 @@ function openDetail(id) {
   document.getElementById('d-ttl').textContent=it.title;
   const dImg=document.getElementById('d-img');
   if(it.img){dImg.src=it.img;dImg.style.display='block';}else dImg.style.display='none';
-  document.getElementById('d-body').textContent=it.body;
+  const dBody=document.getElementById('d-body');
+  const dBodyHtml=document.getElementById('d-body-html');
+  if (it.isHtml) {
+    dBody.style.display='none'; dBody.textContent='';
+    dBodyHtml.style.display='block'; dBodyHtml.innerHTML=it.body;
+  } else {
+    dBodyHtml.style.display='none'; dBodyHtml.innerHTML='';
+    dBody.style.display='block'; dBody.textContent=it.body;
+  }
   document.getElementById('d-tags').innerHTML=(it.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
   document.getElementById('d-date').textContent=getTabName(it.type)+(it.date?' · '+it.date:'');
   const pinned=currentPins.includes(id);
