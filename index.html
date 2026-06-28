@@ -408,8 +408,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <!-- ══ HUB PAGE ══ -->
 <div id="hub" class="page active">
   <div class="hub-header">
-    <div class="hub-title"> LOVE </div>
-    <div class="hub-sub"> 선택해서 바보들(♡)을 열어보세요</div>
+    <div class="hub-title">✦ 드림 아카이브</div>
+    <div class="hub-sub">페어를 선택해서 아카이브를 열어보세요</div>
     <div class="hub-admin-bar">
       <button class="go-archive-btn viewer-only" id="hubLoginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub);font-size:0.82rem;padding:0.45rem 1rem;" onclick="openLock()">🔑 관리자 로그인</button>
       <span class="admin-badge" id="hubAdminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
@@ -470,8 +470,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
         <button class="ctrl-btn" onclick="resetCoverStyle()">초기화</button>
       </div>
       <div class="cover-textbox">
-        <div class="cover-title" id="coverTitle">나의 드림 아카이브</div>
-        <div class="cover-sub" id="coverSub">✦ 드림 백업 · 로그 · 이미지 모음</div>
+        <div class="cover-title" id="coverTitle" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">나의 드림 아카이브</div>
+        <div class="cover-sub" id="coverSub" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">✦ 드림 백업 · 로그 · 이미지 모음</div>
       </div>
       <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="loadCoverImg(event)">
     </div>
@@ -1383,6 +1383,15 @@ function applySiteInfo() {
   currentCfg.title=n||currentCfg.title;
   currentCfg.sub=s||currentCfg.sub;
   saveCurrentPair(); saveCfgColors();
+}
+function saveCoverText() {
+  if (!isAdmin || !currentPairId) return;
+  const title = document.getElementById('coverTitle').textContent.trim();
+  const sub = document.getElementById('coverSub').textContent.trim();
+  currentCfg.title = title;
+  currentCfg.sub = sub;
+  document.title = title || '드림 아카이브';
+  saveCurrentPair();
 }
 function saveCfgColors() {
   const s=getComputedStyle(document.documentElement);
