@@ -478,6 +478,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
     <div class="home-strip">
       <div class="home-left">
+        <button class="back-btn" onclick="goHub()">← 메인</button>
         <div class="home-counts" id="homeCounts"></div>
         <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
       </div>
@@ -506,6 +507,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="arc-header">
       <div class="arc-top">
         <div class="arc-title-row">
+          <button class="back-btn" onclick="goHub()">← 메인</button>
           <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
           <span class="arc-heading">아카이브</span>
           <span class="admin-badge" id="adminBadgeArc">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
@@ -557,10 +559,17 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 <!-- ══ ADD MODAL ══ -->
 <div class="overlay center" id="addModal" onclick="if(event.target===this)closeModal('addModal')">
   <div class="modal">
-    <div class="modal-head"><span class="modal-ttl">새 항목 추가</span><button class="x-btn" onclick="closeModal('addModal')">✕</button></div>
+    <div class="modal-head"><span class="modal-ttl" id="addModalTtl">새 항목 추가</span><button class="x-btn" onclick="closeModal('addModal')">✕</button></div>
     <div><div class="field-lbl">유형</div><div class="type-chips" id="typeChips"></div></div>
     <div><div class="field-lbl">제목</div><input type="text" class="field-inp" id="inp-title" placeholder="제목을 입력하세요"></div>
-    <div id="imgUrlWrap" style="display:none"><div class="field-lbl">이미지 URL</div><input type="text" class="field-inp" id="inp-img" placeholder="https://..."></div>
+    <div id="imgUrlWrap" style="display:none">
+      <div class="field-lbl">이미지</div>
+      <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+        <label class="sticker-upload-btn" style="width:auto;flex:0 0 auto;">📁 이미지 업로드<input type="file" accept="image/*" id="inp-img-file" style="display:none" onchange="handleItemImgUpload(event)"></label>
+        <button type="button" class="ctrl-btn" id="inp-img-clear" style="display:none" onclick="clearItemImg()">이미지 제거</button>
+      </div>
+      <img id="inp-img-preview" alt="" style="display:none;max-width:160px;max-height:120px;border-radius:10px;margin-top:0.5rem;object-fit:cover;">
+    </div>
     <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;color:var(--text-sub);cursor:pointer;">
       <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);width:15px;height:15px;cursor:pointer;">
       🧩 HTML 게시물로 작성 (입력한 HTML이 그대로 출력돼요)
@@ -569,7 +578,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div><div class="field-lbl">태그 (쉼표로 구분)</div><input type="text" class="field-inp" id="inp-tags" placeholder="예: AU, 로맨스, 완결"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addModal')">취소</button>
-      <button class="btn-save" onclick="saveItem()">저장</button>
+      <button class="btn-save" id="addModalSaveBtn" onclick="saveItem()">저장</button>
     </div>
   </div>
 </div>
@@ -585,6 +594,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="detail-date" id="d-date"></div>
     <div class="modal-actions">
       <button class="btn-ghost admin-only" id="d-del-btn">삭제</button>
+      <button class="btn-ghost admin-only" id="d-edit-btn">✎ 수정</button>
       <button class="btn-ghost admin-only" id="d-pin-btn">📌 핀</button>
       <button class="btn-save" onclick="closeModal('detailModal')">닫기</button>
     </div>
@@ -707,6 +717,8 @@ let currentTabs = [];
 let currentPins = [];
 let currentTab = 'all';
 let currentType = 'log';
+let editingItemId = null;
+let tempItemImg = null;
 let pendingPins = [];
 let tempPairAvatar = null;
 let tempEditPairAvatar = null;
@@ -982,6 +994,7 @@ function cardHTML(it) {
   const pinned = currentPins.includes(it.id);
   const acts = isAdmin ? `<div class="card-actions">
     <button class="card-act-btn" title="${pinned?'핀 해제':'핀'}" onclick="event.stopPropagation();togglePin(${it.id})">${pinned?'📌':'📍'}</button>
+    <button class="card-act-btn" title="수정" onclick="event.stopPropagation();openEditItemModal(${it.id})">✎</button>
     <button class="card-act-btn" title="삭제" onclick="event.stopPropagation();deleteItem(${it.id})">✕</button>
   </div>` : '';
   return `<div class="card${pinned?' pinned':''}" onclick="openDetail(${it.id})">
@@ -994,15 +1007,44 @@ function cardHTML(it) {
   </div>`;
 }
 
-/* ── ADD ── */
+/* ── ADD / EDIT ── */
 function openAddModal() {
   if (!requireAdmin()) return;
+  editingItemId = null;
+  tempItemImg = null;
+  document.getElementById('addModalTtl').textContent = '새 항목 추가';
+  document.getElementById('addModalSaveBtn').textContent = '저장';
   renderTypeChips();
   currentType = currentTabs[0]?.id||'log';
-  ['inp-title','inp-body','inp-tags','inp-img'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['inp-title','inp-body','inp-tags'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  clearItemImgPreview();
   document.getElementById('imgUrlWrap').style.display='none';
   document.getElementById('inp-ishtml').checked=false;
   toggleHtmlMode();
+  document.getElementById('addModal').classList.add('open');
+}
+function openEditItemModal(id) {
+  if (!requireAdmin()) return;
+  const it=currentItems.find(i=>i.id===id); if(!it) return;
+  editingItemId = id;
+  tempItemImg = it.img || null;
+  document.getElementById('addModalTtl').textContent = '항목 수정';
+  document.getElementById('addModalSaveBtn').textContent = '수정 완료';
+  renderTypeChips();
+  currentType = it.type;
+  document.querySelectorAll('#typeChips .type-chip').forEach(c=>c.classList.toggle('on', c.dataset.v===it.type));
+  document.getElementById('inp-title').value = it.title || '';
+  document.getElementById('inp-body').value = it.body || '';
+  document.getElementById('inp-tags').value = (it.tags||[]).join(', ');
+  document.getElementById('inp-ishtml').checked = !!it.isHtml;
+  toggleHtmlMode();
+  if (it.img) {
+    const prev=document.getElementById('inp-img-preview');
+    prev.src=it.img; prev.style.display='block';
+    document.getElementById('inp-img-clear').style.display='inline-flex';
+  } else {
+    clearItemImgPreview();
+  }
   document.getElementById('addModal').classList.add('open');
 }
 function pickType(btn) {
@@ -1027,19 +1069,48 @@ function toggleHtmlMode() {
     document.getElementById('imgUrlWrap').style.display = currentType==='gallery'?'block':'none';
   }
 }
+function handleItemImgUpload(e) {
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    tempItemImg = ev.target.result;
+    const prev=document.getElementById('inp-img-preview');
+    prev.src=tempItemImg; prev.style.display='block';
+    document.getElementById('inp-img-clear').style.display='inline-flex';
+  };
+  reader.readAsDataURL(f);
+  e.target.value='';
+}
+function clearItemImg() { tempItemImg=null; clearItemImgPreview(); }
+function clearItemImgPreview() {
+  const prev=document.getElementById('inp-img-preview');
+  prev.src=''; prev.style.display='none';
+  document.getElementById('inp-img-clear').style.display='none';
+  const fileInp=document.getElementById('inp-img-file');
+  if (fileInp) fileInp.value='';
+}
 function saveItem() {
   if (!requireAdmin()) return;
   const title=document.getElementById('inp-title').value.trim();
   if (!title){alert('제목을 입력해주세요.');return;}
   const isHtml = document.getElementById('inp-ishtml').checked;
-  currentItems.unshift({
-    id:Date.now(),type:currentType,title,
-    body:document.getElementById('inp-body').value.trim(),
-    isHtml,
-    img:(currentType==='gallery' && !isHtml)?document.getElementById('inp-img').value.trim():'',
-    tags:document.getElementById('inp-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-    date:new Date().toISOString().slice(0,10)
-  });
+  const tags = document.getElementById('inp-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const body = document.getElementById('inp-body').value.trim();
+  const img = (currentType==='gallery' && !isHtml) ? (tempItemImg||'') : '';
+
+  if (editingItemId !== null) {
+    const it = currentItems.find(i=>i.id===editingItemId);
+    if (it) {
+      it.type=currentType; it.title=title; it.body=body;
+      it.isHtml=isHtml; it.img=img; it.tags=tags;
+    }
+    editingItemId = null;
+  } else {
+    currentItems.unshift({
+      id:Date.now(),type:currentType,title,body,isHtml,img,tags,
+      date:new Date().toISOString().slice(0,10)
+    });
+  }
   saveCurrentPair(); closeModal('addModal'); renderGrid(); renderHome();
 }
 
@@ -1062,6 +1133,7 @@ function openDetail(id) {
   document.getElementById('d-date').textContent=getTabName(it.type)+(it.date?' · '+it.date:'');
   const pinned=currentPins.includes(id);
   document.getElementById('d-del-btn').onclick=()=>{deleteItem(id);closeModal('detailModal');};
+  document.getElementById('d-edit-btn').onclick=()=>{closeModal('detailModal');openEditItemModal(id);};
   document.getElementById('d-pin-btn').textContent=pinned?'📌 핀 해제':'📍 핀 추가';
   document.getElementById('d-pin-btn').onclick=()=>{togglePin(id);closeModal('detailModal');};
   document.getElementById('detailModal').classList.add('open');
