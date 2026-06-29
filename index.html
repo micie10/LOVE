@@ -565,7 +565,17 @@ body{
 }
 .card-title{font-size:0.88rem;font-weight:700;line-height:1.4;color:var(--pp-text);}
 .card-thumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;background:var(--pp-sidebar);}
-.card-body{font-size:0.78rem;color:var(--pp-text-sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.65;}
+.card-body {
+  font-size: 0.78rem;
+  color: var(--pp-text-sub);
+  line-height: 1.65;
+  
+  /* ─── 여기서부터 변경 및 추가된 코드입니다 ─── */
+  max-height: 120px;        /* 글이 너무 길어지지 않게 최대 높이를 제한합니다 (디자인에 맞춰 조절 가능) */
+  overflow-y: auto;         /* 글이 지정한 최대 높이를 넘어가면 자동으로 우측에 세로 스크롤바 생성 */
+  word-break: break-all;    /* 띄어쓰기 없는 긴 글이나 링크도 줄바꿈이 잘 되도록 설정 */
+  padding-right: 4px;       /* 스크롤바와 글씨가 겹치지 않도록 우측 여백을 살짝 줌 */
+}
 .card-foot{display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap;margin-top:auto;}
 .card-date{font-size:0.63rem;color:var(--pp-text-muted);}
 .card-actions{position:absolute;top:0.5rem;right:0.5rem;display:none;gap:4px;}
