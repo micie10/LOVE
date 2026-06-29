@@ -556,13 +556,7 @@ body{
 .card-title{font-size:0.88rem;font-weight:700;line-height:1.4;color:var(--pp-text);}
 .card-thumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;background:var(--pp-sidebar);}
 .card-body{font-size:0.78rem;color:var(--pp-text-sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.65;}
-.card-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-top:auto;}
-.tags{display:flex;gap:0.25rem;flex-wrap:wrap;}
-.tag{
-  font-size:0.63rem;background:rgba(231,160,168,0.1);
-  border-radius:4px;padding:2px 6px;
-  color:var(--pp-accent);border:1px solid rgba(199,95,107,0.2);
-}
+.card-foot{display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap;margin-top:auto;}
 .card-date{font-size:0.63rem;color:var(--pp-text-muted);}
 .card-actions{position:absolute;top:0.5rem;right:0.5rem;display:none;gap:4px;}
 .is-admin .card:hover .card-actions{display:flex;}
@@ -612,7 +606,6 @@ body{
 .btn-danger{background:none;border:1.5px solid #e07a7a;border-radius:999px;padding:0.5rem 1rem;font-family:var(--font);font-size:0.82rem;color:#e07a7a;cursor:pointer;}
 .detail-img{width:100%;border-radius:12px;margin-top:0.25rem;}
 .detail-body{font-size:0.88rem;color:var(--text-sub);white-space:pre-wrap;line-height:1.8;}
-.detail-tags{display:flex;gap:0.35rem;flex-wrap:wrap;}
 .detail-date{font-size:0.75rem;color:var(--text-muted);}
 .detail-html-render{font-size:0.88rem;line-height:1.8;}
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
@@ -818,7 +811,7 @@ document.addEventListener('selectstart', e => {
 
 <!-- 바깥 배경 색상 변경 버튼 -->
 <label class="outer-bg-picker" title="바깥 배경색 변경">
-  🖼 배경
+  배경
   <input type="color" value="#e8e0f0" oninput="document.documentElement.style.setProperty('--outer-bg', this.value); localStorage.setItem('outer_bg', this.value);" id="outerBgInput">
 </label>
 
@@ -1121,7 +1114,6 @@ document.addEventListener('selectstart', e => {
       <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);">
       <label for="inp-ishtml" style="font-size:0.8rem;color:var(--text-sub);cursor:pointer;">🧩 HTML 직접 입력</label>
     </div>
-    <div><div class="field-lbl">태그</div><input type="text" class="field-inp" id="inp-tags" placeholder="태그1, 태그2, ..."></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addModal')">취소</button>
       <button class="btn-save" id="addModalSaveBtn" onclick="saveItem()">저장</button>
@@ -1138,7 +1130,6 @@ document.addEventListener('selectstart', e => {
       </div>
       <div class="detail-body" id="d-body"></div>
       <div class="detail-html-render" id="d-body-html" style="display:none"></div>
-      <div class="detail-tags" id="d-tags"></div>
       <div class="detail-date" id="d-date"></div>
       <div class="modal-actions" style="flex-wrap:wrap;">
         <button class="btn-danger admin-only" id="d-del-btn">삭제</button>
@@ -1760,7 +1751,7 @@ function renderGrid() {
   const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
   const filtered = currentItems.filter(it=>{
     const matchTab = currentTab==='all'||it.type===currentTab;
-    const matchQ = !q||it.title.toLowerCase().includes(q)||it.body.toLowerCase().includes(q)||(it.tags||[]).some(t=>t.toLowerCase().includes(q));
+    const matchQ = !q||it.title.toLowerCase().includes(q)||it.body.toLowerCase().includes(q);
     return matchTab&&matchQ;
   });
   const grid = document.getElementById('arcGrid');
@@ -1768,7 +1759,6 @@ function renderGrid() {
   grid.innerHTML = filtered.map(it=>cardHTML(it)).join('');
 }
 function cardHTML(it) {
-  const tags = (it.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
   const thumb = it.img?`<img class="card-thumb" src="${esc(it.img)}" loading="lazy" alt="">`:'';
   const pinned = currentPins.includes(it.id);
   const acts = isAdmin ? `<div class="card-actions">
@@ -1782,7 +1772,7 @@ function cardHTML(it) {
     <div class="card-title">${esc(it.title)}</div>
     ${thumb}
     ${it.isHtml ? `<div class="card-html-render">${it.body}</div>` : `<div class="card-body">${esc(it.body)}</div>`}
-    <div class="card-foot"><div class="tags">${tags}</div><span class="card-date">${it.date||''}</span></div>
+    <div class="card-foot"><span class="card-date">${it.date||''}</span></div>
   </div>`;
 }
 
@@ -1793,7 +1783,7 @@ function openAddModal() {
   document.getElementById('addModalSaveBtn').textContent = '저장';
   renderTypeChips();
   currentType = currentTabs[0]?.id||'log';
-  ['inp-title','inp-body','inp-tags'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['inp-title','inp-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   clearItemImg();
   document.getElementById('imgUrlWrap').style.display='block';
   document.getElementById('inp-ishtml').checked=false;
@@ -1811,7 +1801,6 @@ function openEditItemModal(id) {
   document.querySelectorAll('#typeChips .type-chip').forEach(c=>c.classList.toggle('on', c.dataset.v===it.type));
   document.getElementById('inp-title').value = it.title || '';
   document.getElementById('inp-body').value = it.body || '';
-  document.getElementById('inp-tags').value = (it.tags||[]).join(', ');
   document.getElementById('inp-ishtml').checked = !!it.isHtml;
   toggleHtmlMode();
   if (it.img) {
@@ -1871,15 +1860,14 @@ async function saveItem() {
   const title=document.getElementById('inp-title').value.trim();
   if (!title){alert('제목을 입력해주세요.');return;}
   const isHtml = document.getElementById('inp-ishtml').checked;
-  const tags = document.getElementById('inp-tags').value.split(',').map(t=>t.trim()).filter(Boolean);
   const body = document.getElementById('inp-body').value.trim();
   const img = !isHtml ? (tempItemImg||'') : '';
   if (editingItemId !== null) {
     const it = currentItems.find(i=>i.id===editingItemId);
-    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml; it.img=img; it.tags=tags; }
+    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml; it.img=img; }
     editingItemId = null;
   } else {
-    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml,img,tags,date:new Date().toISOString().slice(0,10)});
+    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml,img,date:new Date().toISOString().slice(0,10)});
   }
   await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome();
 }
@@ -1899,7 +1887,6 @@ function openDetail(id) {
     dBodyHtml.style.display='none'; dBodyHtml.innerHTML='';
     dBody.style.display='block'; dBody.textContent=it.body;
   }
-  document.getElementById('d-tags').innerHTML=(it.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
   document.getElementById('d-date').textContent=getTabName(it.type)+(it.date?' · '+it.date:'');
   const pinned=currentPins.includes(id);
   document.getElementById('d-del-btn').onclick=()=>{deleteItem(id);closeModal('detailModal');};
@@ -2405,11 +2392,11 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 function getSamples() {
   return [
-    {id:1,type:'log',title:'[AU] 현대 카페 첫 만남 썰',body:'오늘 카페 알바 중에 진짜 완벽한 사람이 들어왔는데... 아메리카노 한 잔 시키면서 눈이 마주쳤는데 심장이 폭발하는 줄 알았어요.',tags:['AU','현대','카페'],date:'2025-06-20',img:''},
-    {id:2,type:'gallery',title:'드림 팬아트 — 여름 바닷가',body:'여름 드림으로 그려봤어요 🌊 물 반사 표현이 마음에 들어요.',tags:['팬아트','여름'],date:'2025-06-18',img:'https://picsum.photos/seed/pastel1/400/225'},
-    {id:3,type:'daily',title:'드림 일상 6/15',body:'나만의 드림 세계에서는 그 사람이 나한테 먼저 손 내밀어줘요.',tags:['일상'],date:'2025-06-15',img:''},
-    {id:4,type:'memo',title:'학교물 설정 메모',body:'배경: 2000년대 초 고등학교\n상대: 밴드부 드러머\n계절: 가을학기\n핵심: 옥상 일몰 장면',tags:['설정','학교물'],date:'2025-06-10',img:''},
-    {id:5,type:'log',title:'[완결] 별밤 캠핑 로그',body:'드디어 완결! 5편짜리 캠핑 AU. 마지막 고백씬 쓰면서 혼자 설레서 못 잔 게 함정ㅠ',tags:['완결','캠핑','로맨스'],date:'2025-06-05',img:''},
+    {id:1,type:'log',title:'[AU] 현대 카페 첫 만남 썰',body:'오늘 카페 알바 중에 진짜 완벽한 사람이 들어왔는데... 아메리카노 한 잔 시키면서 눈이 마주쳤는데 심장이 폭발하는 줄 알았어요.',date:'2025-06-20',img:''},
+    {id:2,type:'gallery',title:'드림 팬아트 — 여름 바닷가',body:'여름 드림으로 그려봤어요 🌊 물 반사 표현이 마음에 들어요.',date:'2025-06-18',img:'https://picsum.photos/seed/pastel1/400/225'},
+    {id:3,type:'daily',title:'드림 일상 6/15',body:'나만의 드림 세계에서는 그 사람이 나한테 먼저 손 내밀어줘요.',date:'2025-06-15',img:''},
+    {id:4,type:'memo',title:'학교물 설정 메모',body:'배경: 2000년대 초 고등학교\n상대: 밴드부 드러머\n계절: 가을학기\n핵심: 옥상 일몰 장면',date:'2025-06-10',img:''},
+    {id:5,type:'log',title:'[완결] 별밤 캠핑 로그',body:'드디어 완결! 5편짜리 캠핑 AU. 마지막 고백씬 쓰면서 혼자 설레서 못 잔 게 함정ㅠ',date:'2025-06-05',img:''},
   ];
 }
 
