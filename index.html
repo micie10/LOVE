@@ -891,10 +891,9 @@ document.addEventListener('selectstart', e => {
     <!-- 사이드바 -->
     <div class="pp-sidebar" id="ppSidebar">
       <!-- 아바타: 관리자면 클릭해서 이미지 변경 -->
-      <label class="pp-sidebar-avatar" id="ppSidebarAvatar" title="이미지 변경 (관리자만)" onclick="if(!isAdmin){return false;}">
+      <div class="pp-sidebar-avatar" id="ppSidebarAvatar" title="이미지 변경 (관리자만)" onclick="if(isAdmin){saveSidebarAvatar();}">
         🌸
-        <input type="file" id="sidebarAvatarInput" accept="image/*" style="display:none" onchange="saveSidebarAvatar(event)">
-      </label>
+      </div>
       <div class="pp-sidebar-name" id="ppSidebarName"
         contenteditable="false"
         onblur="saveSidebarMeta()"
@@ -976,7 +975,6 @@ document.addEventListener('selectstart', e => {
           <div class="cover-title" id="coverTitle" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">나의 드림 아카이브</div>
           <div class="cover-sub" id="coverSub" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">✦ 드림 백업 · 로그 · 이미지 모음</div>
         </div>
-        <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="loadCoverImg(event)">
       </div>
 
       <div class="home-strip">
@@ -1011,10 +1009,9 @@ document.addEventListener('selectstart', e => {
     <div style="display:flex;flex:1;min-height:0;min-width:0;">
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
-        <label class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
           🌸
-          <input type="file" accept="image/*" style="display:none" onchange="saveSidebarAvatar(event)">
-        </label>
+        </div>
         <div class="pp-sidebar-name" id="ppSidebarNameArc">PAIR</div>
         <div class="pp-sidebar-subtitle" id="ppSidebarSubtitleArc">아카이브</div>
         <nav class="pp-nav">
@@ -1109,12 +1106,10 @@ document.addEventListener('selectstart', e => {
     <div><div class="field-lbl">유형</div><div class="type-chips" id="typeChips"></div></div>
     <div><div class="field-lbl">제목</div><input type="text" class="field-inp" id="inp-title" placeholder="제목을 입력하세요"></div>
     <div id="imgUrlWrap" style="display:none">
-      <div class="field-lbl">이미지</div>
-      <div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
-        <label style="cursor:pointer;font-size:0.8rem;color:var(--accent);border:1.5px solid var(--border);border-radius:999px;padding:0.3rem 0.75rem;">
-          📁 업로드<input type="file" id="inp-img-file" accept="image/*" style="display:none" onchange="handleItemImgUpload(event)">
-        </label>
-        <img id="inp-img-preview" src="" style="display:none;max-height:60px;border-radius:8px;max-width:100px;">
+      <div class="field-lbl">이미지 URL</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;">
+        <input type="text" class="field-inp" id="inp-img-url" placeholder="https://..." oninput="handleItemImgUrl(this.value)">
+        <img id="inp-img-preview" src="" style="display:none;max-height:80px;border-radius:8px;max-width:140px;">
         <button id="inp-img-clear" class="btn-ghost" style="display:none;font-size:0.72rem;padding:0.25rem 0.6rem;" onclick="clearItemImg()">✕ 제거</button>
       </div>
     </div>
@@ -1186,11 +1181,14 @@ document.addEventListener('selectstart', e => {
 <div class="overlay center" id="addPairModal" onclick="if(event.target===this)closeModal('addPairModal')">
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl">새 페어 추가</span><button class="x-btn" onclick="closeModal('addPairModal')">✕</button></div>
-    <label class="pair-modal-avatar" onclick="document.getElementById('pairAvatarInput').click()">
+    <div class="pair-modal-avatar" style="cursor:default;">
       <img id="pairAvatarPreview" src="" alt="">
       <div id="pairAvatarPlaceholder">🌸</div>
-      <input type="file" id="pairAvatarInput" accept="image/*" style="display:none" onchange="previewPairAvatar(event)">
-    </label>
+    </div>
+    <div>
+      <div class="field-lbl">아바타 이미지 URL</div>
+      <input type="text" class="field-inp" id="pairAvatarUrlInput" placeholder="https://..." oninput="previewPairAvatarUrl(this.value)">
+    </div>
     <div><div class="field-lbl">페어 이름</div><input type="text" class="field-inp" id="inp-pairname" placeholder="이름을 입력하세요"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addPairModal')">취소</button>
@@ -1202,11 +1200,14 @@ document.addEventListener('selectstart', e => {
 <div class="overlay center" id="editPairModal" onclick="if(event.target===this)closeModal('editPairModal')">
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl">페어 수정</span><button class="x-btn" onclick="closeModal('editPairModal')">✕</button></div>
-    <label class="pair-modal-avatar" onclick="document.getElementById('editPairAvatarInput').click()">
+    <div class="pair-modal-avatar" style="cursor:default;">
       <img id="editPairAvatarPreview" src="" alt="">
       <div id="editPairAvatarPlaceholder">🌸</div>
-      <input type="file" id="editPairAvatarInput" accept="image/*" style="display:none" onchange="previewEditPairAvatar(event)">
-    </label>
+    </div>
+    <div>
+      <div class="field-lbl">아바타 이미지 URL</div>
+      <input type="text" class="field-inp" id="editPairAvatarUrlInput" placeholder="https://..." oninput="previewEditPairAvatarUrl(this.value)">
+    </div>
     <div><div class="field-lbl">페어 이름</div><input type="text" class="field-inp" id="inp-editpairname" placeholder="이름을 입력하세요"></div>
     <div class="modal-actions">
       <button class="btn-danger" onclick="confirmDeletePair()">삭제</button>
@@ -1534,22 +1535,18 @@ async function saveSidebarMeta() {
 
 async function saveSidebarAvatar(e) {
   if (!isAdmin) return;
-  const f = e.target.files[0]; if (!f) return;
-  const reader = new FileReader();
-  reader.onload = async ev => {
-    const src = ev.target.result;
-    currentCfg.sidebarAvatar = src;
-    // 두 아바타 모두 업데이트
-    ['ppSidebarAvatar','ppSidebarAvatarArc'].forEach(id=>{
-      const el = document.getElementById(id);
-      if (!el) return;
-      const inp = el.querySelector('input');
-      el.innerHTML = `<img src="${src}" onload="this.classList.add('loaded')" alt="">`;
-      if (inp) el.appendChild(inp);
-    });
-    await saveCurrentPair(); showToast('저장됨 ✓');
-  };
-  reader.readAsDataURL(f);
+  const src = prompt('사이드바 아바타 이미지 URL을 입력하세요\n(GitHub 이슈에 이미지를 드래그해서 생성된 URL을 붙여넣으세요)', currentCfg.sidebarAvatar || '');
+  if (src === null) return;
+  const finalSrc = src.trim();
+  currentCfg.sidebarAvatar = finalSrc;
+  ['ppSidebarAvatar','ppSidebarAvatarArc'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    const inp = el.querySelector('input');
+    el.innerHTML = finalSrc ? `<img src="${finalSrc}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+    if (inp) el.appendChild(inp);
+  });
+  await saveCurrentPair(); showToast('저장됨 ✓');
 }
 
 function showPage(id, direction='forward') {
@@ -1768,7 +1765,7 @@ function openAddModal() {
   renderTypeChips();
   currentType = currentTabs[0]?.id||'log';
   ['inp-title','inp-body','inp-tags'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  clearItemImgPreview();
+  clearItemImg();
   document.getElementById('imgUrlWrap').style.display='block';
   document.getElementById('inp-ishtml').checked=false;
   toggleHtmlMode();
@@ -1792,7 +1789,9 @@ function openEditItemModal(id) {
     const prev=document.getElementById('inp-img-preview');
     prev.src=it.img; prev.style.display='block';
     document.getElementById('inp-img-clear').style.display='inline-flex';
-  } else { clearItemImgPreview(); }
+    const urlInp=document.getElementById('inp-img-url');
+    if (urlInp) urlInp.value=it.img;
+  } else { clearItemImg(); }
   document.getElementById('addModal').classList.add('open');
 }
 function pickType(btn) {
@@ -1817,24 +1816,26 @@ function toggleHtmlMode() {
     document.getElementById('imgUrlWrap').style.display = 'block';
   }
 }
-function handleItemImgUpload(e) {
-  const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    tempItemImg = ev.target.result;
-    const prev=document.getElementById('inp-img-preview');
-    prev.src=tempItemImg; prev.style.display='block';
-    document.getElementById('inp-img-clear').style.display='inline-flex';
-  };
-  reader.readAsDataURL(f); e.target.value='';
+function handleItemImgUrl(url) {
+  const trimmed = url.trim();
+  tempItemImg = trimmed || null;
+  const prev = document.getElementById('inp-img-preview');
+  const clearBtn = document.getElementById('inp-img-clear');
+  if (trimmed) {
+    prev.src = trimmed; prev.style.display = 'block';
+    clearBtn.style.display = 'inline-flex';
+  } else {
+    prev.src = ''; prev.style.display = 'none';
+    clearBtn.style.display = 'none';
+  }
 }
-function clearItemImg() { tempItemImg=null; clearItemImgPreview(); }
-function clearItemImgPreview() {
+function clearItemImg() {
+  tempItemImg=null;
   const prev=document.getElementById('inp-img-preview');
   prev.src=''; prev.style.display='none';
   document.getElementById('inp-img-clear').style.display='none';
-  const fileInp=document.getElementById('inp-img-file');
-  if (fileInp) fileInp.value='';
+  const urlInp=document.getElementById('inp-img-url');
+  if (urlInp) urlInp.value='';
 }
 async function saveItem() {
   if (!requireAdmin()) return;
@@ -1932,13 +1933,10 @@ async function addSticker(emoji) {
 }
 async function addImageSticker(e) {
   if (!requireAdmin()) return;
-  const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=async ev=>{
-    const d={id:Date.now(),type:'img',src:ev.target.result,x:20+Math.random()*60,y:10+Math.random()*60,size:80};
-    currentDecos.push(d); await saveCurrentPair(); renderDecos();
-  };
-  reader.readAsDataURL(f); e.target.value='';
+  const src = prompt('스티커 이미지 URL을 입력하세요\n(GitHub 이슈에 이미지를 드래그해서 생성된 URL을 붙여넣으세요)');
+  if (!src || !src.trim()) return;
+  const d={id:Date.now(),type:'img',src:src.trim(),x:20+Math.random()*60,y:10+Math.random()*60,size:80};
+  currentDecos.push(d); await saveCurrentPair(); renderDecos();
 }
 function renderDecos() {
   const layer=document.getElementById('decoLayer');
@@ -2026,20 +2024,18 @@ function makeResizable(handle, el, dObj) {
   document.addEventListener('mouseup',()=>{if(resizing){resizing=false;debounceSave();}});
 }
 
-function triggerCoverImg() { if (!requireAdmin()) return; document.getElementById('coverFileInput').click(); }
-function loadCoverImg(e) {
-  if (!isAdmin) return;
-  const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=async ev=>{
-    const img=document.getElementById('coverImg');
-    img.src=ev.target.result;
-    img.onload=()=>img.classList.add('loaded');
-    currentCfg.coverSrc=ev.target.result;
-    await saveCurrentPair(); showToast('저장됨 ✓'); updateCoverStyle();
-  };
-  reader.readAsDataURL(f);
+function triggerCoverImg() {
+  if (!requireAdmin()) return;
+  const src = prompt('커버 이미지 URL을 입력하세요\n(GitHub 이슈에 이미지를 드래그해서 생성된 URL을 붙여넣으세요)', currentCfg.coverSrc || '');
+  if (src === null) return;
+  const finalSrc = src.trim();
+  const img = document.getElementById('coverImg');
+  img.src = finalSrc;
+  img.onload = () => img.classList.add('loaded');
+  currentCfg.coverSrc = finalSrc;
+  saveCurrentPair().then(() => { showToast('저장됨 ✓'); updateCoverStyle(); });
 }
+function loadCoverImg(e) {}
 function toggleImgControls() {
   if (!requireAdmin()) return;
   document.getElementById('coverImgControls').classList.toggle('show');
@@ -2256,25 +2252,17 @@ function arcImgAttachResize(handle, slot, idx) {
   }, {passive:false});
 }
 
-function arcImgTriggerUpload(idx) {
+async function arcImgTriggerUpload(idx) {
   if (!isAdmin) return;
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = 'image/*';
-  input.onchange = async (e) => {
-    const f = e.target.files[0]; if (!f) return;
-    const reader = new FileReader();
-    reader.onload = async (ev) => {
-      const raw = await stoGet(ARC_IMG_KEY());
-      const imgs = raw ? JSON.parse(raw) : [];
-      if (idx >= imgs.length) imgs.push({ src: ev.target.result });
-      else imgs[idx].src = ev.target.result;
-      await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
-      arcImgRender(imgs);
-      showToast('저장됨 ✓');
-    };
-    reader.readAsDataURL(f);
-  };
-  input.click();
+  const src = prompt('이미지 URL을 입력하세요\n(GitHub 이슈에 이미지를 드래그해서 생성된 URL을 붙여넣으세요)');
+  if (!src || !src.trim()) return;
+  const raw = await stoGet(ARC_IMG_KEY());
+  const imgs = raw ? JSON.parse(raw) : [];
+  if (idx >= imgs.length) imgs.push({ src: src.trim() });
+  else imgs[idx].src = src.trim();
+  await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
+  arcImgRender(imgs);
+  showToast('저장됨 ✓');
 }
 
 async function arcImgDelete(idx) {
@@ -2292,7 +2280,6 @@ async function arcImgAddSlot() {
   if (!isAdmin) return;
   const raw = await stoGet(ARC_IMG_KEY());
   const imgs = raw ? JSON.parse(raw) : [];
-  // 빈 슬롯 추가 후 바로 업로드 트리거
   imgs.push({ src: '' });
   await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
   arcImgRender(imgs);
@@ -2303,22 +2290,24 @@ async function openAddPairModal() {
   if (!requireAdmin()) return;
   tempPairAvatar=null;
   document.getElementById('inp-pairname').value='';
+  document.getElementById('pairAvatarUrlInput').value='';
   const img=document.getElementById('pairAvatarPreview');
   img.src=''; img.classList.remove('loaded');
   document.getElementById('pairAvatarPlaceholder').style.display='';
   document.getElementById('addPairModal').classList.add('open');
 }
-function previewPairAvatar(e) {
-  const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    tempPairAvatar=ev.target.result;
-    const img=document.getElementById('pairAvatarPreview');
-    img.src=ev.target.result;
-    img.onload=()=>img.classList.add('loaded');
-    document.getElementById('pairAvatarPlaceholder').style.display='none';
-  };
-  reader.readAsDataURL(f);
+function previewPairAvatarUrl(url) {
+  const trimmed = url.trim();
+  tempPairAvatar = trimmed || null;
+  const img = document.getElementById('pairAvatarPreview');
+  const ph = document.getElementById('pairAvatarPlaceholder');
+  if (trimmed) {
+    img.src = trimmed; img.onload = () => img.classList.add('loaded');
+    ph.style.display = 'none';
+  } else {
+    img.src = ''; img.classList.remove('loaded');
+    ph.style.display = '';
+  }
 }
 async function savePair() {
   if (!requireAdmin()) return;
@@ -2335,22 +2324,26 @@ async function openEditPairModal(pid) {
   if (!pair) return;
   tempEditPairAvatar=null;
   document.getElementById('inp-editpairname').value=pair.name;
+  const urlInp=document.getElementById('editPairAvatarUrlInput');
+  if (urlInp) urlInp.value=pair.avatar||'';
   const img=document.getElementById('editPairAvatarPreview');
   const ph=document.getElementById('editPairAvatarPlaceholder');
   if (pair.avatar) { img.src=pair.avatar; img.onload=()=>img.classList.add('loaded'); ph.style.display='none'; }
   else { img.src=''; img.classList.remove('loaded'); ph.style.display=''; }
   document.getElementById('editPairModal').classList.add('open');
 }
-function previewEditPairAvatar(e) {
-  const f=e.target.files[0]; if(!f) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    tempEditPairAvatar=ev.target.result;
-    const img=document.getElementById('editPairAvatarPreview');
-    img.src=ev.target.result; img.onload=()=>img.classList.add('loaded');
-    document.getElementById('editPairAvatarPlaceholder').style.display='none';
-  };
-  reader.readAsDataURL(f);
+function previewEditPairAvatarUrl(url) {
+  const trimmed = url.trim();
+  tempEditPairAvatar = trimmed || null;
+  const img = document.getElementById('editPairAvatarPreview');
+  const ph = document.getElementById('editPairAvatarPlaceholder');
+  if (trimmed) {
+    img.src = trimmed; img.onload = () => img.classList.add('loaded');
+    ph.style.display = 'none';
+  } else {
+    img.src = ''; img.classList.remove('loaded');
+    ph.style.display = '';
+  }
 }
 async function saveEditPair() {
   if (!requireAdmin()) return;
