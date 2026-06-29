@@ -1408,21 +1408,41 @@ function debounceSave() {
   saveTimer = setTimeout(async ()=>{ await saveCurrentPair(); showToast('저장됨 ✓'); }, 600);
 }
 
+// 기본 CSS 색상값 (허브로 돌아갈 때 초기화용)
+const DEFAULT_COLORS = {
+  bg:'#fdf6f9',p1:'#f9c6d0',p2:'#d9bff8',p3:'#b8e0d2',accent:'#c97eb8',border:'#f0e0eb',
+  'pp-bg':'#1a2a1e','pp-sidebar':'#f5f2ee','pp-green':'#24553d','pp-pink':'#e8a0a8',
+  'pp-accent':'#c75f6b','pp-card':'#ffffff'
+};
+
+function applyColorObj(c) {
+  if (!c) return;
+  const r = document.documentElement.style;
+  if(c.bg)r.setProperty('--bg',c.bg);if(c.p1)r.setProperty('--p1',c.p1);
+  if(c.p2)r.setProperty('--p2',c.p2);if(c.p3)r.setProperty('--p3',c.p3);
+  if(c.accent)r.setProperty('--accent',c.accent);if(c.border)r.setProperty('--border',c.border);
+  if(c['pp-bg'])r.setProperty('--pp-bg',c['pp-bg']);
+  if(c['pp-sidebar'])r.setProperty('--pp-sidebar',c['pp-sidebar']);
+  if(c['pp-green'])r.setProperty('--pp-green',c['pp-green']);
+  if(c['pp-pink'])r.setProperty('--pp-pink',c['pp-pink']);
+  if(c['pp-accent'])r.setProperty('--pp-accent',c['pp-accent']);
+  if(c['pp-card'])r.setProperty('--pp-card',c['pp-card']);
+}
+
+function resetColors() {
+  applyColorObj(DEFAULT_COLORS);
+}
+
 async function applyCfgColors() {
+  // 페어 페이지 진입 시 해당 페어의 색상 적용 (currentCfg.colors 우선)
+  if (currentCfg && currentCfg.colors) {
+    applyColorObj(currentCfg.colors);
+    return;
+  }
+  // 하위 호환: 기존 전역 da_colors 도 체크
   try {
     const c = await stoGet('da_colors');
-    if (!c) return;
-    const r = document.documentElement.style;
-    if(c.bg)r.setProperty('--bg',c.bg);if(c.p1)r.setProperty('--p1',c.p1);
-    if(c.p2)r.setProperty('--p2',c.p2);if(c.p3)r.setProperty('--p3',c.p3);
-    if(c.accent)r.setProperty('--accent',c.accent);if(c.border)r.setProperty('--border',c.border);
-    // PP 색상 복원
-    if(c['pp-bg'])r.setProperty('--pp-bg',c['pp-bg']);
-    if(c['pp-sidebar'])r.setProperty('--pp-sidebar',c['pp-sidebar']);
-    if(c['pp-green'])r.setProperty('--pp-green',c['pp-green']);
-    if(c['pp-pink'])r.setProperty('--pp-pink',c['pp-pink']);
-    if(c['pp-accent'])r.setProperty('--pp-accent',c['pp-accent']);
-    if(c['pp-card'])r.setProperty('--pp-card',c['pp-card']);
+    if (c) applyColorObj(c);
   } catch(e){}
 }
 
@@ -1516,7 +1536,7 @@ async function openPair(pid) {
   document.getElementById('coverSub').textContent = cfg.sub || '✦ 드림 백업 · 로그 · 이미지 모음';
 }
 
-function goHub() { showPage('hub', 'back'); renderHub(); applyAdminUI(); }
+function goHub() { resetColors(); showPage('hub', 'back'); renderHub(); applyAdminUI(); }
 
 async function saveSidebarMeta() {
   if (!isAdmin || !currentPairId) return;
@@ -2137,7 +2157,11 @@ async function saveCfgColors() {
   const colorCfg={};
   ['bg','p1','p2','p3','accent','border'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
   ['pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
-  await stoSet('da_colors', colorCfg);
+  // 페어별로 저장 (currentCfg.colors)
+  if (currentPairId) {
+    currentCfg.colors = colorCfg;
+    await saveCurrentPair();
+  }
 }
 
 // ── 아카이브 이미지 패널 ──
@@ -2438,7 +2462,6 @@ function resizeWindow(w, h) {
 }
 
 (async ()=>{
-  await applyCfgColors();
   await loadPairs();
   document.getElementById('readonlyNotice').classList.remove('show');
   // 바깥 배경색 복원
