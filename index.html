@@ -658,12 +658,8 @@ word-break:break-word;}
     overflow-y: auto;
     overflow-x: hidden;
     word-break: break-word;
-    height: 100%;
-}
-
-/* 빈 이미지 박스가 밑에 나타나는 것을 방지하기 위해 아래 코드도 추가해 주세요 */
-.modal.detail-modal:not(.has-img) img {
-    display: none !important;
+    /* 모달의 전체 높이(100%)에서 상단 헤더 영역(예: 50px)을 뺀 만큼만 높이로 잡습니다 */
+    height: calc(100% - 50px); 
 }
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
