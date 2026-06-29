@@ -149,11 +149,11 @@ body{
 .pairs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:1rem;max-width:900px;margin:0 auto;}
 .pair-card{position:relative;background:var(--surface);border:1.5px solid var(--border);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.18s,border-color 0.18s;aspect-ratio:2/3;max-width:160px;display:flex;flex-direction:column;}
 .pair-card:hover{transform:translateY(-4px);border-color:var(--p2);}
-.pair-avatar{width:100%;flex:1;overflow:hidden;position:relative;background:linear-gradient(135deg,var(--p1),var(--p2));display:flex;align-items:center;justify-content:center;}
+.pair-avatar{width:100%;flex:1;overflow:hidden;position:relative;background:linear-gradient(135deg,var(--p1),var(--p2));display:flex;align-items:center;justify-content:center;clip-path:url(#pairHeartClip);}
 .pair-avatar img{width:100%;height:100%;object-fit:cover;display:none;}
 .pair-avatar img.loaded{display:block;}
 .pair-avatar-placeholder{font-size:3rem;opacity:0.5;}
-.pair-info{padding:0.9rem 1rem;border-top:1.5px solid var(--border);}
+.pair-info{padding:0.9rem 1rem;border-top:1.5px solid var(--border);text-align:center;}
 .pair-name{font-size:0.88rem;font-weight:700;color:var(--text);}
 .pair-count{font-size:0.72rem;color:var(--text-muted);margin-top:2px;}
 .pair-del{position:absolute;top:0.5rem;right:0.5rem;background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:8px;width:26px;height:26px;display:none;align-items:center;justify-content:center;cursor:pointer;font-size:0.75rem;color:var(--text-muted);z-index:5;}
@@ -786,6 +786,13 @@ body{
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <clipPath id="pairHeartClip" clipPathUnits="objectBoundingBox">
+      <path d="M0.5,0.95 C0.5,0.95 0.05,0.6 0.05,0.35 C0.05,0.15 0.2,0.02 0.38,0.02 C0.46,0.02 0.5,0.08 0.5,0.08 C0.5,0.08 0.54,0.02 0.62,0.02 C0.8,0.02 0.95,0.15 0.95,0.35 C0.95,0.6 0.5,0.95 0.5,0.95 Z"/>
+    </clipPath>
+  </defs>
+</svg>
 
 <script>
 // ── 드래그 / 우클릭 금지 (관리자는 허용) ──
@@ -811,7 +818,7 @@ document.addEventListener('selectstart', e => {
 
 <!-- 바깥 배경 색상 변경 버튼 -->
 <label class="outer-bg-picker" title="바깥 배경색 변경">
-  배경
+  🖼 배경
   <input type="color" value="#e8e0f0" oninput="document.documentElement.style.setProperty('--outer-bg', this.value); localStorage.setItem('outer_bg', this.value);" id="outerBgInput">
 </label>
 
@@ -1049,7 +1056,7 @@ document.addEventListener('selectstart', e => {
 
       <!-- ── 이미지 사이드패널 ── -->
       <div class="arc-img-panel" id="arcImgPanel">
-        <div class="arc-img-panel-label"> LOVE </div>
+        <div class="arc-img-panel-label">🖼 이미지</div>
         <div id="arcImgSlots"></div>
         <button class="arc-img-panel-add" onclick="arcImgAddSlot()">＋ 이미지 추가</button>
       </div>
