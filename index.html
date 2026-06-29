@@ -52,8 +52,8 @@ body{
 
 /* 앱 전체를 감싸는 창 */
 .app-window{
-  width:var(--win-w, 1100px);
-  height:var(--win-h, 700px);
+  width:1300px;
+  height:760px;
   background:var(--bg);
   border-radius:18px;
   box-shadow:0 8px 48px rgba(80,40,80,0.18), 0 2px 8px rgba(80,40,80,0.1);
@@ -68,23 +68,6 @@ body{
 .page{display:none;flex:1;overflow:auto;min-height:0;}
 .page.active{display:flex;flex-direction:column;}
 
-/* 창 리사이즈 핸들 (우하단) */
-.win-resize-handle{
-  position:absolute;bottom:0;right:0;
-  width:22px;height:22px;
-  cursor:se-resize;z-index:9999;
-  display:flex;align-items:flex-end;justify-content:flex-end;
-  padding:4px;
-  color:rgba(150,100,150,0.45);
-  font-size:0.75rem;
-  line-height:1;
-  user-select:none;
-  pointer-events:auto;
-}
-.win-resize-handle::before{
-  content:'◢';
-  font-size:14px;
-}
 
 /* 맥OS 타이틀바 */
 .app-titlebar{
@@ -109,24 +92,6 @@ body{
   pointer-events:none;
 }
 
-/* 바깥 배경 색상 변경 버튼 (우하단 고정) */
-.outer-bg-picker{
-  position:fixed;bottom:1.2rem;left:1.2rem;z-index:9999;
-  background:rgba(255,255,255,0.9);
-  border:1.5px solid rgba(180,140,180,0.35);
-  border-radius:999px;padding:0.35rem 0.8rem;
-  font-family:var(--font);font-size:0.7rem;
-  color:#6a556a;cursor:pointer;
-  display:flex;align-items:center;gap:0.4rem;
-  box-shadow:0 2px 10px rgba(130,80,130,0.12);
-  backdrop-filter:blur(6px);
-  transition:border-color 0.15s;
-}
-.outer-bg-picker:hover{border-color:var(--accent);}
-.outer-bg-picker input[type=color]{
-  width:22px;height:22px;border:none;background:none;
-  border-radius:50%;cursor:pointer;padding:0;
-}
 
 /* ── 페이지 전환 슬라이드 애니메이션 ── */
 .page{
@@ -151,7 +116,7 @@ body{
 
 #hub{padding:2.5rem 1.5rem 3rem;display:flex;flex-direction:column;align-items:center;overflow-y:auto;}
 #hub.active{display:flex;}
-#pairPage.active{display:flex;flex-direction:column;min-height:0;height:100%;}
+#pairPage.active{display:flex;flex-direction:column;min-height:0;}
 .hub-header{text-align:center;margin-bottom:2.5rem;}
 .hub-title{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:700;background:linear-gradient(135deg,var(--p1),var(--accent),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hub-sub{font-size:0.85rem;color:var(--text-muted);margin-top:0.4rem;}
@@ -180,7 +145,7 @@ body{
 #home{
   display:flex;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;
 }
-#archive{background:var(--pp-sidebar);flex:1;min-height:0;display:flex;overflow:hidden;}
+#archive{background:var(--pp-sidebar);flex:1;min-height:0;display:flex;overflow:hidden;height:100%;}
   
 /* ── 사이드바 ── */
 .pp-sidebar{
@@ -265,7 +230,7 @@ body{
 .pp-sidebar-credit{font-size:0.58rem;color:var(--pp-text-muted);text-align:center;letter-spacing:0.04em;}
 
 /* ── 메인 영역 ── */
-.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pp-sidebar);overflow-y:auto;}
+.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pp-sidebar);overflow:hidden;}
 /* 커버 — 맥OS 창 스타일 */
 .cover{
   position:relative;width:100%;height:340px;max-height:380px;min-height:200px;
@@ -518,54 +483,55 @@ body{
 .is-admin .tab-add-btn{display:block;}
 
 .arc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  align-content: start;
-  gap: 0.85rem;
-  padding: 1.1rem 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.6rem 1.2rem 2rem;
   background: var(--pp-sidebar);
-  flex: 1 1 0;
+  flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
-/* 아카이브 카드 */
+/* 아카이브 카드 — 리스트 한 줄 스타일 */
 .card{
   background:var(--pp-card);
-  border:1px solid var(--pp-card-border);
-  border-radius:12px;padding:1rem 1.1rem;
-  cursor:pointer;transition:border-color 0.18s,transform 0.18s,box-shadow 0.18s;
-  display:flex;flex-direction:column;gap:0.6rem;
+  border:none;
+  border-bottom:1px solid var(--pp-card-border);
+  border-radius:0;
+  padding:0.65rem 0.5rem;
+  cursor:pointer;
+  transition:background 0.15s;
+  display:flex;flex-direction:row;align-items:center;gap:0.75rem;
   position:relative;overflow:hidden;
+  flex-shrink:0;
 }
-.card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,var(--pp-green),var(--pp-pink));
-  opacity:0;transition:opacity 0.18s;
-}
+.card:first-child{border-top:1px solid var(--pp-card-border);}
+.card::before{display:none;}
 .card:hover{
-  border-color:var(--pp-green-light);
-  transform:translateY(-2px);
-  box-shadow:0 4px 16px rgba(36,85,61,0.1);
+  background:rgba(36,85,61,0.04);
+  transform:none;
+  box-shadow:none;
 }
-.card:hover::before{opacity:1;}
 
 .card-type-badge{
   display:inline-flex;align-items:center;gap:3px;
-  font-size:0.65rem;font-weight:600;
+  font-size:0.62rem;font-weight:600;
   background:rgba(36,85,61,0.07);
   border:1px solid rgba(36,85,61,0.15);
   border-radius:5px;padding:2px 7px;
-  color:var(--pp-green);align-self:flex-start;
+  color:var(--pp-green);
+  white-space:nowrap;flex-shrink:0;
   letter-spacing:0.04em;
 }
-.card-title{font-size:0.88rem;font-weight:700;line-height:1.4;color:var(--pp-text);}
-.card-thumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;background:var(--pp-sidebar);}
-.card-body{font-size:0.78rem;color:var(--pp-text-sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.65;}
-.card-foot{display:flex;align-items:center;justify-content:flex-end;gap:0.5rem;flex-wrap:wrap;margin-top:auto;}
-.card-date{font-size:0.63rem;color:var(--pp-text-muted);}
-.card-actions{position:absolute;top:0.5rem;right:0.5rem;display:none;gap:4px;}
+.card-title{font-size:0.84rem;font-weight:600;line-height:1.3;color:var(--pp-text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-thumb{display:none;}
+.card-body{display:none;}
+.card-foot{display:flex;align-items:center;gap:0.5rem;flex-shrink:0;margin-top:0;}
+.card-date{font-size:0.62rem;color:var(--pp-text-muted);white-space:nowrap;}
+.card-actions{position:absolute;top:50%;right:0.5rem;transform:translateY(-50%);display:none;gap:4px;}
 .is-admin .card:hover .card-actions{display:flex;}
 .card-act-btn{
   background:rgba(255,255,255,0.95);
@@ -627,8 +593,8 @@ word-break:break-word;}
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
 .detail-html-render table{max-width:100%;border-collapse:collapse;}
 .html-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--accent));color:#fff;border-radius:999px;padding:2px 7px;margin-left:4px;}
-.card-html-render{font-size:0.78rem;color:var(--pp-text-sub);line-height:1.55;max-height:5.2em;overflow:hidden;position:relative;}
-.card-html-render::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.6em;background:linear-gradient(to bottom,transparent,var(--pp-card));}
+.card-html-render{display:none;}
+.card-html-render::after{display:none;}
 
 /* ── 상세보기: 이미지가 있으면 2단(텍스트+이미지) 레이아웃 ── */
 .modal.detail-modal{
@@ -678,12 +644,9 @@ word-break:break-word;}
   gap: 0.85rem;
   padding: 1.1rem 1.5rem 2rem;
   background: var(--pp-sidebar);
-  flex: 1 1 0;
+  flex: 1;
   min-height: 0;
-  
-  /* 💡 핵심: 글이 많아질 때 내부에 세로 스크롤을 만들어주는 속성 */
   overflow-y: auto;
-  max-height: 100%;
 }
   .arc-header{padding:0.85rem 1rem 0;}
 }
@@ -911,11 +874,6 @@ document.addEventListener('selectstart', e => {
 });
 </script>
 
-<!-- 바깥 배경 색상 변경 버튼 -->
-<label class="outer-bg-picker" title="바깥 배경색 변경">
-  🖼 배경
-  <input type="color" value="#e8e0f0" oninput="document.documentElement.style.setProperty('--outer-bg', this.value); localStorage.setItem('outer_bg', this.value);" id="outerBgInput">
-</label>
 
 <div class="app-window" id="appWindow">
   <!-- 맥OS 스타일 타이틀바 (드래그로 창 이동 가능) -->
@@ -924,8 +882,7 @@ document.addEventListener('selectstart', e => {
     <div class="app-titlebar-dot yellow"></div>
     <div class="app-titlebar-dot green"></div>
   </div>
-  <!-- 창 크기 조절 핸들 (우하단 드래그) -->
-  <div class="win-resize-handle" id="winResizeHandle" title="드래그해서 창 크기 조절"></div>
+
 
 <div id="lockScreen">
   <div class="lock-box">
@@ -1092,7 +1049,7 @@ document.addEventListener('selectstart', e => {
     </div>
   </div>
 
-  <div id="archive" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;">
+  <div id="archive" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;height:100%;">
     <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
@@ -1116,7 +1073,7 @@ document.addEventListener('selectstart', e => {
         </div>
       </div>
       <!-- 아카이브 메인 -->
-      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;">
+      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;position:relative;">
         <div class="arc-header">
           <div class="arc-top">
             <div class="arc-title-row">
@@ -2509,78 +2466,11 @@ function getSamples() {
   ];
 }
 
-// ── 창 크기 조절 (우하단 드래그 리사이즈) ──
-(function(){
-  const handle = document.getElementById('winResizeHandle');
-  const win = document.getElementById('appWindow');
-  if (!handle || !win) return;
-  let dragging = false, startX, startY, startW, startH;
-  handle.addEventListener('mousedown', e=>{
-    dragging = true;
-    startX = e.clientX; startY = e.clientY;
-    const rect = win.getBoundingClientRect();
-    startW = rect.width; startH = rect.height;
-    document.body.style.userSelect = 'none';
-    e.preventDefault();
-  });
-  document.addEventListener('mousemove', e=>{
-    if (!dragging) return;
-    const dw = e.clientX - startX, dh = e.clientY - startY;
-    const newW = Math.max(420, Math.min(startW + dw, window.innerWidth - 32));
-    const newH = Math.max(400, Math.min(startH + dh, window.innerHeight - 32));
-    win.style.width = newW + 'px';
-    win.style.height = newH + 'px';
-  });
-  document.addEventListener('mouseup', ()=>{
-    if (!dragging) return;
-    dragging = false;
-    document.body.style.userSelect = '';
-    // 크기 저장
-    localStorage.setItem('win_w', win.offsetWidth);
-    localStorage.setItem('win_h', win.offsetHeight);
-  });
-  // 터치 지원
-  handle.addEventListener('touchstart', e=>{
-    const t = e.touches[0];
-    dragging = true;
-    startX = t.clientX; startY = t.clientY;
-    const rect = win.getBoundingClientRect();
-    startW = rect.width; startH = rect.height;
-    e.preventDefault();
-  }, {passive:false});
-  document.addEventListener('touchmove', e=>{
-    if (!dragging) return;
-    const t = e.touches[0];
-    const dw = t.clientX - startX, dh = t.clientY - startY;
-    win.style.width = Math.max(420, startW+dw)+'px';
-    win.style.height = Math.max(400, startH+dh)+'px';
-  }, {passive:false});
-  document.addEventListener('touchend', ()=>{ dragging=false; });
-  // 저장된 크기 복원
-  const sw = localStorage.getItem('win_w'), sh = localStorage.getItem('win_h');
-  if (sw && sh) { win.style.width=sw+'px'; win.style.height=sh+'px'; }
-})();
-
-// 프리셋 창 크기
-function resizeWindow(w, h) {
-  const win = document.getElementById('appWindow');
-  if (!win) return;
-  win.style.width = Math.min(w, window.innerWidth-32)+'px';
-  win.style.height = Math.min(h, window.innerHeight-32)+'px';
-  localStorage.setItem('win_w', win.offsetWidth);
-  localStorage.setItem('win_h', win.offsetHeight);
-}
 
 (async ()=>{
   await loadPairs();
   await restoreHubColors();
   document.getElementById('readonlyNotice').classList.remove('show');
-  // 바깥 배경색 복원
-  const savedBg = localStorage.getItem('outer_bg');
-  if (savedBg) {
-    document.documentElement.style.setProperty('--outer-bg', savedBg);
-    document.getElementById('outerBgInput').value = savedBg;
-  }
 })();
 </script>
 </body>
