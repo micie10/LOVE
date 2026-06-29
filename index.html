@@ -655,11 +655,10 @@ word-break:break-word;}
 }
 .modal.detail-modal:not(.has-img) .detail-modal-text {
     padding: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    word-break: break-word;
-    /* 모달의 전체 높이(100%)에서 상단 헤더 영역(예: 50px)을 뺀 만큼만 높이로 잡습니다 */
-    height: calc(100% - 50px); 
+    overflow-y: auto;   /* 세로 스크롤 활성화 */
+    overflow-x: hidden; /* 가로 스크롤 방지 */
+    flex-grow: 1;       /* 모달창의 남은 공간을 텍스트 영역이 모두 차지하게 함 */
+    word-break: break-word; /* 긴 글자 줄바꿈 */
 }
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
