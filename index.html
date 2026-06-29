@@ -653,16 +653,7 @@ word-break:break-word;}
     min-height:0;
     overflow:hidden;
 }
-.modal.detail-modal:not(.has-img) .detail-modal-text {
-    display: flex;          /* 자식 요소들을 정렬하기 위해 선언 */
-    flex-direction: column; /* 텍스트가 위에서 아래로 쌓이게 함 */
-    flex: 1;                /* 남은 공간을 꽉 채움 */
-    overflow-y: auto;       /* 내용이 길어지면 스크롤 발생 */
-    padding: 20px;          /* 내용 여백 */
-    min-height: 0;          /* 이 속성이 있어야 스크롤이 제대로 작동합니다 */
-    width: 100%;            /* 가로 폭 꽉 채우기 */
-    box-sizing: border-box; /* 패딩이 전체 크기를 넘치지 않게 함 */
-}
+.modal.detail-modal:not(.has-img) .detail-modal-text{padding:0;overflow-y:auto;}
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
 .detail-modal-imgwrap img{width:100%;height:auto;display:block;}
@@ -826,16 +817,7 @@ word-break:break-word;}
 }
 .arc-img-panel-add:hover{border-color:var(--pp-green);color:var(--pp-green);}
 .is-admin .arc-img-panel-add{display:block;}
-.modal.detail-modal:not(.has-img) .detail-modal-text {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        min-height: 0;
-        width: 100%;
-        box-sizing: border-box;
-    }
+
 </style>
 </head>
 <body>
@@ -1101,7 +1083,7 @@ document.addEventListener('selectstart', e => {
 
       <!-- ── 이미지 사이드패널 ── -->
       <div class="arc-img-panel" id="arcImgPanel">
-        <div class="arc-img-panel-label">🖼 이미지</div>
+        <div class="arc-img-panel-label"> LOVE </div>
         <div id="arcImgSlots"></div>
         <button class="arc-img-panel-add" onclick="arcImgAddSlot()">＋ 이미지 추가</button>
       </div>
@@ -1205,6 +1187,7 @@ document.addEventListener('selectstart', e => {
 
   </div>
 </div>
+<div class="overlay center" id="pinModal" onclick="if(event.target===this)closeModal('pinModal')">
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl">📌 핀 편집</span><button class="x-btn" onclick="closeModal('pinModal')">✕</button></div>
     <div class="pin-grid" id="pinGrid"></div>
