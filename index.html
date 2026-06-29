@@ -440,7 +440,8 @@ body{
   background:var(--pp-card);
   border-bottom:1px solid var(--pp-card-border);
   padding:1rem 1.5rem 0;
-  position:sticky;top:0;z-index:50;
+  flex-shrink:0;
+  z-index:50;
 }
 .arc-top{
   display:flex;align-items:center;justify-content:space-between;
@@ -503,8 +504,12 @@ body{
 .arc-grid{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:0.85rem;padding:1.1rem 1.5rem 4rem;
+  align-content:start;
+  gap:0.85rem;padding:1.1rem 1.5rem 2rem;
   background:var(--pp-sidebar);
+  flex:1;
+  overflow-y:auto;
+  min-height:0;
 }
 
 /* 아카이브 카드 */
@@ -661,6 +666,19 @@ body{
 </style>
 </head>
 <body>
+
+<script>
+// 우클릭 금지
+document.addEventListener('contextmenu', e => e.preventDefault());
+// 드래그(선택) 금지
+document.addEventListener('dragstart', e => e.preventDefault());
+document.addEventListener('selectstart', e => {
+  // input/textarea/contenteditable 안에서는 허용
+  const t = e.target;
+  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
+  e.preventDefault();
+});
+</script>
 
 <!-- 바깥 배경 색상 변경 버튼 -->
 <label class="outer-bg-picker" title="바깥 배경색 변경">
@@ -878,7 +896,7 @@ body{
         </div>
       </div>
       <!-- 아카이브 메인 -->
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
         <div class="arc-header">
           <div class="arc-top">
             <div class="arc-title-row">
