@@ -54,7 +54,6 @@ body{
   position:relative;
   min-width:420px;min-height:400px;
   max-width:calc(100vw - 2rem);max-height:calc(100vh - 2rem);
-  /* 드래그 리사이즈를 JS로 처리 */
 }
 
 .page{display:none;flex:1;overflow:auto;}
@@ -120,9 +119,27 @@ body{
   border-radius:50%;cursor:pointer;padding:0;
 }
 
-.page.active{display:flex;flex-direction:column;}
+/* ── 페이지 전환 슬라이드 애니메이션 ── */
+.page{
+  position:absolute;inset:36px 0 0 0; /* 타이틀바(36px) 아래 전체 */
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transform:translateX(60px);
+  transition:opacity 0.28s cubic-bezier(.4,0,.2,1), transform 0.28s cubic-bezier(.4,0,.2,1);
+  background:var(--bg);
+  overflow:hidden;
+}
+.page.active{
+  opacity:1;pointer-events:auto;
+  transform:translateX(0);
+}
+.page.slide-out{
+  opacity:0;
+  transform:translateX(-60px);
+  pointer-events:none;
+}
+
 #hub{padding:2.5rem 1.5rem 3rem;display:flex;flex-direction:column;align-items:center;overflow-y:auto;}
-/* pairPage uses flex internally */
 #hub.active{display:flex;}
 #pairPage.active{display:flex;flex-direction:column;}
 .hub-header{text-align:center;margin-bottom:2.5rem;}
@@ -1274,7 +1291,7 @@ async function openPair(pid) {
   currentPins = d.pins || [];
   currentTab = 'all';
   await applyCfgColors();
-  showPage('pairPage');
+  showPage('pairPage', 'forward');
   // 사이드바 업데이트 (홈+아카이브 양쪽)
   const sideAvatar = document.getElementById('ppSidebarAvatar');
   const sideName = document.getElementById('ppSidebarName');
@@ -1333,7 +1350,7 @@ async function openPair(pid) {
   document.getElementById('coverSub').textContent = cfg.sub || '✦ 드림 백업 · 로그 · 이미지 모음';
 }
 
-function goHub() { showPage('hub'); renderHub(); applyAdminUI(); }
+function goHub() { showPage('hub', 'back'); renderHub(); applyAdminUI(); }
 
 async function saveSidebarMeta() {
   if (!isAdmin || !currentPairId) return;
@@ -1370,9 +1387,36 @@ async function saveSidebarAvatar(e) {
   reader.readAsDataURL(f);
 }
 
-function showPage(id) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+function showPage(id, direction='forward') {
+  const next = document.getElementById(id);
+  const current = document.querySelector('.page.active');
+
+  if (current && current !== next) {
+    current.style.transition = 'opacity 0.25s cubic-bezier(.4,0,.2,1), transform 0.25s cubic-bezier(.4,0,.2,1)';
+    current.style.opacity = '0';
+    current.style.transform = direction === 'forward' ? 'translateX(-60px)' : 'translateX(60px)';
+    current.style.pointerEvents = 'none';
+    setTimeout(()=>{
+      current.classList.remove('active');
+      current.style.cssText = '';
+    }, 260);
+  }
+
+  next.style.transition = 'none';
+  next.style.opacity = '0';
+  next.style.transform = direction === 'forward' ? 'translateX(60px)' : 'translateX(-60px)';
+  next.style.pointerEvents = 'none';
+  next.classList.add('active');
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      next.style.transition = 'opacity 0.28s cubic-bezier(.4,0,.2,1), transform 0.28s cubic-bezier(.4,0,.2,1)';
+      next.style.opacity = '1';
+      next.style.transform = 'translateX(0)';
+      next.style.pointerEvents = 'auto';
+      setTimeout(()=>{ next.style.cssText = ''; }, 300);
+    });
+  });
 }
 function showSubPage(id) {
   const homeEl = document.getElementById('home');
