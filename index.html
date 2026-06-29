@@ -654,11 +654,12 @@ word-break:break-word;}
     overflow:hidden;
 }
 .modal.detail-modal:not(.has-img) .detail-modal-text {
-    padding: 0;
-    overflow-y: auto;   /* 세로 스크롤 활성화 */
-    overflow-x: hidden; /* 가로 스크롤 방지 */
-    flex-grow: 1;       /* 모달창의 남은 공간을 텍스트 영역이 모두 차지하게 함 */
-    word-break: break-word; /* 긴 글자 줄바꿈 */
+    flex: 1;                /* 모달창의 남은 공간을 알아서 차지 */
+    overflow-y: auto;       /* 내용이 길어지면 여기서만 스크롤 */
+    overflow-x: hidden;     /* 가로 스크롤 방지 */
+    padding: 20px;          /* 필요에 따라 여백 조절 */
+    display: block;         /* 레이아웃 깨짐 방지 */
+    min-height: 0;          /* 매우 중요: flex 박스 안에서 내용이 넘칠 때 높이 계산 오류 방지 */
 }
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
