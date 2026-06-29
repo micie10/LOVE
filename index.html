@@ -1418,17 +1418,13 @@ const DEFAULT_COLORS = {
 let currentPageContext = 'hub'; // 'hub' | 'pair'
 
 function applyColorObj(c) {
-  if (!c) return;
+  // 항상 DEFAULT_COLORS를 기준으로 "완전히" 덮어써요.
+  // (이전 페이지/페어에서 설정한 값이 일부 남아 다음 페이지로 새어들어가는 걸 막기 위함)
+  const merged = Object.assign({}, DEFAULT_COLORS, c || {});
   const r = document.documentElement.style;
-  if(c.bg)r.setProperty('--bg',c.bg);if(c.p1)r.setProperty('--p1',c.p1);
-  if(c.p2)r.setProperty('--p2',c.p2);if(c.p3)r.setProperty('--p3',c.p3);
-  if(c.accent)r.setProperty('--accent',c.accent);if(c.border)r.setProperty('--border',c.border);
-  if(c['pp-bg'])r.setProperty('--pp-bg',c['pp-bg']);
-  if(c['pp-sidebar'])r.setProperty('--pp-sidebar',c['pp-sidebar']);
-  if(c['pp-green'])r.setProperty('--pp-green',c['pp-green']);
-  if(c['pp-pink'])r.setProperty('--pp-pink',c['pp-pink']);
-  if(c['pp-accent'])r.setProperty('--pp-accent',c['pp-accent']);
-  if(c['pp-card'])r.setProperty('--pp-card',c['pp-card']);
+  const KEYS = ['bg','p1','p2','p3','accent','border',
+    'pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'];
+  KEYS.forEach(k => r.setProperty('--'+k, merged[k]));
 }
 
 // 현재 CSS 변수값을 객체로 수집
@@ -2168,10 +2164,13 @@ async function saveCoverText() {
 async function saveCfgColors() {
   const colorCfg = collectColors();
   if (currentPageContext === 'hub') {
-    // 허브 색상은 별도 키에 저장
-    await stoSet('da_hub_colors', colorCfg);
+    // 허브 색상은 허브에 실제로 쓰이는 값만 저장해요.
+    // (페어페이지 색상 값이 섞여 들어가 다른 곳으로 새는 걸 방지)
+    const hubOnly = {};
+    ['bg','p1','p2','p3','accent','border'].forEach(k => hubOnly[k] = colorCfg[k]);
+    await stoSet('da_hub_colors', hubOnly);
   } else {
-    // 페어 색상은 해당 페어 cfg에 저장
+    // 페어 색상은 해당 페어 cfg에만 저장 (페어마다 완전히 독립된 저장소)
     if (currentPairId) {
       currentCfg.colors = colorCfg;
       await saveCurrentPair();
