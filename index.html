@@ -1408,12 +1408,14 @@ function debounceSave() {
   saveTimer = setTimeout(async ()=>{ await saveCurrentPair(); showToast('저장됨 ✓'); }, 600);
 }
 
-// 기본 CSS 색상값 (허브로 돌아갈 때 초기화용)
+// 기본 CSS 색상값
 const DEFAULT_COLORS = {
   bg:'#fdf6f9',p1:'#f9c6d0',p2:'#d9bff8',p3:'#b8e0d2',accent:'#c97eb8',border:'#f0e0eb',
   'pp-bg':'#1a2a1e','pp-sidebar':'#f5f2ee','pp-green':'#24553d','pp-pink':'#e8a0a8',
   'pp-accent':'#c75f6b','pp-card':'#ffffff'
 };
+// 현재 어느 페이지인지 추적
+let currentPageContext = 'hub'; // 'hub' | 'pair'
 
 function applyColorObj(c) {
   if (!c) return;
@@ -1429,21 +1431,31 @@ function applyColorObj(c) {
   if(c['pp-card'])r.setProperty('--pp-card',c['pp-card']);
 }
 
-function resetColors() {
-  applyColorObj(DEFAULT_COLORS);
+// 현재 CSS 변수값을 객체로 수집
+function collectColors() {
+  const s = getComputedStyle(document.documentElement);
+  const c = {};
+  ['bg','p1','p2','p3','accent','border'].forEach(k => c[k] = s.getPropertyValue('--'+k).trim());
+  ['pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'].forEach(k => c[k] = s.getPropertyValue('--'+k).trim());
+  return c;
+}
+
+// 허브 색상 복원
+async function restoreHubColors() {
+  try {
+    const c = await stoGet('da_hub_colors');
+    applyColorObj(c || DEFAULT_COLORS);
+  } catch(e) {
+    applyColorObj(DEFAULT_COLORS);
+  }
 }
 
 async function applyCfgColors() {
-  // 페어 페이지 진입 시 해당 페어의 색상 적용 (currentCfg.colors 우선)
   if (currentCfg && currentCfg.colors) {
     applyColorObj(currentCfg.colors);
     return;
   }
-  // 하위 호환: 기존 전역 da_colors 도 체크
-  try {
-    const c = await stoGet('da_colors');
-    if (c) applyColorObj(c);
-  } catch(e){}
+  applyColorObj(DEFAULT_COLORS);
 }
 
 async function renderHub() {
@@ -1476,6 +1488,7 @@ async function openPair(pid) {
   currentTabs = d.tabs || DEFAULT_TABS.map(t=>({...t}));
   currentPins = d.pins || [];
   currentTab = 'all';
+  currentPageContext = 'pair';
   await applyCfgColors();
   showPage('pairPage', 'forward');
   // 사이드바 업데이트 (홈+아카이브 양쪽)
@@ -1536,7 +1549,7 @@ async function openPair(pid) {
   document.getElementById('coverSub').textContent = cfg.sub || '✦ 드림 백업 · 로그 · 이미지 모음';
 }
 
-function goHub() { resetColors(); showPage('hub', 'back'); renderHub(); applyAdminUI(); }
+function goHub() { currentPageContext='hub'; restoreHubColors(); showPage('hub', 'back'); renderHub(); applyAdminUI(); }
 
 async function saveSidebarMeta() {
   if (!isAdmin || !currentPairId) return;
@@ -2153,14 +2166,16 @@ async function saveCoverText() {
   await saveCurrentPair();
 }
 async function saveCfgColors() {
-  const s=getComputedStyle(document.documentElement);
-  const colorCfg={};
-  ['bg','p1','p2','p3','accent','border'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
-  ['pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
-  // 페어별로 저장 (currentCfg.colors)
-  if (currentPairId) {
-    currentCfg.colors = colorCfg;
-    await saveCurrentPair();
+  const colorCfg = collectColors();
+  if (currentPageContext === 'hub') {
+    // 허브 색상은 별도 키에 저장
+    await stoSet('da_hub_colors', colorCfg);
+  } else {
+    // 페어 색상은 해당 페어 cfg에 저장
+    if (currentPairId) {
+      currentCfg.colors = colorCfg;
+      await saveCurrentPair();
+    }
   }
 }
 
@@ -2463,6 +2478,7 @@ function resizeWindow(w, h) {
 
 (async ()=>{
   await loadPairs();
+  await restoreHubColors();
   document.getElementById('readonlyNotice').classList.remove('show');
   // 바깥 배경색 복원
   const savedBg = localStorage.getItem('outer_bg');
