@@ -684,32 +684,39 @@ body{
 }
 .arc-img-slot{
   position:relative;width:100%;
-  border-radius:10px;overflow:hidden;
+  border-radius:10px;overflow:visible;
   background:var(--pp-card);
   border:1.5px dashed var(--pp-card-border);
-  aspect-ratio:1/1;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;
   transition:border-color 0.15s;
+  min-height:60px;
+}
+.arc-img-slot-inner{
+  position:absolute;inset:0;
+  border-radius:9px;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
 }
 .arc-img-slot img{
   width:100%;height:100%;object-fit:cover;
-  display:none;
+  display:none;pointer-events:none;
 }
 .arc-img-slot img.loaded{display:block;}
 .arc-img-slot-placeholder{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:0.3rem;color:var(--pp-text-muted);font-size:0.65rem;text-align:center;
   padding:0.5rem;pointer-events:none;
+  position:absolute;inset:0;
 }
 .arc-img-slot-placeholder span{font-size:1.4rem;}
-/* 관리자 전용 오버레이 버튼 */
 .arc-img-slot-overlay{
   display:none;
   position:absolute;inset:0;
   background:rgba(0,0,0,0.32);
   align-items:center;justify-content:center;
   gap:0.35rem;flex-direction:column;
+  border-radius:9px;
+  z-index:2;
 }
 .is-admin .arc-img-slot:hover .arc-img-slot-overlay{display:flex;}
 .arc-img-slot-overlay button{
@@ -720,6 +727,19 @@ body{
   transition:background 0.12s;white-space:nowrap;
 }
 .arc-img-slot-overlay button:hover{background:#fff;}
+.arc-img-resize{
+  display:none;
+  position:absolute;bottom:-7px;right:-7px;
+  width:16px;height:16px;
+  background:var(--pp-green);
+  border:2px solid #fff;
+  border-radius:4px;
+  cursor:se-resize;
+  z-index:10;
+  box-shadow:0 1px 4px rgba(0,0,0,0.18);
+}
+.is-admin .arc-img-slot:hover .arc-img-resize,
+.is-admin .arc-img-slot.resizing .arc-img-resize{display:block;}
 .arc-img-panel-add{
   display:none;
   background:none;border:1.5px dashed var(--pp-card-border);
@@ -2100,7 +2120,11 @@ function arcImgRender(imgs) {
   imgs.forEach((item, idx) => {
     const slot = document.createElement('div');
     slot.className = 'arc-img-slot';
-    slot.style.marginBottom = '0.6rem';
+    slot.style.marginBottom = '0.75rem';
+    slot.style.height = (item.height || 160) + 'px';
+
+    const inner = document.createElement('div');
+    inner.className = 'arc-img-slot-inner';
 
     const img = document.createElement('img');
     if (item.src) { img.src = item.src; img.onload = () => img.classList.add('loaded'); }
@@ -2110,22 +2134,82 @@ function arcImgRender(imgs) {
     ph.innerHTML = '<span>🖼</span><span>이미지<br>없음</span>';
     if (item.src) ph.style.display = 'none';
 
+    inner.append(img, ph);
+
     const overlay = document.createElement('div');
     overlay.className = 'arc-img-slot-overlay';
 
     const changeBtn = document.createElement('button');
     changeBtn.textContent = '🖼 변경';
-    changeBtn.onclick = () => arcImgTriggerUpload(idx);
+    changeBtn.onclick = (e) => { e.stopPropagation(); arcImgTriggerUpload(idx); };
 
     const delBtn = document.createElement('button');
     delBtn.textContent = '✕ 삭제';
     delBtn.style.color = '#e07a7a';
-    delBtn.onclick = () => arcImgDelete(idx);
+    delBtn.onclick = (e) => { e.stopPropagation(); arcImgDelete(idx); };
 
     overlay.append(changeBtn, delBtn);
-    slot.append(img, ph, overlay);
+
+    const handle = document.createElement('div');
+    handle.className = 'arc-img-resize';
+    handle.title = '드래그해서 크기 조절';
+    arcImgAttachResize(handle, slot, idx);
+
+    slot.append(inner, overlay, handle);
     container.appendChild(slot);
   });
+}
+
+function arcImgAttachResize(handle, slot, idx) {
+  let startY, startH;
+  const MIN_H = 60, MAX_H = 600;
+
+  const onMove = (clientY) => {
+    const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (clientY - startY)));
+    slot.style.height = newH + 'px';
+  };
+
+  const onEnd = async (clientY) => {
+    slot.classList.remove('resizing');
+    document.removeEventListener('mousemove', mouseMove);
+    document.removeEventListener('mouseup', mouseUp);
+    document.removeEventListener('touchmove', touchMove);
+    document.removeEventListener('touchend', touchEnd);
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+
+    const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (clientY - startY)));
+    const raw = await stoGet(ARC_IMG_KEY());
+    const imgs = raw ? JSON.parse(raw) : [];
+    if (imgs[idx]) { imgs[idx].height = Math.round(newH); await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs)); }
+    showToast('크기 저장됨 ✓');
+  };
+
+  const mouseMove = (e) => onMove(e.clientY);
+  const mouseUp   = (e) => onEnd(e.clientY);
+  const touchMove = (e) => { e.preventDefault(); onMove(e.touches[0].clientY); };
+  const touchEnd  = (e) => onEnd(e.changedTouches[0].clientY);
+
+  handle.addEventListener('mousedown', (e) => {
+    if (!isAdmin) return;
+    e.preventDefault(); e.stopPropagation();
+    startY = e.clientY;
+    startH = slot.offsetHeight;
+    slot.classList.add('resizing');
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'se-resize';
+    document.addEventListener('mousemove', mouseMove);
+    document.addEventListener('mouseup', mouseUp);
+  });
+  handle.addEventListener('touchstart', (e) => {
+    if (!isAdmin) return;
+    e.preventDefault(); e.stopPropagation();
+    startY = e.touches[0].clientY;
+    startH = slot.offsetHeight;
+    slot.classList.add('resizing');
+    document.addEventListener('touchmove', touchMove, {passive:false});
+    document.addEventListener('touchend', touchEnd);
+  }, {passive:false});
 }
 
 function arcImgTriggerUpload(idx) {
