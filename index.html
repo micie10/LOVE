@@ -131,6 +131,7 @@ body{
 /* ── 페이지 전환 슬라이드 애니메이션 ── */
 .page{
   position:absolute;inset:36px 0 0 0; /* 타이틀바(36px) 아래 전체 */
+  height:calc(100% - 36px); /* absolute이므로 내부 flex 체인이 동작하도록 명시 */
   display:flex;flex-direction:column;
   opacity:0;pointer-events:none;
   transform:translateX(60px);
@@ -150,7 +151,7 @@ body{
 
 #hub{padding:2.5rem 1.5rem 3rem;display:flex;flex-direction:column;align-items:center;overflow-y:auto;}
 #hub.active{display:flex;}
-#pairPage.active{display:flex;flex-direction:column;min-height:0;}
+#pairPage.active{display:flex;flex-direction:column;min-height:0;height:100%;}
 .hub-header{text-align:center;margin-bottom:2.5rem;}
 .hub-title{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:700;background:linear-gradient(135deg,var(--p1),var(--accent),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hub-sub{font-size:0.85rem;color:var(--text-muted);margin-top:0.4rem;}
@@ -173,13 +174,13 @@ body{
 .add-pair-card span{font-size:1.8rem;}
 .is-admin .add-pair-card{display:flex;}
 /* ===== PAIR PAGE: OSIPECH-inspired Layout ===== */
-#pairPage{position:relative;background:var(--pp-sidebar);}
+#pairPage{position:relative;background:var(--pp-sidebar);height:100%;display:flex;flex-direction:column;}
 
 /* 전체 레이아웃: 사이드바 + 메인 */
 #home{
   display:flex;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;
 }
-#archive{background:var(--pp-sidebar);flex:1;min-height:0;display:flex;height:calc(100% - 36px);overflow:hidden;}
+#archive{background:var(--pp-sidebar);flex:1;min-height:0;display:flex;overflow:hidden;}
   
 /* ── 사이드바 ── */
 .pp-sidebar{
@@ -523,14 +524,10 @@ body{
   gap: 0.85rem;
   padding: 1.1rem 1.5rem 2rem;
   background: var(--pp-sidebar);
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
-  flex-shrink: 0;
-
-  /* 📱 모바일/PC 모두 안전하게 스크롤을 만들어주는 속성 */
   overflow-y: auto;
-  max-height: 100%;
-  -webkit-overflow-scrolling: touch; /* 모바일 아이폰/패드에서 스크롤을 부드럽게 */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 아카이브 카드 */
@@ -681,13 +678,12 @@ word-break:break-word;}
   gap: 0.85rem;
   padding: 1.1rem 1.5rem 2rem;
   background: var(--pp-sidebar);
-  flex: 1;
+  flex: 1 1 0;
   min-height: 0;
-  flex-shrink: 0;
   
   /* 💡 핵심: 글이 많아질 때 내부에 세로 스크롤을 만들어주는 속성 */
   overflow-y: auto;
-  max-height: calc(100vh - 120px); 
+  max-height: 100%;
 }
   .arc-header{padding:0.85rem 1rem 0;}
 }
@@ -1096,8 +1092,8 @@ document.addEventListener('selectstart', e => {
     </div>
   </div>
 
-  <div id="archive" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;">
-    <div style="display:flex;flex:1;min-height:0;min-width:0;">
+  <div id="archive" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;">
+    <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
         <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
@@ -1120,7 +1116,7 @@ document.addEventListener('selectstart', e => {
         </div>
       </div>
       <!-- 아카이브 메인 -->
-      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;">
+      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;">
         <div class="arc-header">
           <div class="arc-top">
             <div class="arc-title-row">
@@ -1472,7 +1468,10 @@ function saveGhToken() {
   if (!v) { document.getElementById('ghTokenErr').textContent = '토큰을 입력해주세요.'; return; }
   localStorage.setItem(GH_TOKEN_KEY, v);
   closeGhTokenScreen();
-  showToast('토큰 저장됨 ✓');
+  showToast('토큰 저장됨 ✓ 새로고침할게요');
+  // 기존에 캐싱된(토큰 없이 불러온) 데이터를 버리고,
+  // 토큰이 적용된 상태로 다시 불러오기 위해 새로고침
+  setTimeout(()=>location.reload(), 600);
 }
 
 async function loadPairs() {
