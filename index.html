@@ -817,6 +817,32 @@ word-break:break-word;}
 }
 .arc-img-panel-add:hover{border-color:var(--pp-green);color:var(--pp-green);}
 .is-admin .arc-img-panel-add{display:block;}
+
+/* ==========================================
+   💻 [PC 공통] 기록 패널 내부 세로 스크롤 추가
+   ========================================== */
+.arc-txt-panel, .arc-content-panel {
+  max-height: 65vh !important;  /* PC 화면 높이에 맞춰 본문 영역 제한 */
+  overflow-y: auto !important;  /* 항목이 많아지면 스크롤바 자동 생성 */
+  padding-right: 8px !important; /* 스크롤바와 글자가 겹치지 않게 여백 */
+}
+
+/* ✨ 파스텔 테마 스크롤바 디자인 (PC용) */
+.arc-txt-panel::-webkit-scrollbar, 
+.arc-content-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.arc-txt-panel::-webkit-scrollbar-thumb, 
+.arc-content-panel::-webkit-scrollbar-thumb {
+  background-color: var(--p2); /* 테마에 지정된 보라색 활용 */
+  border-radius: 10px;
+}
+.arc-txt-panel::-webkit-scrollbar-track, 
+.arc-content-panel::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 10px;
+}
+
 /* ==========================================
    📱 모바일(스마트폰) 전용 UI 업그레이드
    ========================================== */
@@ -872,20 +898,21 @@ word-break:break-word;}
     border-bottom: none;
     width: 100vw;
   }
-  /* 5. 모바일에서 기록 페이지 이미지 숨기기 */
+  
+  /* 5. 모바일에서 기록 페이지 이미지 숨기기 + 모바일 스크롤 최적화 */
   .arc-img-panel {
     display: none !important;
   }
-  /* 이미지가 사라진 빈자리를 텍스트가 꽉 채우도록 설정 */
+  /* 이미지가 사라진 빈자리를 텍스트가 꽉 채우고 휴대폰 전용 높이로 스크롤 */
   .arc-txt-panel, .arc-info-panel, .arc-content-panel {
     width: 100% !important;
     padding: 1.2rem !important;
+    max-height: calc(100vh - 120px) !important; /* 모바일 전용 높이 조절 */
   }
 }
 </style>
 </head>
-<body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<body><svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <clipPath id="pairHeartClip" clipPathUnits="objectBoundingBox">
       <path d="M0.5,0.95 C0.5,0.95 0.05,0.6 0.05,0.35 C0.05,0.15 0.2,0.02 0.38,0.02 C0.46,0.02 0.5,0.08 0.5,0.08 C0.5,0.08 0.54,0.02 0.62,0.02 C0.8,0.02 0.95,0.15 0.95,0.35 C0.95,0.6 0.5,0.95 0.5,0.95 Z"/>
