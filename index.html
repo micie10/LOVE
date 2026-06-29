@@ -663,17 +663,94 @@ body{
 .saving-toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(201,126,184,0.9);color:white;border-radius:999px;padding:0.4rem 1rem;font-size:0.75rem;z-index:500;display:none;font-family:var(--font);}
 .saving-toast.show{display:block;}
 
+/* ── 아카이브 이미지 사이드패널 ── */
+.arc-img-panel{
+  width:200px;flex-shrink:0;
+  background:var(--pp-sidebar);
+  border-left:1px solid var(--pp-card-border);
+  display:flex;flex-direction:column;
+  overflow-y:auto;scrollbar-width:none;
+  padding:0.85rem 0.75rem 1rem;
+  gap:0.6rem;
+  align-self:stretch;
+}
+.arc-img-panel::-webkit-scrollbar{display:none;}
+.arc-img-panel-label{
+  font-size:0.62rem;font-weight:700;letter-spacing:0.09em;
+  color:var(--pp-text-muted);text-transform:uppercase;
+  padding-bottom:0.4rem;
+  border-bottom:1px solid var(--pp-card-border);
+  flex-shrink:0;
+}
+.arc-img-slot{
+  position:relative;width:100%;
+  border-radius:10px;overflow:hidden;
+  background:var(--pp-card);
+  border:1.5px dashed var(--pp-card-border);
+  aspect-ratio:1/1;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:border-color 0.15s;
+}
+.arc-img-slot img{
+  width:100%;height:100%;object-fit:cover;
+  display:none;
+}
+.arc-img-slot img.loaded{display:block;}
+.arc-img-slot-placeholder{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:0.3rem;color:var(--pp-text-muted);font-size:0.65rem;text-align:center;
+  padding:0.5rem;pointer-events:none;
+}
+.arc-img-slot-placeholder span{font-size:1.4rem;}
+/* 관리자 전용 오버레이 버튼 */
+.arc-img-slot-overlay{
+  display:none;
+  position:absolute;inset:0;
+  background:rgba(0,0,0,0.32);
+  align-items:center;justify-content:center;
+  gap:0.35rem;flex-direction:column;
+}
+.is-admin .arc-img-slot:hover .arc-img-slot-overlay{display:flex;}
+.arc-img-slot-overlay button{
+  background:rgba(255,255,255,0.92);border:none;
+  border-radius:8px;padding:0.25rem 0.65rem;
+  font-family:var(--font);font-size:0.65rem;font-weight:600;
+  color:var(--pp-text);cursor:pointer;
+  transition:background 0.12s;white-space:nowrap;
+}
+.arc-img-slot-overlay button:hover{background:#fff;}
+.arc-img-panel-add{
+  display:none;
+  background:none;border:1.5px dashed var(--pp-card-border);
+  border-radius:10px;padding:0.5rem;
+  font-family:var(--font);font-size:0.7rem;color:var(--pp-text-muted);
+  cursor:pointer;text-align:center;transition:border-color 0.15s,color 0.15s;
+  flex-shrink:0;
+}
+.arc-img-panel-add:hover{border-color:var(--pp-green);color:var(--pp-green);}
+.is-admin .arc-img-panel-add{display:block;}
+
 </style>
 </head>
 <body>
 
 <script>
-// 우클릭 금지
-document.addEventListener('contextmenu', e => e.preventDefault());
-// 드래그(선택) 금지
-document.addEventListener('dragstart', e => e.preventDefault());
+// ── 드래그 / 우클릭 금지 (관리자는 허용) ──
+// isAdmin 변수는 로그인 처리 후 전역으로 설정됨.
+// 페이지 로드 직후엔 아직 isAdmin 이 없으므로 함수로 감싸서 확인.
+function _isAdminNow(){ return typeof isAdmin !== 'undefined' && isAdmin; }
+
+document.addEventListener('contextmenu', e => {
+  if (_isAdminNow()) return;          // 관리자: 허용
+  e.preventDefault();
+});
+document.addEventListener('dragstart', e => {
+  if (_isAdminNow()) return;
+  e.preventDefault();
+});
 document.addEventListener('selectstart', e => {
-  // input/textarea/contenteditable 안에서는 허용
+  if (_isAdminNow()) return;
   const t = e.target;
   if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
   e.preventDefault();
@@ -919,6 +996,13 @@ document.addEventListener('selectstart', e => {
           </div>
         </div>
         <div class="arc-grid" id="arcGrid"></div>
+      </div>
+
+      <!-- ── 이미지 사이드패널 ── -->
+      <div class="arc-img-panel" id="arcImgPanel">
+        <div class="arc-img-panel-label">🖼 이미지</div>
+        <div id="arcImgSlots"></div>
+        <button class="arc-img-panel-add" onclick="arcImgAddSlot()">＋ 이미지 추가</button>
       </div>
     </div>
   </div>
@@ -1447,6 +1531,7 @@ function showSubPage(id) {
     homeEl.style.display = 'none';
     archiveEl.style.display = 'flex';
     renderGrid();
+    arcImgLoad();
   }
 }
 
@@ -1993,6 +2078,97 @@ async function saveCfgColors() {
   ['bg','p1','p2','p3','accent','border'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
   ['pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
   await stoSet('da_colors', colorCfg);
+}
+
+// ── 아카이브 이미지 패널 ──
+const ARC_IMG_KEY = () => 'da_arc_imgs_' + (currentPairId||'default');
+
+async function arcImgLoad() {
+  const raw = await stoGet(ARC_IMG_KEY());
+  const imgs = raw ? JSON.parse(raw) : [];
+  arcImgRender(imgs);
+}
+
+function arcImgRender(imgs) {
+  const container = document.getElementById('arcImgSlots');
+  if (!container) return;
+  container.innerHTML = '';
+  if (imgs.length === 0 && !isAdmin) {
+    container.innerHTML = '<div style="font-size:0.7rem;color:var(--pp-text-muted);text-align:center;padding:1rem 0;">이미지 없음</div>';
+    return;
+  }
+  imgs.forEach((item, idx) => {
+    const slot = document.createElement('div');
+    slot.className = 'arc-img-slot';
+    slot.style.marginBottom = '0.6rem';
+
+    const img = document.createElement('img');
+    if (item.src) { img.src = item.src; img.onload = () => img.classList.add('loaded'); }
+
+    const ph = document.createElement('div');
+    ph.className = 'arc-img-slot-placeholder';
+    ph.innerHTML = '<span>🖼</span><span>이미지<br>없음</span>';
+    if (item.src) ph.style.display = 'none';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'arc-img-slot-overlay';
+
+    const changeBtn = document.createElement('button');
+    changeBtn.textContent = '🖼 변경';
+    changeBtn.onclick = () => arcImgTriggerUpload(idx);
+
+    const delBtn = document.createElement('button');
+    delBtn.textContent = '✕ 삭제';
+    delBtn.style.color = '#e07a7a';
+    delBtn.onclick = () => arcImgDelete(idx);
+
+    overlay.append(changeBtn, delBtn);
+    slot.append(img, ph, overlay);
+    container.appendChild(slot);
+  });
+}
+
+function arcImgTriggerUpload(idx) {
+  if (!isAdmin) return;
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const raw = await stoGet(ARC_IMG_KEY());
+      const imgs = raw ? JSON.parse(raw) : [];
+      if (idx >= imgs.length) imgs.push({ src: ev.target.result });
+      else imgs[idx].src = ev.target.result;
+      await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
+      arcImgRender(imgs);
+      showToast('저장됨 ✓');
+    };
+    reader.readAsDataURL(f);
+  };
+  input.click();
+}
+
+async function arcImgDelete(idx) {
+  if (!isAdmin) return;
+  if (!confirm('이 이미지를 삭제할까요?')) return;
+  const raw = await stoGet(ARC_IMG_KEY());
+  const imgs = raw ? JSON.parse(raw) : [];
+  imgs.splice(idx, 1);
+  await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
+  arcImgRender(imgs);
+  showToast('삭제됨');
+}
+
+async function arcImgAddSlot() {
+  if (!isAdmin) return;
+  const raw = await stoGet(ARC_IMG_KEY());
+  const imgs = raw ? JSON.parse(raw) : [];
+  // 빈 슬롯 추가 후 바로 업로드 트리거
+  imgs.push({ src: '' });
+  await stoSet(ARC_IMG_KEY(), JSON.stringify(imgs));
+  arcImgRender(imgs);
+  arcImgTriggerUpload(imgs.length - 1);
 }
 
 async function openAddPairModal() {
