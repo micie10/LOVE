@@ -188,6 +188,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .tab-item-del{background:none;border:none;cursor:pointer;color:#e07a7a;font-size:0.8rem;padding:2px 5px;}
 #lockScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
 #lockScreen.open{display:flex;}
+#githubTokenScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
+#githubTokenScreen.open{display:flex;}
+.gh-status{font-size:0.68rem;color:var(--text-muted);text-align:center;margin-top:0.6rem;}
 .lock-box{background:var(--surface);border:1.5px solid var(--border);border-radius:24px;padding:2.5rem 2rem;width:100%;max-width:340px;text-align:center;display:flex;flex-direction:column;gap:1.25rem;}
 .lock-icon{font-size:2.2rem;}
 .lock-title{font-size:1.1rem;font-weight:700;}
@@ -243,13 +246,29 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   </div>
 </div>
 
+<div id="githubTokenScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔗</div>
+    <div class="lock-title">이 기기에서 동기화하기</div>
+    <div class="lock-desc">다른 기기(예: 폰)에서도 수정 내용이 보이게 하려면<br>이 기기에 GitHub 토큰을 등록해주세요.<br>토큰은 이 기기의 브라우저에만 저장되고 파일에는 절대 남지 않아요 🔒</div>
+    <div class="lock-input-wrap">
+      <input type="password" class="lock-input" id="ghTokenInput" placeholder="ghp_ 로 시작하는 토큰" maxlength="120" onkeydown="if(event.key==='Enter')saveGhToken()">
+      <button class="lock-eye" onclick="toggleGhEye()">👁</button>
+    </div>
+    <div class="lock-err" id="ghTokenErr"></div>
+    <button class="lock-btn" onclick="saveGhToken()">저장</button>
+    <button class="lock-cancel" onclick="closeGhTokenScreen()">나중에 · 닫기</button>
+    <div class="gh-status" id="ghStatusLine"></div>
+  </div>
+</div>
+
 <div id="hub" class="page active">
   <div class="hub-header">
     <div class="hub-title">LOVE</div>
     <div class="hub-sub">선택해서 바보들(♡)을 구경해요!</div>
     <div class="hub-admin-bar">
       <button class="go-archive-btn viewer-only" id="hubLoginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub);font-size:0.82rem;padding:0.45rem 1rem;" onclick="openLock()">🔑 관리자 로그인</button>
-      <span class="admin-badge" id="hubAdminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
+      <span class="admin-badge" id="hubAdminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
     </div>
   </div>
   <div class="pairs-grid" id="pairsGrid"></div>
@@ -314,7 +333,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
       <div class="home-left">
         <button class="back-btn" onclick="goHub()">← 메인</button>
         <div class="home-counts" id="homeCounts"></div>
-        <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
+        <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
       </div>
       <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
         <button class="go-archive-btn viewer-only" id="loginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub)" onclick="openLock()">🔑 로그인</button>
@@ -343,7 +362,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <button class="back-btn" onclick="goHub()">← 메인</button>
           <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
           <span class="arc-heading">기록</span>
-          <span class="admin-badge" id="adminBadgeArc">🔑 관리자 &nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
+          <span class="admin-badge" id="adminBadgeArc">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
         </div>
         <div class="arc-controls">
           <div class="search-wrap">
@@ -505,6 +524,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 <script>
 const ADMIN_CODE = '*20000425';
+// ↓↓↓ 본인이 만든 "비밀(secret) Gist"의 ID로 바꿔주세요. (gist.github.com 주소의 마지막 부분)
+const GITHUB_GIST_ID = '3e1e11a6326a8ad949b4eebc2c0a1286';
+const GITHUB_DATA_FILE = 'love_archive_data.json';
+const GH_TOKEN_KEY = 'da_gh_token';
 const DEFAULT_TABS = [
   {id:'log', name:'📖 LOG'},
   {id:'gallery', name:'🖼 GALLERY'},
@@ -544,14 +567,108 @@ function showToast(msg='저장 중...') {
   setTimeout(()=>t.classList.remove('show'), 1500);
 }
 
+function ghToken() { return localStorage.getItem(GH_TOKEN_KEY) || ''; }
+
+let ghCache = null;       // 전체 데이터(JSON)를 메모리에 들고 있는 캐시
+let ghLoadPromise = null; // 최초 로딩 중복 호출 방지
+let ghPushTimer = null;   // 여러 변경을 모아 한 번에 전송하기 위한 디바운스 타이머
+
+async function ghLoadAll() {
+  if (ghCache) return ghCache;
+  if (ghLoadPromise) return ghLoadPromise;
+  ghLoadPromise = (async () => {
+    if (GITHUB_GIST_ID === 'PASTE_YOUR_GIST_ID_HERE') {
+      console.warn('GITHUB_GIST_ID가 설정되지 않았어요.');
+      ghCache = {};
+      return ghCache;
+    }
+    try {
+      const res = await fetch('https://api.github.com/gists/' + GITHUB_GIST_ID, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!res.ok) throw new Error('status ' + res.status);
+      const json = await res.json();
+      const file = json.files && json.files[GITHUB_DATA_FILE];
+      ghCache = (file && file.content) ? JSON.parse(file.content) : {};
+    } catch (e) {
+      console.warn('GitHub 데이터 불러오기 실패', e);
+      showToast('⚠ 깃허브에서 불러오기 실패');
+      ghCache = {};
+    }
+    return ghCache;
+  })();
+  return ghLoadPromise;
+}
+
+async function ghPushAll() {
+  const token = ghToken();
+  if (!token) { showToast('⚠ 저장 안 됨 · 토큰 필요'); return; }
+  if (GITHUB_GIST_ID === 'PASTE_YOUR_GIST_ID_HERE') { showToast('⚠ Gist ID 설정 필요'); return; }
+  try {
+    const res = await fetch('https://api.github.com/gists/' + GITHUB_GIST_ID, {
+      method: 'PATCH',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'token ' + token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ files: { [GITHUB_DATA_FILE]: { content: JSON.stringify(ghCache, null, 2) } } })
+    });
+    if (!res.ok) {
+      if (res.status === 401) {
+        showToast('⚠ 토큰이 유효하지 않아요');
+        localStorage.removeItem(GH_TOKEN_KEY);
+      } else {
+        showToast('⚠ 동기화 실패 (' + res.status + ')');
+      }
+      return;
+    }
+    showToast('☁️ 동기화 완료');
+  } catch (e) {
+    console.warn('ghPushAll fail', e);
+    showToast('⚠ 인터넷 연결을 확인해주세요');
+  }
+}
+
+function ghSchedulePush() {
+  clearTimeout(ghPushTimer);
+  ghPushTimer = setTimeout(ghPushAll, 700);
+}
+
 async function stoGet(key) {
-  try { const r = await window.storage.get(key, true); return r ? JSON.parse(r.value) : null; } catch(e){return null;}
+  const all = await ghLoadAll();
+  return (all && key in all) ? all[key] : null;
 }
 async function stoSet(key, val) {
-  try { await window.storage.set(key, JSON.stringify(val), true); } catch(e){console.warn('stoSet fail',e);}
+  const all = await ghLoadAll();
+  all[key] = val;
+  ghSchedulePush();
 }
 async function stoDel(key) {
-  try { await window.storage.delete(key, true); } catch(e){}
+  const all = await ghLoadAll();
+  delete all[key];
+  ghSchedulePush();
+}
+
+function openGhTokenScreen() {
+  document.getElementById('ghTokenInput').value = '';
+  document.getElementById('ghTokenErr').textContent = '';
+  const has = !!ghToken();
+  document.getElementById('ghStatusLine').textContent = has ? '이 기기에 토큰이 등록되어 있어요 ✓' : '이 기기에 등록된 토큰이 없어요';
+  document.getElementById('githubTokenScreen').classList.add('open');
+  setTimeout(()=>document.getElementById('ghTokenInput').focus(),80);
+}
+function closeGhTokenScreen() { document.getElementById('githubTokenScreen').classList.remove('open'); }
+function toggleGhEye() {
+  const inp = document.getElementById('ghTokenInput');
+  inp.type = inp.type==='password'?'text':'password';
+}
+function saveGhToken() {
+  const v = document.getElementById('ghTokenInput').value.trim();
+  if (!v) { document.getElementById('ghTokenErr').textContent = '토큰을 입력해주세요.'; return; }
+  localStorage.setItem(GH_TOKEN_KEY, v);
+  closeGhTokenScreen();
+  showToast('토큰 저장됨 ✓');
 }
 
 async function loadPairs() {
@@ -680,6 +797,7 @@ function toggleEye() {
 function tryLogin() {
   if (document.getElementById('lockInput').value === ADMIN_CODE) {
     isAdmin = true; closeLock(); applyAdminUI();
+    if (!ghToken()) openGhTokenScreen();
   } else {
     document.getElementById('lockErr').textContent = '번호가 맞지 않아요.';
     document.getElementById('lockInput').value = '';
