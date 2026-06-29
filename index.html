@@ -11,6 +11,22 @@
   --bg:#fdf6f9;--surface:#ffffff;--border:#f0e0eb;
   --text:#4a3f4a;--text-sub:#8a7a8a;--text-muted:#b8a8b8;
   --accent:#c97eb8;--font:'Pretendard','Apple SD Gothic Neo',sans-serif;--radius:16px;
+
+  /* OSIPECH 스타일 pair page 전용 변수 */
+  --pp-bg:#1a2a1e;
+  --pp-sidebar:#f5f2ee;
+  --pp-sidebar-border:#e8e2da;
+  --pp-surface:#ffffff;
+  --pp-green:#24553d;
+  --pp-green-light:#3d7a5a;
+  --pp-pink:#e8a0a8;
+  --pp-pink-light:#f2c4c8;
+  --pp-text:#2a1f1f;
+  --pp-text-sub:#6b5a5a;
+  --pp-text-muted:#a89898;
+  --pp-accent:#c75f6b;
+  --pp-card:#ffffff;
+  --pp-card-border:#ede8e2;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -38,105 +54,377 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .add-pair-card:hover{border-color:var(--accent);color:var(--accent);}
 .add-pair-card span{font-size:1.8rem;}
 .is-admin .add-pair-card{display:flex;}
-#pairPage{position:relative;}
-.cover{position:relative;width:100%;height:60vw;max-height:520px;min-height:260px;overflow:hidden;background:linear-gradient(135deg,var(--p1) 0%,var(--p2) 50%,var(--p3) 100%);display:flex;align-items:flex-end;justify-content:flex-start;}
-.cover-img{position:absolute;object-fit:cover;display:none;}
+/* ===== PAIR PAGE: OSIPECH-inspired Layout ===== */
+#pairPage{position:relative;background:var(--pp-bg);min-height:100vh;}
+
+/* 전체 레이아웃: 사이드바 + 메인 */
+#home{
+  display:flex;min-height:100vh;background:var(--pp-bg);
+}
+#archive{background:var(--pp-bg);}
+
+/* ── 사이드바 ── */
+.pp-sidebar{
+  width:200px;flex-shrink:0;background:var(--pp-sidebar);
+  border-right:1px solid var(--pp-sidebar-border);
+  display:flex;flex-direction:column;align-items:center;
+  padding:1.5rem 0 1.5rem;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  scrollbar-width:none;
+  border-radius:0 0 0 0;
+}
+.pp-sidebar::-webkit-scrollbar{display:none;}
+
+.pp-sidebar-avatar{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--pp-green),var(--pp-pink));
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  font-size:1.6rem;border:3px solid var(--pp-card-border);
+  margin-bottom:0.6rem;flex-shrink:0;
+}
+.pp-sidebar-avatar img{width:100%;height:100%;object-fit:cover;display:none;}
+.pp-sidebar-avatar img.loaded{display:block;}
+
+.pp-sidebar-name{
+  font-size:0.8rem;font-weight:700;color:var(--pp-text);
+  text-align:center;letter-spacing:0.04em;margin-bottom:0.15rem;
+}
+.pp-sidebar-subtitle{
+  font-size:0.62rem;color:var(--pp-text-muted);text-align:center;
+  margin-bottom:1.2rem;letter-spacing:0.03em;
+}
+
+.pp-nav{display:flex;flex-direction:column;width:100%;padding:0 0.75rem;gap:0.1rem;}
+.pp-nav-item{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0.5rem 0.75rem;border-radius:10px;
+  font-size:0.78rem;font-weight:500;color:var(--pp-text-sub);
+  cursor:pointer;transition:background 0.15s,color 0.15s;
+  border:none;background:none;font-family:var(--font);
+  text-align:left;width:100%;
+}
+.pp-nav-item:hover{background:rgba(36,85,61,0.08);color:var(--pp-green);}
+.pp-nav-item.active{background:rgba(36,85,61,0.12);color:var(--pp-green);font-weight:600;}
+.pp-nav-icon{font-size:0.9rem;width:18px;text-align:center;}
+
+.pp-sidebar-divider{
+  width:calc(100% - 1.5rem);height:1px;
+  background:var(--pp-sidebar-border);margin:0.75rem 0;
+}
+
+.pp-sidebar-footer{
+  margin-top:auto;padding:0 0.75rem;
+  display:flex;flex-direction:column;gap:0.4rem;align-items:center;
+}
+.pp-sidebar-credit{font-size:0.58rem;color:var(--pp-text-muted);text-align:center;letter-spacing:0.04em;}
+
+/* ── 메인 영역 ── */
+.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;}
+
+/* 커버 — 맥OS 창 스타일 */
+.cover{
+  position:relative;width:100%;height:52vw;max-height:460px;min-height:220px;
+  overflow:hidden;
+  background:linear-gradient(160deg,var(--pp-green) 0%,#0e1a12 100%);
+  display:flex;align-items:flex-end;justify-content:flex-start;
+  flex-shrink:0;
+}
+.cover::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:32px;
+  background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  z-index:5;
+}
+/* 맥OS 신호등 */
+.cover::after{
+  content:'⬤  ⬤  ⬤';
+  position:absolute;top:8px;left:12px;
+  font-size:0.55rem;letter-spacing:0.22rem;
+  color:rgba(255,255,255,0.35);z-index:6;
+  pointer-events:none;
+}
+.cover-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:1;}
 .cover-img.loaded{display:block;}
-.deco-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.cover-img-overlay{
+  position:absolute;inset:0;z-index:2;
+  background:linear-gradient(to top, rgba(10,20,12,0.7) 0%, rgba(10,20,12,0.1) 60%, transparent 100%);
+}
+.deco-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3;}
 .deco{position:absolute;user-select:none;pointer-events:all;line-height:1;transition:box-shadow 0.12s;}
 .deco.admin-deco{cursor:move;}
 .deco img{display:block;border-radius:4px;}
-.deco-resize{position:absolute;bottom:-5px;right:-5px;width:14px;height:14px;background:white;border:1.5px solid var(--accent);border-radius:3px;cursor:se-resize;display:none;z-index:2;}
+.deco-resize{position:absolute;bottom:-5px;right:-5px;width:14px;height:14px;background:white;border:1.5px solid var(--pp-pink);border-radius:3px;cursor:se-resize;display:none;z-index:2;}
 .deco.selected .deco-resize{display:block;}
-.deco.selected{outline:2px solid var(--accent);outline-offset:2px;}
-.cover-textbox{position:relative;z-index:10;margin:0 2rem 2rem;background:rgba(255,255,255,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:16px;padding:1.2rem 1.6rem;border:1.5px solid rgba(255,255,255,0.9);max-width:380px;}
-.cover-title{font-size:clamp(1.4rem,4vw,2rem);font-weight:700;color:var(--text);line-height:1.2;}
-.cover-sub{font-size:0.85rem;color:var(--text-sub);margin-top:0.3rem;}
-.cover-edit-bar{position:absolute;top:0.75rem;right:0.75rem;z-index:20;display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end;}
-.icon-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.82);border:1px solid rgba(255,255,255,0.9);border-radius:999px;padding:0.3rem 0.7rem;font-size:0.72rem;font-family:var(--font);color:var(--text);cursor:pointer;white-space:nowrap;transition:background 0.15s;}
-.icon-pill:hover{background:rgba(255,255,255,0.97);}
+.deco.selected{outline:2px solid var(--pp-pink);outline-offset:2px;}
+
+.cover-textbox{
+  position:relative;z-index:10;
+  margin:0 1.5rem 1.5rem;
+  max-width:360px;
+}
+.cover-title{
+  font-size:clamp(1.3rem,4vw,2.2rem);font-weight:700;
+  color:#fff;line-height:1.15;
+  text-shadow:0 2px 12px rgba(0,0,0,0.4);
+  letter-spacing:-0.01em;
+}
+.cover-sub{
+  font-size:0.78rem;color:rgba(255,255,255,0.65);
+  margin-top:0.3rem;letter-spacing:0.04em;
+}
+
+.cover-edit-bar{
+  position:absolute;top:2.25rem;right:0.75rem;z-index:20;
+  display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:flex-end;
+}
+.icon-pill{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:999px;padding:0.28rem 0.65rem;
+  font-size:0.68rem;font-family:var(--font);
+  color:rgba(255,255,255,0.9);cursor:pointer;
+  white-space:nowrap;transition:background 0.15s;
+  backdrop-filter:blur(6px);
+}
+.icon-pill:hover{background:rgba(255,255,255,0.25);}
+
 .admin-only{display:none!important;}
 .admin-only.show{display:inline-flex!important;}
 .viewer-only{display:inline-flex!important;}
 .viewer-only.hide{display:none!important;}
-.sticker-palette{display:none;position:absolute;top:3rem;right:0.75rem;z-index:30;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:0.75rem;gap:0.4rem;flex-wrap:wrap;max-width:240px;box-shadow:0 4px 20px rgba(180,130,180,0.15);}
+
+.sticker-palette{
+  display:none;position:absolute;top:3.5rem;right:0.75rem;z-index:30;
+  background:var(--pp-card);border:1px solid var(--pp-card-border);
+  border-radius:14px;padding:0.75rem;gap:0.4rem;flex-wrap:wrap;
+  max-width:220px;box-shadow:0 4px 20px rgba(0,0,0,0.15);
+}
 .sticker-palette.open{display:flex;}
-.sticker-btn{font-size:1.4rem;cursor:pointer;border:none;background:none;border-radius:8px;padding:4px;transition:background 0.12s;line-height:1;}
-.sticker-btn:hover{background:var(--bg);}
-.sticker-upload-btn{font-size:0.7rem;width:100%;background:var(--bg);border:1.5px dashed var(--border);border-radius:8px;padding:0.4rem;cursor:pointer;color:var(--text-muted);font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:4px;}
-.sticker-upload-btn:hover{border-color:var(--accent);color:var(--accent);}
-.cover-img-controls{display:none;position:absolute;bottom:0.5rem;left:0.5rem;z-index:20;background:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.95);border-radius:12px;padding:0.6rem 0.75rem;gap:0.5rem;flex-wrap:wrap;backdrop-filter:blur(6px);}
+.sticker-btn{font-size:1.3rem;cursor:pointer;border:none;background:none;border-radius:8px;padding:4px;transition:background 0.12s;line-height:1;}
+.sticker-btn:hover{background:var(--pp-sidebar);}
+.sticker-upload-btn{
+  font-size:0.7rem;width:100%;background:var(--pp-sidebar);
+  border:1.5px dashed var(--pp-card-border);border-radius:8px;
+  padding:0.4rem;cursor:pointer;color:var(--pp-text-muted);
+  font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.sticker-upload-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
+
+.cover-img-controls{
+  display:none;position:absolute;bottom:0.5rem;left:0.5rem;z-index:20;
+  background:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.95);
+  border-radius:12px;padding:0.6rem 0.75rem;gap:0.5rem;
+  flex-wrap:wrap;backdrop-filter:blur(6px);
+}
 .cover-img-controls.show{display:flex;}
 .ctrl-group{display:flex;align-items:center;gap:0.4rem;}
-.ctrl-lbl{font-size:0.65rem;color:var(--text-muted);white-space:nowrap;}
-.ctrl-range{width:80px;height:4px;accent-color:var(--accent);}
-.ctrl-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:2px 7px;font-size:0.68rem;font-family:var(--font);cursor:pointer;color:var(--text-sub);}
-.ctrl-btn:hover{border-color:var(--accent);color:var(--accent);}
-.home-strip{background:var(--surface);border-top:1.5px solid var(--border);padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-.home-left{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
-.home-counts{display:flex;gap:1.5rem;flex-wrap:wrap;}
-.hcount{text-align:center;}
-.hcount-num{font-size:1.4rem;font-weight:700;color:var(--text);}
-.hcount-lbl{font-size:0.72rem;color:var(--text-muted);margin-top:1px;}
-.admin-badge{display:none;align-items:center;gap:5px;background:rgba(201,126,184,0.12);border:1px solid rgba(201,126,184,0.35);border-radius:999px;padding:0.2rem 0.65rem;font-size:0.7rem;font-weight:600;color:var(--accent);}
+.ctrl-lbl{font-size:0.65rem;color:var(--pp-text-muted);white-space:nowrap;}
+.ctrl-range{width:80px;height:4px;accent-color:var(--pp-green);}
+.ctrl-btn{background:none;border:1px solid var(--pp-card-border);border-radius:6px;padding:2px 7px;font-size:0.68rem;font-family:var(--font);cursor:pointer;color:var(--pp-text-sub);}
+.ctrl-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
+
+/* 홈 정보 스트립 */
+.home-strip{
+  background:var(--pp-card);
+  border-bottom:1px solid var(--pp-card-border);
+  padding:0.9rem 1.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:0.75rem;
+}
+.home-left{display:flex;align-items:center;gap:0.9rem;flex-wrap:wrap;}
+.home-counts{display:flex;gap:1rem;flex-wrap:wrap;}
+.hcount{text-align:center;padding:0 0.4rem;}
+.hcount-num{font-size:1.2rem;font-weight:700;color:var(--pp-green);}
+.hcount-lbl{font-size:0.65rem;color:var(--pp-text-muted);margin-top:1px;letter-spacing:0.04em;}
+
+.admin-badge{
+  display:none;align-items:center;gap:5px;
+  background:rgba(36,85,61,0.1);border:1px solid rgba(36,85,61,0.3);
+  border-radius:999px;padding:0.2rem 0.65rem;
+  font-size:0.7rem;font-weight:600;color:var(--pp-green);
+}
 .admin-badge.show{display:inline-flex;}
-.admin-logout{background:none;border:none;cursor:pointer;font-size:0.7rem;color:var(--text-muted);font-family:var(--font);text-decoration:underline;padding:0;}
-.go-archive-btn{background:linear-gradient(135deg,var(--p1),var(--p2));border:none;border-radius:999px;padding:0.6rem 1.5rem;font-family:var(--font);font-size:0.875rem;font-weight:600;color:var(--text);cursor:pointer;transition:opacity 0.15s;}
+.admin-logout{background:none;border:none;cursor:pointer;font-size:0.7rem;color:var(--pp-text-muted);font-family:var(--font);text-decoration:underline;padding:0;}
+
+.go-archive-btn{
+  background:var(--pp-green);border:none;border-radius:8px;
+  padding:0.5rem 1.2rem;font-family:var(--font);font-size:0.8rem;
+  font-weight:600;color:#fff;cursor:pointer;transition:opacity 0.15s;
+  letter-spacing:0.02em;
+}
 .go-archive-btn:hover{opacity:0.85;}
-.home-pinned{padding:1.5rem 2rem 0;}
-.home-recent{padding:1rem 2rem 2rem;}
-.section-label{font-size:0.72rem;font-weight:600;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase;margin-bottom:0.9rem;display:flex;align-items:center;gap:0.5rem;}
-.pin-manage-btn{font-size:0.68rem;background:none;border:1px solid var(--border);border-radius:999px;padding:2px 8px;cursor:pointer;font-family:var(--font);color:var(--text-muted);}
-.pin-manage-btn:hover{border-color:var(--accent);color:var(--accent);}
-.recent-row{display:flex;gap:0.85rem;overflow-x:auto;padding-bottom:0.5rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+
+/* 홈 콘텐츠 영역 */
+.pp-home-content{
+  background:var(--pp-sidebar);
+  flex:1;padding:1.25rem 1.5rem 3rem;
+  display:flex;flex-direction:column;gap:1.25rem;
+}
+
+/* 핀/최근 섹션 */
+.home-pinned{padding:0;}
+.home-recent{padding:0;}
+
+.section-label{
+  font-size:0.68rem;font-weight:700;letter-spacing:0.1em;
+  color:var(--pp-text-muted);text-transform:uppercase;
+  margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--pp-card-border);}
+
+.pin-manage-btn{
+  font-size:0.65rem;background:none;
+  border:1px solid var(--pp-card-border);border-radius:999px;
+  padding:1px 7px;cursor:pointer;font-family:var(--font);
+  color:var(--pp-text-muted);
+}
+.pin-manage-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
+
+.recent-row{
+  display:flex;gap:0.7rem;overflow-x:auto;
+  padding-bottom:0.4rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+}
 .recent-row::-webkit-scrollbar{display:none;}
-.mini-card{flex:0 0 160px;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:0.9rem;cursor:pointer;transition:border-color 0.15s;position:relative;}
-.mini-card:hover{border-color:var(--p2);}
-.mini-type{font-size:0.7rem;color:var(--text-muted);margin-bottom:0.3rem;}
-.mini-title{font-size:0.82rem;font-weight:600;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.mini-date{font-size:0.68rem;color:var(--text-muted);margin-top:0.4rem;}
-.pin-mark{position:absolute;top:0.4rem;right:0.4rem;font-size:0.7rem;}
-#archive{background:var(--bg);}
-.arc-header{background:var(--surface);border-bottom:1.5px solid var(--border);padding:1.25rem 1.5rem 0;position:sticky;top:0;z-index:50;}
-.arc-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
-.arc-title-row{display:flex;align-items:center;gap:0.75rem;}
-.back-btn{background:none;border:1.5px solid var(--border);border-radius:999px;padding:0.3rem 0.8rem;font-family:var(--font);font-size:0.78rem;color:var(--text-sub);cursor:pointer;transition:border-color 0.15s;}
-.back-btn:hover{border-color:var(--accent);color:var(--accent);}
-.arc-heading{font-size:1.05rem;font-weight:700;}
-.arc-controls{display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;}
+
+.mini-card{
+  flex:0 0 148px;background:var(--pp-card);
+  border:1px solid var(--pp-card-border);border-radius:12px;
+  padding:0.8rem 0.85rem;cursor:pointer;
+  transition:border-color 0.15s,transform 0.15s;position:relative;
+}
+.mini-card:hover{border-color:var(--pp-green);transform:translateY(-2px);}
+.mini-type{font-size:0.65rem;color:var(--pp-text-muted);margin-bottom:0.25rem;letter-spacing:0.04em;}
+.mini-title{font-size:0.8rem;font-weight:600;color:var(--pp-text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mini-date{font-size:0.63rem;color:var(--pp-text-muted);margin-top:0.35rem;}
+.pin-mark{position:absolute;top:0.4rem;right:0.4rem;font-size:0.65rem;}
+
+/* ── 아카이브 페이지 ── */
+.arc-header{
+  background:var(--pp-card);
+  border-bottom:1px solid var(--pp-card-border);
+  padding:1rem 1.5rem 0;
+  position:sticky;top:0;z-index:50;
+}
+.arc-top{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;margin-bottom:0.85rem;flex-wrap:wrap;
+}
+.arc-title-row{display:flex;align-items:center;gap:0.6rem;}
+
+.back-btn{
+  background:none;border:1px solid var(--pp-card-border);
+  border-radius:8px;padding:0.28rem 0.75rem;
+  font-family:var(--font);font-size:0.75rem;
+  color:var(--pp-text-sub);cursor:pointer;transition:all 0.15s;
+}
+.back-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
+
+.arc-heading{font-size:0.95rem;font-weight:700;color:var(--pp-text);}
+
+.arc-controls{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;}
 .search-wrap{position:relative;}
-.search-wrap input{background:var(--bg);border:1.5px solid var(--border);border-radius:999px;padding:0.4rem 0.8rem 0.4rem 2rem;font-family:var(--font);font-size:0.8rem;color:var(--text);outline:none;width:180px;transition:border-color 0.15s;}
-.search-wrap input:focus{border-color:var(--accent);}
-.search-ico{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:0.75rem;color:var(--text-muted);pointer-events:none;}
-.add-btn{background:linear-gradient(135deg,var(--p1),var(--p2));border:none;border-radius:999px;padding:0.4rem 1rem;font-family:var(--font);font-size:0.8rem;font-weight:600;color:var(--text);cursor:pointer;transition:opacity 0.15s;}
+.search-wrap input{
+  background:var(--pp-sidebar);
+  border:1px solid var(--pp-card-border);
+  border-radius:8px;padding:0.38rem 0.75rem 0.38rem 1.9rem;
+  font-family:var(--font);font-size:0.78rem;
+  color:var(--pp-text);outline:none;width:170px;transition:border-color 0.15s;
+}
+.search-wrap input:focus{border-color:var(--pp-green);}
+.search-ico{position:absolute;left:0.6rem;top:50%;transform:translateY(-50%);font-size:0.72rem;color:var(--pp-text-muted);pointer-events:none;}
+
+.add-btn{
+  background:var(--pp-green);border:none;border-radius:8px;
+  padding:0.38rem 0.9rem;font-family:var(--font);
+  font-size:0.78rem;font-weight:600;color:#fff;
+  cursor:pointer;transition:opacity 0.15s;
+}
 .add-btn:hover{opacity:0.85;}
-.tab-bar{display:flex;gap:0.1rem;overflow-x:auto;scrollbar-width:none;align-items:center;}
+
+.tab-bar{
+  display:flex;gap:0;overflow-x:auto;
+  scrollbar-width:none;align-items:center;
+}
 .tab-bar::-webkit-scrollbar{display:none;}
-.tab{background:none;border:none;padding:0.6rem 1.1rem;font-family:var(--font);font-size:0.82rem;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s;}
-.tab:hover{color:var(--text);}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
-.tab-add-btn{background:none;border:none;font-size:0.9rem;padding:0.4rem 0.5rem;cursor:pointer;color:var(--text-muted);display:none;}
-.tab-add-btn:hover{color:var(--accent);}
+.tab{
+  background:none;border:none;padding:0.55rem 1rem;
+  font-family:var(--font);font-size:0.78rem;
+  color:var(--pp-text-muted);cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color 0.15s;
+}
+.tab:hover{color:var(--pp-text);}
+.tab.active{color:var(--pp-green);border-bottom-color:var(--pp-green);font-weight:600;}
+.tab-add-btn{
+  background:none;border:none;font-size:0.85rem;
+  padding:0.4rem 0.5rem;cursor:pointer;
+  color:var(--pp-text-muted);display:none;
+}
+.tab-add-btn:hover{color:var(--pp-green);}
 .is-admin .tab-add-btn{display:block;}
-.arc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;padding:1.25rem 1.5rem 4rem;}
-.card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;cursor:pointer;transition:border-color 0.18s,transform 0.18s;display:flex;flex-direction:column;gap:0.65rem;position:relative;overflow:hidden;}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3));opacity:0;transition:opacity 0.18s;}
-.card:hover{border-color:var(--p2);transform:translateY(-2px);}
+
+.arc-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:0.85rem;padding:1.1rem 1.5rem 4rem;
+  background:var(--pp-sidebar);
+}
+
+/* 아카이브 카드 */
+.card{
+  background:var(--pp-card);
+  border:1px solid var(--pp-card-border);
+  border-radius:12px;padding:1rem 1.1rem;
+  cursor:pointer;transition:border-color 0.18s,transform 0.18s,box-shadow 0.18s;
+  display:flex;flex-direction:column;gap:0.6rem;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--pp-green),var(--pp-pink));
+  opacity:0;transition:opacity 0.18s;
+}
+.card:hover{
+  border-color:var(--pp-green-light);
+  transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(36,85,61,0.1);
+}
 .card:hover::before{opacity:1;}
-.card-type-badge{display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;font-weight:600;background:var(--bg);border-radius:999px;padding:2px 8px;color:var(--text-sub);align-self:flex-start;}
-.card-title{font-size:0.92rem;font-weight:700;line-height:1.4;}
-.card-thumb{width:100%;aspect-ratio:16/9;border-radius:10px;object-fit:cover;background:var(--bg);}
-.card-body{font-size:0.8rem;color:var(--text-sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.65;}
+
+.card-type-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:0.65rem;font-weight:600;
+  background:rgba(36,85,61,0.07);
+  border:1px solid rgba(36,85,61,0.15);
+  border-radius:5px;padding:2px 7px;
+  color:var(--pp-green);align-self:flex-start;
+  letter-spacing:0.04em;
+}
+.card-title{font-size:0.88rem;font-weight:700;line-height:1.4;color:var(--pp-text);}
+.card-thumb{width:100%;aspect-ratio:16/9;border-radius:8px;object-fit:cover;background:var(--pp-sidebar);}
+.card-body{font-size:0.78rem;color:var(--pp-text-sub);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;line-height:1.65;}
 .card-foot{display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;margin-top:auto;}
-.tags{display:flex;gap:0.3rem;flex-wrap:wrap;}
-.tag{font-size:0.68rem;background:var(--bg);border-radius:999px;padding:2px 8px;color:var(--accent);border:1px solid var(--border);}
-.card-date{font-size:0.68rem;color:var(--text-muted);}
-.card-actions{position:absolute;top:0.6rem;right:0.6rem;display:none;gap:4px;}
+.tags{display:flex;gap:0.25rem;flex-wrap:wrap;}
+.tag{
+  font-size:0.63rem;background:rgba(231,160,168,0.1);
+  border-radius:4px;padding:2px 6px;
+  color:var(--pp-accent);border:1px solid rgba(199,95,107,0.2);
+}
+.card-date{font-size:0.63rem;color:var(--pp-text-muted);}
+.card-actions{position:absolute;top:0.5rem;right:0.5rem;display:none;gap:4px;}
 .is-admin .card:hover .card-actions{display:flex;}
-.card-act-btn{background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:6px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0.7rem;color:var(--text-muted);}
-.card-act-btn:hover{color:var(--accent);}
+.card-act-btn{
+  background:rgba(255,255,255,0.95);
+  border:1px solid var(--pp-card-border);
+  border-radius:5px;width:22px;height:22px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:0.68rem;color:var(--pp-text-muted);
+}
+.card-act-btn:hover{color:var(--pp-green);}
 .card.pinned .card-type-badge::after{content:' 📌';font-size:0.6rem;}
-.empty-state{grid-column:1/-1;text-align:center;padding:5rem 2rem;color:var(--text-muted);font-size:0.9rem;}
+.empty-state{grid-column:1/-1;text-align:center;padding:5rem 2rem;color:var(--pp-text-muted);font-size:0.85rem;}
 .empty-state .big{font-size:2.5rem;margin-bottom:0.75rem;}
 .overlay{display:none;position:fixed;inset:0;background:rgba(100,60,100,0.18);z-index:200;align-items:flex-start;justify-content:flex-end;padding:1rem;}
 .overlay.open{display:flex;}
@@ -179,8 +467,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
 .detail-html-render table{max-width:100%;border-collapse:collapse;}
 .html-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--accent));color:#fff;border-radius:999px;padding:2px 7px;margin-left:4px;}
-.card-html-render{font-size:0.78rem;color:var(--text-sub);line-height:1.55;max-height:5.2em;overflow:hidden;position:relative;}
-.card-html-render::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.6em;background:linear-gradient(to bottom,transparent,var(--surface));}
+.card-html-render{font-size:0.78rem;color:var(--pp-text-sub);line-height:1.55;max-height:5.2em;overflow:hidden;position:relative;}
+.card-html-render::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.6em;background:linear-gradient(to bottom,transparent,var(--pp-card));}
+@media(max-width:640px){
+  .pp-sidebar{width:56px;padding:1rem 0;}
+  .pp-sidebar-name,.pp-sidebar-subtitle,.pp-sidebar-credit{display:none;}
+  .pp-sidebar-avatar{width:40px;height:40px;font-size:1rem;margin-bottom:0.5rem;}
+  .pp-nav-item{padding:0.5rem;justify-content:center;}
+  .pp-nav-item span:last-child{display:none;}
+  .pp-nav-icon{width:auto;}
+  .pp-sidebar-footer .back-btn{font-size:0.6rem;padding:0.15rem 0.4rem;}
+  .cover{height:48vw;min-height:180px;}
+  .cover-textbox{margin:0 0.75rem 1rem;}
+  .home-strip{padding:0.75rem 1rem;}
+  .pp-home-content{padding:1rem 1rem 3rem;}
+  .arc-grid{padding:0.85rem 0.85rem 4rem;grid-template-columns:1fr;}
+  .arc-header{padding:0.85rem 1rem 0;}
+}
 .tab-list{display:flex;flex-direction:column;gap:0.4rem;}
 .tab-item{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border-radius:10px;padding:0.4rem 0.6rem;}
 .tab-item-name{flex:1;font-size:0.82rem;}
@@ -219,14 +522,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .pair-modal-avatar img.loaded{display:block;}
 .saving-toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:rgba(201,126,184,0.9);color:white;border-radius:999px;padding:0.4rem 1rem;font-size:0.75rem;z-index:500;display:none;font-family:var(--font);}
 .saving-toast.show{display:block;}
-@media(max-width:600px){
-  .cover-textbox{margin:0 1rem 1.5rem;}
-  .home-strip{padding:1.25rem 1rem;}
-  .home-recent,.home-pinned{padding:1.25rem 1rem 2rem;}
-  .arc-grid{padding:1rem 1rem 4rem;grid-template-columns:1fr;}
-  .panel{width:90vw;}
-  .pairs-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
-}
+
 </style>
 </head>
 <body>
@@ -280,104 +576,156 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 <div id="pairPage" class="page">
   <div id="home">
-    <div class="cover" id="cover">
-      <img class="cover-img" id="coverImg" alt="커버 이미지">
-      <div class="deco-layer" id="decoLayer"></div>
-      <div class="cover-edit-bar">
-        <button class="icon-pill admin-only" onclick="triggerCoverImg()">🖼 커버 이미지</button>
-        <button class="icon-pill admin-only" onclick="toggleStickerPalette()">✦ 스티커</button>
-        <button class="icon-pill admin-only" onclick="toggleImgControls()">⚙ 이미지 조정</button>
-        <button class="icon-pill admin-only" onclick="openSettings()">🎨 꾸미기</button>
-      </div>
-      <div class="sticker-palette" id="stickerPalette">
-        <button class="sticker-btn" onclick="addSticker('🌸')">🌸</button>
-        <button class="sticker-btn" onclick="addSticker('🌷')">🌷</button>
-        <button class="sticker-btn" onclick="addSticker('🌹')">🌹</button>
-        <button class="sticker-btn" onclick="addSticker('🌺')">🌺</button>
-        <button class="sticker-btn" onclick="addSticker('🌼')">🌼</button>
-        <button class="sticker-btn" onclick="addSticker('🍀')">🍀</button>
-        <button class="sticker-btn" onclick="addSticker('🦋')">🦋</button>
-        <button class="sticker-btn" onclick="addSticker('⭐')">⭐</button>
-        <button class="sticker-btn" onclick="addSticker('✨')">✨</button>
-        <button class="sticker-btn" onclick="addSticker('💫')">💫</button>
-        <button class="sticker-btn" onclick="addSticker('🌙')">🌙</button>
-        <button class="sticker-btn" onclick="addSticker('☁️')">☁️</button>
-        <button class="sticker-btn" onclick="addSticker('🎀')">🎀</button>
-        <button class="sticker-btn" onclick="addSticker('💝')">💝</button>
-        <button class="sticker-btn" onclick="addSticker('💖')">💖</button>
-        <button class="sticker-btn" onclick="addSticker('🍓')">🍓</button>
-        <button class="sticker-btn" onclick="addSticker('🍒')">🍒</button>
-        <button class="sticker-btn" onclick="addSticker('🫧')">🫧</button>
-        <button class="sticker-btn" onclick="addSticker('🕊️')">🕊️</button>
-        <button class="sticker-btn" onclick="addSticker('🍵')">🍵</button>
-        <button class="sticker-btn" onclick="addSticker('🌿')">🌿</button>
-        <button class="sticker-btn" onclick="addSticker('🫶')">🫶</button>
-        <button class="sticker-btn" onclick="addSticker('🎵')">🎵</button>
-        <button class="sticker-btn" onclick="addSticker('📷')">📷</button>
-        <label class="sticker-upload-btn">📁 이미지 업로드<input type="file" accept="image/*" style="display:none" onchange="addImageSticker(event)"></label>
-      </div>
-      <div class="cover-img-controls" id="coverImgControls">
-        <div class="ctrl-group"><span class="ctrl-lbl">크기</span><input type="range" class="ctrl-range" id="coverScale" min="50" max="200" value="100" oninput="updateCoverStyle()"></div>
-        <div class="ctrl-group"><span class="ctrl-lbl">X</span><input type="range" class="ctrl-range" id="coverPosX" min="0" max="100" value="50" oninput="updateCoverStyle()"></div>
-        <div class="ctrl-group"><span class="ctrl-lbl">Y</span><input type="range" class="ctrl-range" id="coverPosY" min="0" max="100" value="50" oninput="updateCoverStyle()"></div>
-        <button class="ctrl-btn" onclick="resetCoverStyle()">초기화</button>
-      </div>
-      <div class="cover-textbox">
-        <div class="cover-title" id="coverTitle" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">나의 드림 아카이브</div>
-        <div class="cover-sub" id="coverSub" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">✦ 드림 백업 · 로그 · 이미지 모음</div>
-      </div>
-      <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="loadCoverImg(event)">
-    </div>
+    <!-- 사이드바 -->
+    <div class="pp-sidebar" id="ppSidebar">
+      <div class="pp-sidebar-avatar" id="ppSidebarAvatar">🌸</div>
+      <div class="pp-sidebar-name" id="ppSidebarName">PAIR</div>
+      <div class="pp-sidebar-subtitle">아카이브</div>
 
-    <div class="home-strip">
-      <div class="home-left">
-        <button class="back-btn" onclick="goHub()">← 메인</button>
-        <div class="home-counts" id="homeCounts"></div>
-        <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
-      </div>
-      <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
-        <button class="go-archive-btn viewer-only" id="loginBtn" style="background:none;border:1.5px solid var(--border);color:var(--text-sub)" onclick="openLock()">🔑 로그인</button>
-        <button class="go-archive-btn" onclick="showSubPage('archive')">바보들 훔쳐보기 →</button>
+      <nav class="pp-nav">
+        <button class="pp-nav-item active" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">🏠</span> HOME
+        </button>
+        <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">📖</span> LOG
+        </button>
+      </nav>
+
+      <div class="pp-sidebar-divider"></div>
+
+      <div class="pp-sidebar-footer">
+        <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+        <div class="pp-sidebar-credit">드림 아카이브</div>
       </div>
     </div>
 
-    <div class="home-pinned" id="homePinnedSection">
-      <div class="section-label">
-        📌 선택된 항목
-        <button class="pin-manage-btn admin-only" onclick="openPinModal()">편집</button>
+    <!-- 메인 콘텐츠 -->
+    <div class="pp-main">
+      <div class="cover" id="cover">
+        <img class="cover-img" id="coverImg" alt="커버 이미지">
+        <div class="cover-img-overlay"></div>
+        <div class="deco-layer" id="decoLayer"></div>
+        <div class="cover-edit-bar">
+          <button class="icon-pill admin-only" onclick="triggerCoverImg()">🖼 커버 이미지</button>
+          <button class="icon-pill admin-only" onclick="toggleStickerPalette()">✦ 스티커</button>
+          <button class="icon-pill admin-only" onclick="toggleImgControls()">⚙ 이미지 조정</button>
+          <button class="icon-pill admin-only" onclick="openSettings()">🎨 꾸미기</button>
+        </div>
+        <div class="sticker-palette" id="stickerPalette">
+          <button class="sticker-btn" onclick="addSticker('🌸')">🌸</button>
+          <button class="sticker-btn" onclick="addSticker('🌷')">🌷</button>
+          <button class="sticker-btn" onclick="addSticker('🌹')">🌹</button>
+          <button class="sticker-btn" onclick="addSticker('🌺')">🌺</button>
+          <button class="sticker-btn" onclick="addSticker('🌼')">🌼</button>
+          <button class="sticker-btn" onclick="addSticker('🍀')">🍀</button>
+          <button class="sticker-btn" onclick="addSticker('🦋')">🦋</button>
+          <button class="sticker-btn" onclick="addSticker('⭐')">⭐</button>
+          <button class="sticker-btn" onclick="addSticker('✨')">✨</button>
+          <button class="sticker-btn" onclick="addSticker('💫')">💫</button>
+          <button class="sticker-btn" onclick="addSticker('🌙')">🌙</button>
+          <button class="sticker-btn" onclick="addSticker('☁️')">☁️</button>
+          <button class="sticker-btn" onclick="addSticker('🎀')">🎀</button>
+          <button class="sticker-btn" onclick="addSticker('💝')">💝</button>
+          <button class="sticker-btn" onclick="addSticker('💖')">💖</button>
+          <button class="sticker-btn" onclick="addSticker('🍓')">🍓</button>
+          <button class="sticker-btn" onclick="addSticker('🍒')">🍒</button>
+          <button class="sticker-btn" onclick="addSticker('🫧')">🫧</button>
+          <button class="sticker-btn" onclick="addSticker('🕊️')">🕊️</button>
+          <button class="sticker-btn" onclick="addSticker('🍵')">🍵</button>
+          <button class="sticker-btn" onclick="addSticker('🌿')">🌿</button>
+          <button class="sticker-btn" onclick="addSticker('🫶')">🫶</button>
+          <button class="sticker-btn" onclick="addSticker('🎵')">🎵</button>
+          <button class="sticker-btn" onclick="addSticker('📷')">📷</button>
+          <label class="sticker-upload-btn">📁 이미지 업로드<input type="file" accept="image/*" style="display:none" onchange="addImageSticker(event)"></label>
+        </div>
+        <div class="cover-img-controls" id="coverImgControls">
+          <div class="ctrl-group"><span class="ctrl-lbl">크기</span><input type="range" class="ctrl-range" id="coverScale" min="50" max="200" value="100" oninput="updateCoverStyle()"></div>
+          <div class="ctrl-group"><span class="ctrl-lbl">X</span><input type="range" class="ctrl-range" id="coverPosX" min="0" max="100" value="50" oninput="updateCoverStyle()"></div>
+          <div class="ctrl-group"><span class="ctrl-lbl">Y</span><input type="range" class="ctrl-range" id="coverPosY" min="0" max="100" value="50" oninput="updateCoverStyle()"></div>
+          <button class="ctrl-btn" onclick="resetCoverStyle()">초기화</button>
+        </div>
+        <div class="cover-textbox">
+          <div class="cover-title" id="coverTitle" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">나의 드림 아카이브</div>
+          <div class="cover-sub" id="coverSub" onblur="saveCoverText()" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">✦ 드림 백업 · 로그 · 이미지 모음</div>
+        </div>
+        <input type="file" id="coverFileInput" accept="image/*" style="display:none" onchange="loadCoverImg(event)">
       </div>
-      <div class="recent-row" id="pinnedRow"></div>
-    </div>
 
-    <div class="home-recent">
-      <div class="section-label"> ♡ </div>
-      <div class="recent-row" id="recentRow"></div>
+      <div class="home-strip">
+        <div class="home-left">
+          <div class="home-counts" id="homeCounts"></div>
+          <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+          <button class="go-archive-btn viewer-only" id="loginBtn" style="background:none;border:1px solid var(--pp-card-border);color:var(--pp-text-sub);font-size:0.78rem;" onclick="openLock()">🔑 로그인</button>
+          <button class="go-archive-btn" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">기록 보기 →</button>
+        </div>
+      </div>
+
+      <div class="pp-home-content">
+        <div class="home-pinned" id="homePinnedSection">
+          <div class="section-label">
+            📌 선택된 항목
+            <button class="pin-manage-btn admin-only" onclick="openPinModal()">편집</button>
+          </div>
+          <div class="recent-row" id="pinnedRow"></div>
+        </div>
+
+        <div class="home-recent">
+          <div class="section-label">♡ 최근 항목</div>
+          <div class="recent-row" id="recentRow"></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div id="archive" style="display:none;">
-    <div class="arc-header">
-      <div class="arc-top">
-        <div class="arc-title-row">
-          <button class="back-btn" onclick="goHub()">← 메인</button>
-          <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
-          <span class="arc-heading">기록</span>
-          <span class="admin-badge" id="adminBadgeArc">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
-        </div>
-        <div class="arc-controls">
-          <div class="search-wrap">
-            <span class="search-ico">🔍</span>
-            <input type="text" id="searchInput" placeholder="검색..." oninput="renderGrid()">
-          </div>
-          <button class="add-btn admin-only" onclick="openAddModal()">+ 추가</button>
+  <div id="archive" style="display:none;background:var(--pp-bg);min-height:100vh;display:none;">
+    <div style="display:flex;min-height:100vh;">
+      <!-- 사이드바 (아카이브용) -->
+      <div class="pp-sidebar">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc">🌸</div>
+        <div class="pp-sidebar-name" id="ppSidebarNameArc">PAIR</div>
+        <div class="pp-sidebar-subtitle">아카이브</div>
+        <nav class="pp-nav">
+          <button class="pp-nav-item" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[0].classList.add('active');">
+            <span class="pp-nav-icon">🏠</span> HOME
+          </button>
+          <button class="pp-nav-item active" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📖</span> LOG
+          </button>
+        </nav>
+        <div class="pp-sidebar-divider"></div>
+        <div class="pp-sidebar-footer">
+          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <div class="pp-sidebar-credit">드림 아카이브</div>
         </div>
       </div>
-      <div class="tab-bar" id="tabBar">
-        <button class="tab active" data-tab="all" onclick="setTab(this)">전체</button>
-        <button class="tab-add-btn" title="탭 추가" onclick="openTabEditModal()">＋</button>
+      <!-- 아카이브 메인 -->
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+        <div class="arc-header">
+          <div class="arc-top">
+            <div class="arc-title-row">
+              <button class="back-btn" onclick="goHub()">← 메인</button>
+              <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+              <span class="arc-heading">기록</span>
+              <span class="admin-badge" id="adminBadgeArc">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
+            </div>
+            <div class="arc-controls">
+              <div class="search-wrap">
+                <span class="search-ico">🔍</span>
+                <input type="text" id="searchInput" placeholder="검색..." oninput="renderGrid()">
+              </div>
+              <button class="add-btn admin-only" onclick="openAddModal()">+ 추가</button>
+            </div>
+          </div>
+          <div class="tab-bar" id="tabBar">
+            <button class="tab active" data-tab="all" onclick="setTab(this)">전체</button>
+            <button class="tab-add-btn" title="탭 추가" onclick="openTabEditModal()">＋</button>
+          </div>
+        </div>
+        <div class="arc-grid" id="arcGrid"></div>
       </div>
     </div>
-    <div class="arc-grid" id="arcGrid"></div>
   </div>
 </div>
 
@@ -748,6 +1096,19 @@ async function openPair(pid) {
   currentTab = 'all';
   await applyCfgColors();
   showPage('pairPage');
+  // 사이드바 업데이트 (홈+아카이브 양쪽)
+  const sideAvatar = document.getElementById('ppSidebarAvatar');
+  const sideName = document.getElementById('ppSidebarName');
+  const sideAvatarArc = document.getElementById('ppSidebarAvatarArc');
+  const sideNameArc = document.getElementById('ppSidebarNameArc');
+  if (pair) {
+    const nameUp = pair.name.toUpperCase();
+    if (sideName) sideName.textContent = nameUp;
+    if (sideNameArc) sideNameArc.textContent = nameUp;
+    const avatarHtml = pair.avatar ? `<img src="${esc(pair.avatar)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+    if (sideAvatar) sideAvatar.innerHTML = avatarHtml;
+    if (sideAvatarArc) sideAvatarArc.innerHTML = pair.avatar ? `<img src="${esc(pair.avatar)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+  }
   showSubPage('home');
   renderTabBar();
   renderHome();
@@ -776,11 +1137,17 @@ function showPage(id) {
   document.getElementById(id).classList.add('active');
 }
 function showSubPage(id) {
-  ['home','archive'].forEach(p=>{
-    document.getElementById(p).style.display = p===id ? 'block' : 'none';
-  });
-  if (id==='home') renderHome();
-  if (id==='archive') renderGrid();
+  const homeEl = document.getElementById('home');
+  const archiveEl = document.getElementById('archive');
+  if (id === 'home') {
+    homeEl.style.display = 'flex';
+    archiveEl.style.display = 'none';
+    renderHome();
+  } else if (id === 'archive') {
+    homeEl.style.display = 'none';
+    archiveEl.style.display = 'block';
+    renderGrid();
+  }
 }
 
 function openLock() {
