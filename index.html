@@ -418,8 +418,13 @@ body{
 .pin-manage-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
 
 .recent-row{
-  display:flex;gap:0.7rem;overflow-x:auto;
-  padding-bottom:0.4rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  display: flex;
+  flex-direction: column;    /* 세로로 정렬 */
+  gap: 0.7rem;
+  max-height: 280px;         /* 💡 원하는 스크롤 박스 높이 지정 (조절 가능) */
+  overflow-y: auto;          /* 💡 글이 많아지면 세로 스크롤바 생성 */
+  padding-right: 0.4rem;
+  flex-shrink: 0;            /* 부모 때문에 박스 크기가 작아지는 것 방지 */
 }
 .recent-row::-webkit-scrollbar{display:none;}
 
