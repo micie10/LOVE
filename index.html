@@ -1384,8 +1384,11 @@ async function ghLoadAll() {
       return ghCache;
     }
     try {
+      const headers = { 'Accept': 'application/vnd.github+json' };
+      const token = ghToken();
+      if (token) headers['Authorization'] = 'token ' + token;
       const res = await fetch('https://api.github.com/gists/' + GITHUB_GIST_ID, {
-        headers: { 'Accept': 'application/vnd.github+json' }
+        headers
       });
       if (!res.ok) throw new Error('status ' + res.status);
       const json = await res.json();
