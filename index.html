@@ -653,7 +653,18 @@ word-break:break-word;}
     min-height:0;
     overflow:hidden;
 }
-.modal.detail-modal:not(.has-img) .detail-modal-text{padding:0;overflow-y:auto;}
+.modal.detail-modal:not(.has-img) .detail-modal-text {
+    padding: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    word-break: break-word;
+    height: 100%;
+}
+
+/* 빈 이미지 박스가 밑에 나타나는 것을 방지하기 위해 아래 코드도 추가해 주세요 */
+.modal.detail-modal:not(.has-img) img {
+    display: none !important;
+}
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
 .detail-modal-imgwrap img{width:100%;height:auto;display:block;}
