@@ -34,17 +34,17 @@ html{scroll-behavior:smooth;}
 /* ── 창 모드: body = 바깥 배경, .app-window = 실제 앱 창 ── */
 body{
   font-family:var(--font);color:var(--text);
-  min-height:100vh;overflow-x:hidden;
+  min-height:100vh;overflow:hidden;
   /* 바깥 배경 — CSS 변수로 바꿀 수 있어요 */
   background: var(--outer-bg, #e8e0f0);
-  display:flex;align-items:flex-start;justify-content:center;
-  padding:2rem 1rem 4rem;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;
 }
 
 /* 앱 전체를 감싸는 창 */
 .app-window{
-  width:100%;
-  max-width:1100px;
+  width:var(--win-w, 1100px);
+  height:var(--win-h, 700px);
   background:var(--bg);
   border-radius:18px;
   box-shadow:0 8px 48px rgba(80,40,80,0.18), 0 2px 8px rgba(80,40,80,0.1);
@@ -52,8 +52,30 @@ body{
   display:flex;
   flex-direction:column;
   position:relative;
-  /* 창 높이는 내용에 맞게, 최소값만 지정 */
-  min-height:600px;
+  min-width:420px;min-height:400px;
+  max-width:calc(100vw - 2rem);max-height:calc(100vh - 2rem);
+  /* 드래그 리사이즈를 JS로 처리 */
+}
+
+.page{display:none;flex:1;overflow:auto;}
+.page.active{display:flex;flex-direction:column;}
+
+/* 창 리사이즈 핸들 (우하단) */
+.win-resize-handle{
+  position:absolute;bottom:0;right:0;
+  width:22px;height:22px;
+  cursor:se-resize;z-index:9999;
+  display:flex;align-items:flex-end;justify-content:flex-end;
+  padding:4px;
+  color:rgba(150,100,150,0.45);
+  font-size:0.75rem;
+  line-height:1;
+  user-select:none;
+  pointer-events:auto;
+}
+.win-resize-handle::before{
+  content:'◢';
+  font-size:14px;
 }
 
 /* 맥OS 타이틀바 */
@@ -98,9 +120,8 @@ body{
   border-radius:50%;cursor:pointer;padding:0;
 }
 
-.page{display:none;}
-.page.active{display:block;}
-#hub{padding:2.5rem 1.5rem 3rem;display:flex;flex-direction:column;align-items:center;}
+.page.active{display:flex;flex-direction:column;}
+#hub{padding:2.5rem 1.5rem 3rem;display:flex;flex-direction:column;align-items:center;overflow-y:auto;}
 /* pairPage uses flex internally */
 #hub.active{display:flex;}
 #pairPage.active{display:flex;flex-direction:column;}
@@ -129,9 +150,9 @@ body{
 
 /* 전체 레이아웃: 사이드바 + 메인 */
 #home{
-  display:flex;background:var(--pp-sidebar);
+  display:flex;background:var(--pp-sidebar);flex:1;overflow:hidden;
 }
-#archive{background:var(--pp-sidebar);}
+#archive{background:var(--pp-sidebar);flex:1;overflow:hidden;}
 
 /* ── 사이드바 ── */
 .pp-sidebar{
@@ -139,8 +160,6 @@ body{
   border-right:1px solid var(--pp-sidebar-border);
   display:flex;flex-direction:column;align-items:center;
   padding:1.5rem 0 1.5rem;
-  position:sticky;top:0;
-  height:100%;min-height:100%;
   overflow-y:auto;
   scrollbar-width:none;
   border-radius:0;
@@ -158,13 +177,15 @@ body{
 .pp-sidebar-avatar img{width:100%;height:100%;object-fit:cover;display:none;}
 .pp-sidebar-avatar img.loaded{display:block;}
 
-/* 관리자일 때 사이드바 아바타 hover */
+/* ── 사이드바 아바타 hover 안내: 관리자일 때만 카메라 오버레이 표시 ── */
 .is-admin .pp-sidebar-avatar:hover::after{
   content:'📷';
   position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.35);border-radius:50%;font-size:1.2rem;
+  background:rgba(0,0,0,0.35);border-radius:50%;font-size:1.2rem;cursor:pointer;
 }
-.pp-sidebar-avatar{position:relative;}
+/* 비관리자: 클릭 불가 표시 제거 */
+.pp-sidebar-avatar{position:relative;cursor:default!important;}
+.is-admin .pp-sidebar-avatar{cursor:pointer!important;}
 
 /* 관리자일 때 이름/부제목 편집 가능 */
 .is-admin .pp-sidebar-name[contenteditable],
@@ -216,7 +237,7 @@ body{
 .pp-sidebar-credit{font-size:0.58rem;color:var(--pp-text-muted);text-align:center;letter-spacing:0.04em;}
 
 /* ── 메인 영역 ── */
-.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pp-sidebar);}
+.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pp-sidebar);overflow-y:auto;}
 
 /* 커버 — 맥OS 창 스타일 */
 .cover{
@@ -630,14 +651,22 @@ body{
   <input type="color" value="#e8e0f0" oninput="document.documentElement.style.setProperty('--outer-bg', this.value); localStorage.setItem('outer_bg', this.value);" id="outerBgInput">
 </label>
 
-<div class="app-window">
-  <!-- 맥OS 스타일 타이틀바 -->
-  <div class="app-titlebar">
+<div class="app-window" id="appWindow">
+  <!-- 맥OS 스타일 타이틀바 (드래그로 창 이동 가능) -->
+  <div class="app-titlebar" id="appTitlebar">
     <div class="app-titlebar-dot red"></div>
     <div class="app-titlebar-dot yellow"></div>
     <div class="app-titlebar-dot green"></div>
     <div class="app-titlebar-label" id="appTitlebarLabel">LOVE</div>
+    <!-- 창 크기 조절 버튼 (타이틀바 우측) -->
+    <div style="position:absolute;right:10px;display:flex;gap:4px;align-items:center;">
+      <button onclick="resizeWindow(800,560)" title="소" style="background:rgba(0,0,0,0.07);border:none;border-radius:5px;font-size:0.6rem;padding:2px 6px;cursor:pointer;color:rgba(0,0,0,0.45);font-family:var(--font);">S</button>
+      <button onclick="resizeWindow(1100,700)" title="중" style="background:rgba(0,0,0,0.07);border:none;border-radius:5px;font-size:0.6rem;padding:2px 6px;cursor:pointer;color:rgba(0,0,0,0.45);font-family:var(--font);">M</button>
+      <button onclick="resizeWindow(1400,860)" title="대" style="background:rgba(0,0,0,0.07);border:none;border-radius:5px;font-size:0.6rem;padding:2px 6px;cursor:pointer;color:rgba(0,0,0,0.45);font-family:var(--font);">L</button>
+    </div>
   </div>
+  <!-- 창 크기 조절 핸들 (우하단 드래그) -->
+  <div class="win-resize-handle" id="winResizeHandle" title="드래그해서 창 크기 조절"></div>
 
 <div id="lockScreen">
   <div class="lock-box">
@@ -691,7 +720,7 @@ body{
     <!-- 사이드바 -->
     <div class="pp-sidebar" id="ppSidebar">
       <!-- 아바타: 관리자면 클릭해서 이미지 변경 -->
-      <label class="pp-sidebar-avatar" id="ppSidebarAvatar" style="cursor:pointer;" title="이미지 변경">
+      <label class="pp-sidebar-avatar" id="ppSidebarAvatar" title="이미지 변경 (관리자만)" onclick="if(!isAdmin){return false;}">
         🌸
         <input type="file" id="sidebarAvatarInput" accept="image/*" style="display:none" onchange="saveSidebarAvatar(event)">
       </label>
@@ -807,8 +836,8 @@ body{
     </div>
   </div>
 
-  <div id="archive" style="display:none;background:var(--pp-sidebar);">
-    <div style="display:flex;"
+  <div id="archive" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;">
+    <div style="display:flex;height:100%">
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
         <label class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경">
@@ -832,7 +861,7 @@ body{
         </div>
       </div>
       <!-- 아카이브 메인 -->
-      <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow-y:auto;">
         <div class="arc-header">
           <div class="arc-top">
             <div class="arc-title-row">
@@ -1354,7 +1383,7 @@ function showSubPage(id) {
     renderHome();
   } else if (id === 'archive') {
     homeEl.style.display = 'none';
-    archiveEl.style.display = 'block';
+    archiveEl.style.display = 'flex';
     renderGrid();
   }
 }
@@ -1985,6 +2014,68 @@ function getSamples() {
     {id:4,type:'memo',title:'학교물 설정 메모',body:'배경: 2000년대 초 고등학교\n상대: 밴드부 드러머\n계절: 가을학기\n핵심: 옥상 일몰 장면',tags:['설정','학교물'],date:'2025-06-10',img:''},
     {id:5,type:'log',title:'[완결] 별밤 캠핑 로그',body:'드디어 완결! 5편짜리 캠핑 AU. 마지막 고백씬 쓰면서 혼자 설레서 못 잔 게 함정ㅠ',tags:['완결','캠핑','로맨스'],date:'2025-06-05',img:''},
   ];
+}
+
+// ── 창 크기 조절 (우하단 드래그 리사이즈) ──
+(function(){
+  const handle = document.getElementById('winResizeHandle');
+  const win = document.getElementById('appWindow');
+  if (!handle || !win) return;
+  let dragging = false, startX, startY, startW, startH;
+  handle.addEventListener('mousedown', e=>{
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    const rect = win.getBoundingClientRect();
+    startW = rect.width; startH = rect.height;
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e=>{
+    if (!dragging) return;
+    const dw = e.clientX - startX, dh = e.clientY - startY;
+    const newW = Math.max(420, Math.min(startW + dw, window.innerWidth - 32));
+    const newH = Math.max(400, Math.min(startH + dh, window.innerHeight - 32));
+    win.style.width = newW + 'px';
+    win.style.height = newH + 'px';
+  });
+  document.addEventListener('mouseup', ()=>{
+    if (!dragging) return;
+    dragging = false;
+    document.body.style.userSelect = '';
+    // 크기 저장
+    localStorage.setItem('win_w', win.offsetWidth);
+    localStorage.setItem('win_h', win.offsetHeight);
+  });
+  // 터치 지원
+  handle.addEventListener('touchstart', e=>{
+    const t = e.touches[0];
+    dragging = true;
+    startX = t.clientX; startY = t.clientY;
+    const rect = win.getBoundingClientRect();
+    startW = rect.width; startH = rect.height;
+    e.preventDefault();
+  }, {passive:false});
+  document.addEventListener('touchmove', e=>{
+    if (!dragging) return;
+    const t = e.touches[0];
+    const dw = t.clientX - startX, dh = t.clientY - startY;
+    win.style.width = Math.max(420, startW+dw)+'px';
+    win.style.height = Math.max(400, startH+dh)+'px';
+  }, {passive:false});
+  document.addEventListener('touchend', ()=>{ dragging=false; });
+  // 저장된 크기 복원
+  const sw = localStorage.getItem('win_w'), sh = localStorage.getItem('win_h');
+  if (sw && sh) { win.style.width=sw+'px'; win.style.height=sh+'px'; }
+})();
+
+// 프리셋 창 크기
+function resizeWindow(w, h) {
+  const win = document.getElementById('appWindow');
+  if (!win) return;
+  win.style.width = Math.min(w, window.innerWidth-32)+'px';
+  win.style.height = Math.min(h, window.innerHeight-32)+'px';
+  localStorage.setItem('win_w', win.offsetWidth);
+  localStorage.setItem('win_h', win.offsetHeight);
 }
 
 (async ()=>{
