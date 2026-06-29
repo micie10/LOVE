@@ -506,13 +506,16 @@ body{
 .tab-add-btn:hover{color:var(--pp-green);}
 .is-admin .tab-add-btn{display:block;}
 
-.arc-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  align-content:start;gap:0.85rem;padding:1.1rem 1.5rem 2rem;
-  background:var(--pp-sidebar);flex:1;
-  overflow-y:auto;
-  min-height:0;
-  flex-shrink:0;
+.arc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 0.5rem;
+  
+  /* 💡 여기에 스크롤을 만들어주는 핵심 코드 추가 */
+  max-height: calc(100vh - 120px); /* 화면 높이에서 상단 탭 크기만큼 제외 */
+  overflow-y: auto;                /* 💡 글이 많아지면 내부에 세로 스크롤 생성 */
+  padding-right: 0.5rem;           /* 스크롤바와 카드 사이 여백 */
 }
 
 /* 아카이브 카드 */
