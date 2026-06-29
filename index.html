@@ -30,10 +30,76 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-.page{display:none;min-height:100vh;}
-.page.active{display:block;}
-#hub{padding:2.5rem 1.5rem 4rem;}
+
+/* ── 창 모드: body = 바깥 배경, .app-window = 실제 앱 창 ── */
+body{
+  font-family:var(--font);color:var(--text);
+  min-height:100vh;overflow-x:hidden;
+  /* 바깥 배경 — CSS 변수로 바꿀 수 있어요 */
+  background: var(--outer-bg, #e8e0f0);
+  display:flex;align-items:flex-start;justify-content:center;
+  padding:2rem 1rem 4rem;
+}
+
+/* 앱 전체를 감싸는 창 */
+.app-window{
+  width:100%;
+  max-width:1100px;
+  min-height:calc(100vh - 4rem);
+  background:var(--bg);
+  border-radius:18px;
+  box-shadow:0 8px 48px rgba(80,40,80,0.18), 0 2px 8px rgba(80,40,80,0.1);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+
+/* 맥OS 타이틀바 */
+.app-titlebar{
+  height:36px;
+  background:rgba(0,0,0,0.04);
+  border-bottom:1px solid rgba(0,0,0,0.07);
+  display:flex;align-items:center;padding:0 14px;
+  gap:7px;flex-shrink:0;
+  position:relative;
+}
+.app-titlebar-dot{
+  width:12px;height:12px;border-radius:50%;
+  flex-shrink:0;
+}
+.app-titlebar-dot.red{background:#ff5f57;}
+.app-titlebar-dot.yellow{background:#febc2e;}
+.app-titlebar-dot.green{background:#28c840;}
+.app-titlebar-label{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-size:0.72rem;color:rgba(0,0,0,0.35);
+  font-weight:500;letter-spacing:0.04em;
+  pointer-events:none;
+}
+
+/* 바깥 배경 색상 변경 버튼 (우하단 고정) */
+.outer-bg-picker{
+  position:fixed;bottom:1.2rem;left:1.2rem;z-index:9999;
+  background:rgba(255,255,255,0.9);
+  border:1.5px solid rgba(180,140,180,0.35);
+  border-radius:999px;padding:0.35rem 0.8rem;
+  font-family:var(--font);font-size:0.7rem;
+  color:#6a556a;cursor:pointer;
+  display:flex;align-items:center;gap:0.4rem;
+  box-shadow:0 2px 10px rgba(130,80,130,0.12);
+  backdrop-filter:blur(6px);
+  transition:border-color 0.15s;
+}
+.outer-bg-picker:hover{border-color:var(--accent);}
+.outer-bg-picker input[type=color]{
+  width:22px;height:22px;border:none;background:none;
+  border-radius:50%;cursor:pointer;padding:0;
+}
+
+.page{display:none;}
+.page.active{display:flex;flex-direction:column;flex:1;}
+#hub{padding:2.5rem 1.5rem 4rem;flex:1;}
 .hub-header{text-align:center;margin-bottom:2.5rem;}
 .hub-title{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:700;background:linear-gradient(135deg,var(--p1),var(--accent),var(--p2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hub-sub{font-size:0.85rem;color:var(--text-muted);margin-top:0.4rem;}
@@ -55,13 +121,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .add-pair-card span{font-size:1.8rem;}
 .is-admin .add-pair-card{display:flex;}
 /* ===== PAIR PAGE: OSIPECH-inspired Layout ===== */
-#pairPage{position:relative;background:var(--pp-bg);min-height:100vh;}
+#pairPage{position:relative;background:var(--pp-bg);flex:1;display:flex;flex-direction:column;}
 
 /* 전체 레이아웃: 사이드바 + 메인 */
 #home{
-  display:flex;min-height:100vh;background:var(--pp-bg);
+  display:flex;flex:1;background:var(--pp-bg);
 }
-#archive{background:var(--pp-bg);}
+#archive{background:var(--pp-bg);flex:1;}
 
 /* ── 사이드바 ── */
 .pp-sidebar{
@@ -69,9 +135,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   border-right:1px solid var(--pp-sidebar-border);
   display:flex;flex-direction:column;align-items:center;
   padding:1.5rem 0 1.5rem;
-  position:sticky;top:0;height:100vh;overflow-y:auto;
+  position:sticky;top:0;height:calc(100vh - 4rem - 36px);max-height:700px;overflow-y:auto;
   scrollbar-width:none;
-  border-radius:0 0 0 0;
+  border-radius:0;
 }
 .pp-sidebar::-webkit-scrollbar{display:none;}
 
@@ -505,10 +571,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .lock-btn{background:linear-gradient(135deg,var(--p1),var(--p2));border:none;border-radius:999px;padding:0.65rem 1.5rem;font-family:var(--font);font-size:0.9rem;font-weight:700;color:var(--text);cursor:pointer;}
 .lock-err{font-size:0.78rem;color:#e07a7a;min-height:1.2em;}
 .lock-cancel{font-size:0.78rem;color:var(--text-muted);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;}
-.readonly-notice{display:none;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.92);border:1.5px solid var(--border);border-radius:999px;padding:0.5rem 1.2rem;font-size:0.78rem;color:var(--text-muted);z-index:400;white-space:nowrap;box-shadow:0 2px 12px rgba(180,130,180,0.15);align-items:center;gap:0.5rem;}
+.readonly-notice{display:none;position:sticky;bottom:1.5rem;left:50%;transform:translateX(-50%);background:rgba(255,255,255,0.92);border:1.5px solid var(--border);border-radius:999px;padding:0.5rem 1.2rem;font-size:0.78rem;color:var(--text-muted);z-index:400;white-space:nowrap;box-shadow:0 2px 12px rgba(180,130,180,0.15);align-items:center;gap:0.5rem;margin:0 auto;width:fit-content;}
 .readonly-notice.show{display:flex;}
 .readonly-login{background:none;border:none;font-family:var(--font);font-size:0.78rem;font-weight:600;color:var(--accent);cursor:pointer;padding:0;text-decoration:underline;}
-.float-settings{position:fixed;bottom:1.5rem;right:1.5rem;z-index:100;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;padding:0.55rem 1rem;font-family:var(--font);font-size:0.8rem;color:var(--text-sub);cursor:pointer;box-shadow:0 4px 16px rgba(180,130,180,0.18);display:flex;align-items:center;gap:0.4rem;transition:border-color 0.15s;}
+.float-settings{position:sticky;bottom:1.5rem;right:1.5rem;z-index:100;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;padding:0.55rem 1rem;font-family:var(--font);font-size:0.8rem;color:var(--text-sub);cursor:pointer;box-shadow:0 4px 16px rgba(180,130,180,0.18);display:flex;align-items:center;gap:0.4rem;transition:border-color 0.15s;align-self:flex-end;margin:0 1.5rem 1.5rem auto;}
 .float-settings:hover{border-color:var(--accent);color:var(--accent);}
 .pin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.6rem;max-height:320px;overflow-y:auto;}
 .pin-item{border:1.5px solid var(--border);border-radius:12px;padding:0.6rem;cursor:pointer;transition:border-color 0.12s;display:flex;flex-direction:column;gap:0.3rem;}
@@ -526,6 +592,21 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 </style>
 </head>
 <body>
+
+<!-- 바깥 배경 색상 변경 버튼 -->
+<label class="outer-bg-picker" title="바깥 배경색 변경">
+  🖼 배경
+  <input type="color" value="#e8e0f0" oninput="document.documentElement.style.setProperty('--outer-bg', this.value); localStorage.setItem('outer_bg', this.value);" id="outerBgInput">
+</label>
+
+<div class="app-window">
+  <!-- 맥OS 스타일 타이틀바 -->
+  <div class="app-titlebar">
+    <div class="app-titlebar-dot red"></div>
+    <div class="app-titlebar-dot yellow"></div>
+    <div class="app-titlebar-dot green"></div>
+    <div class="app-titlebar-label" id="appTitlebarLabel">LOVE</div>
+  </div>
 
 <div id="lockScreen">
   <div class="lock-box">
@@ -679,8 +760,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     </div>
   </div>
 
-  <div id="archive" style="display:none;background:var(--pp-bg);min-height:100vh;display:none;">
-    <div style="display:flex;min-height:100vh;">
+  <div id="archive" style="display:none;background:var(--pp-bg);flex:1;flex-direction:column;">
+    <div style="display:flex;flex:1;"
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
         <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc">🌸</div>
@@ -734,13 +815,23 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
     <div class="sp-title">🎨 꾸미기 설정</div>
     <div><div class="sp-section" style="margin-bottom:0.6rem">파스텔 테마</div><div class="palette-row" id="paletteRow"></div></div>
     <div>
-      <div class="sp-section" style="margin-bottom:0.6rem">색상 직접 변경</div>
+      <div class="sp-section" style="margin-bottom:0.6rem">허브/카드 색상</div>
       <div class="custom-colors">
         <div class="color-row"><span class="color-lbl">배경색</span><input type="color" class="color-inp" id="c-bg" oninput="applyCustomColor()"></div>
         <div class="color-row"><span class="color-lbl">포인트 1</span><input type="color" class="color-inp" id="c-p1" oninput="applyCustomColor()"></div>
         <div class="color-row"><span class="color-lbl">포인트 2</span><input type="color" class="color-inp" id="c-p2" oninput="applyCustomColor()"></div>
         <div class="color-row"><span class="color-lbl">포인트 3</span><input type="color" class="color-inp" id="c-p3" oninput="applyCustomColor()"></div>
         <div class="color-row"><span class="color-lbl">강조색</span><input type="color" class="color-inp" id="c-accent" oninput="applyCustomColor()"></div>
+      </div>
+    </div>
+    <div>
+      <div class="sp-section" style="margin-bottom:0.6rem">페어페이지 색상</div>
+      <div class="custom-colors">
+        <div class="color-row"><span class="color-lbl">페이지 배경</span><input type="color" class="color-inp" id="cpp-bg" oninput="applyPpColor()"></div>
+        <div class="color-row"><span class="color-lbl">사이드바</span><input type="color" class="color-inp" id="cpp-sidebar" oninput="applyPpColor()"></div>
+        <div class="color-row"><span class="color-lbl">포인트(그린)</span><input type="color" class="color-inp" id="cpp-green" oninput="applyPpColor()"></div>
+        <div class="color-row"><span class="color-lbl">포인트(핑크)</span><input type="color" class="color-inp" id="cpp-pink" oninput="applyPpColor()"></div>
+        <div class="color-row"><span class="color-lbl">강조색</span><input type="color" class="color-inp" id="cpp-accent" oninput="applyPpColor()"></div>
       </div>
     </div>
     <div>
@@ -869,6 +960,8 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
   👀 구경 모드 · 수정하려면 &nbsp;<button class="readonly-login" onclick="openLock()">관리자 로그인</button>
 </div>
 <div class="saving-toast" id="savingToast">저장 중...</div>
+
+</div><!-- /app-window -->
 
 <script>
 const ADMIN_CODE = '*20000425';
@@ -1061,6 +1154,13 @@ async function applyCfgColors() {
     if(c.bg)r.setProperty('--bg',c.bg);if(c.p1)r.setProperty('--p1',c.p1);
     if(c.p2)r.setProperty('--p2',c.p2);if(c.p3)r.setProperty('--p3',c.p3);
     if(c.accent)r.setProperty('--accent',c.accent);if(c.border)r.setProperty('--border',c.border);
+    // PP 색상 복원
+    if(c['pp-bg'])r.setProperty('--pp-bg',c['pp-bg']);
+    if(c['pp-sidebar'])r.setProperty('--pp-sidebar',c['pp-sidebar']);
+    if(c['pp-green'])r.setProperty('--pp-green',c['pp-green']);
+    if(c['pp-pink'])r.setProperty('--pp-pink',c['pp-pink']);
+    if(c['pp-accent'])r.setProperty('--pp-accent',c['pp-accent']);
+    if(c['pp-card'])r.setProperty('--pp-card',c['pp-card']);
   } catch(e){}
 }
 
@@ -1633,10 +1733,30 @@ async function applyCustomColor() {
   });
   await saveCfgColors();
 }
+async function applyPpColor() {
+  if (!isAdmin) return;
+  const ppMap={bg:'pp-bg',sidebar:'pp-sidebar',green:'pp-green',pink:'pp-pink',accent:'pp-accent'};
+  Object.entries(ppMap).forEach(([k,v])=>{
+    const el=document.getElementById('cpp-'+k);
+    if(el) document.documentElement.style.setProperty('--'+v, el.value);
+  });
+  await saveCfgColors();
+}
 function syncColorInputs() {
   const s=getComputedStyle(document.documentElement);
   ['bg','p1','p2','p3','accent'].forEach(k=>{
-    document.getElementById('c-'+k).value=s.getPropertyValue('--'+k).trim();
+    const el=document.getElementById('c-'+k);
+    if(el) el.value=s.getPropertyValue('--'+k).trim();
+  });
+  // PP 색상
+  const ppMap={bg:'pp-bg',sidebar:'pp-sidebar',green:'pp-green',pink:'pp-pink',accent:'pp-accent'};
+  Object.entries(ppMap).forEach(([k,v])=>{
+    const el=document.getElementById('cpp-'+k);
+    if(el){
+      let val=s.getPropertyValue('--'+v).trim();
+      // hex로 변환 시도
+      if(val.startsWith('#')&&val.length===7) el.value=val;
+    }
   });
 }
 async function applySiteInfo() {
@@ -1662,6 +1782,7 @@ async function saveCfgColors() {
   const s=getComputedStyle(document.documentElement);
   const colorCfg={};
   ['bg','p1','p2','p3','accent','border'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
+  ['pp-bg','pp-sidebar','pp-green','pp-pink','pp-accent','pp-card'].forEach(k=>colorCfg[k]=s.getPropertyValue('--'+k).trim());
   await stoSet('da_colors', colorCfg);
 }
 
@@ -1752,6 +1873,12 @@ function getSamples() {
   await applyCfgColors();
   await loadPairs();
   document.getElementById('readonlyNotice').classList.remove('show');
+  // 바깥 배경색 복원
+  const savedBg = localStorage.getItem('outer_bg');
+  if (savedBg) {
+    document.documentElement.style.setProperty('--outer-bg', savedBg);
+    document.getElementById('outerBgInput').value = savedBg;
+  }
 })();
 </script>
 </body>
