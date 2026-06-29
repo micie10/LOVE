@@ -254,8 +254,16 @@ body{
 .pp-sidebar-credit{font-size:0.58rem;color:var(--pp-text-muted);text-align:center;letter-spacing:0.04em;}
 
 /* ── 메인 영역 ── */
-.pp-main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--pp-sidebar);overflow-y:auto;}
-
+.pp-main{
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pp-sidebar);
+  height: 100%;          /* 부모 창 크기에 높이 맞추기 */
+  max-height: 664px;     /* 타이틀바(36px)를 제외한 실제 앱 창 높이로 꽉 묶기 */
+  overflow-y: auto;      /* 💡 글이 많아지면 이 박스 자체에 세로 스크롤 생성 */
+}
 /* 커버 — 맥OS 창 스타일 */
 .cover{
   position:relative;width:100%;height:340px;max-height:380px;min-height:200px;
