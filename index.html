@@ -618,15 +618,11 @@ body{
 .detail-body{font-size:0.88rem;color:var(--text-sub);white-space:pre-wrap;line-height:1.8;overflow-wrap:break-word;
 word-break:break-word;}
 .detail-scroll{
-
     flex:1;
-
-    overflow-y:auto;
-
     min-height:0;
-
+    overflow-y:auto;
+    overflow-x:hidden;
     padding-right:8px;
-
 }
 .detail-date{font-size:0.75rem;color:var(--text-muted);}
 .detail-html-render{font-size:0.88rem;line-height:1.8;overflow-wrap:break-word;
@@ -638,10 +634,25 @@ word-break:break-word;}
 .card-html-render::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1.6em;background:linear-gradient(to bottom,transparent,var(--pp-card));}
 
 /* ── 상세보기: 이미지가 있으면 2단(텍스트+이미지) 레이아웃 ── */
-.modal.detail-modal{max-width:780px;padding:0;overflow:hidden;flex-direction:row;max-height:85vh;}
+.modal.detail-modal{
+    display:flex;
+    max-width:780px;
+    padding:0;
+    overflow:hidden;
+    flex-direction:row;
+    max-height:85vh;
+}
 .modal.detail-modal:not(.has-img){max-width:500px;flex-direction:column;padding:1.75rem;}
-.detail-modal-text{flex:1;min-width:0;padding:1.75rem;overflow-y:auto;display:flex;flex-direction:column;gap:1rem;min-height:0;
-overflow:hidden;}
+.detail-modal-text{
+    flex:1;
+    min-width:0;
+    padding:1.75rem;
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+    min-height:0;
+    overflow:hidden;
+}
 .modal.detail-modal:not(.has-img) .detail-modal-text{padding:0;overflow:visible;}
 .detail-modal-imgwrap{width:300px;flex-shrink:0;background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
 .modal.detail-modal:not(.has-img) .detail-modal-imgwrap{display:none;}
@@ -1146,29 +1157,36 @@ document.addEventListener('selectstart', e => {
 
 <div class="overlay center" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')">
   <div class="modal detail-modal" id="detailModalInner">
+
     <div class="detail-modal-text">
+
       <div class="modal-head">
-        <div class="detail-scroll">
         <span class="modal-ttl" id="d-ttl"></span>
         <button class="x-btn" onclick="closeModal('detailModal')">✕</button>
       </div>
-      <div class="detail-body" id="d-body"></div>
-      <div class="detail-html-render" id="d-body-html" style="display:none"></div>
+
+      <div class="detail-scroll">
+        <div class="detail-body" id="d-body"></div>
+        <div class="detail-html-render" id="d-body-html" style="display:none"></div>
+      </div>
+
       <div class="detail-date" id="d-date"></div>
+
       <div class="modal-actions" style="flex-wrap:wrap;">
         <button class="btn-danger admin-only" id="d-del-btn">삭제</button>
         <button class="btn-ghost admin-only" id="d-pin-btn">📍 핀 추가</button>
         <button class="btn-ghost admin-only" id="d-edit-btn">✎ 수정</button>
         <button class="btn-ghost" onclick="closeModal('detailModal')">닫기</button>
       </div>
+
     </div>
+
     <div class="detail-modal-imgwrap">
       <img id="d-img" src="" alt="">
     </div>
+
   </div>
 </div>
-
-<div class="overlay center" id="pinModal" onclick="if(event.target===this)closeModal('pinModal')">
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl">📌 핀 편집</span><button class="x-btn" onclick="closeModal('pinModal')">✕</button></div>
     <div class="pin-grid" id="pinGrid"></div>
