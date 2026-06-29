@@ -591,6 +591,60 @@ word-break:break-word;}
     word-break:break-word;}
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
 .detail-html-render table{max-width:100%;border-collapse:collapse;}
+
+/* ── 리치 텍스트 툴바 ── */
+.rich-toolbar{
+  display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:10px 10px 0 0;border-bottom:none;
+  padding:0.35rem 0.5rem;
+}
+.rich-toolbar-btn{
+  background:none;border:1.5px solid transparent;border-radius:6px;
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  font-size:0.82rem;font-family:var(--font);cursor:pointer;
+  color:var(--text-sub);transition:background 0.12s,border-color 0.12s;
+  flex-shrink:0;
+}
+.rich-toolbar-btn:hover{background:var(--border);border-color:var(--border);}
+.rich-toolbar-btn.active{background:rgba(201,126,184,0.15);border-color:var(--accent);color:var(--accent);}
+.rich-toolbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 0.1rem;}
+.rich-toolbar-color{
+  width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);
+  padding:2px;cursor:pointer;background:none;flex-shrink:0;
+}
+.rich-toolbar-color:hover{border-color:var(--accent);}
+.rich-toolbar-label{font-size:0.65rem;color:var(--text-muted);white-space:nowrap;}
+
+/* 리치 에디터 영역 */
+.rich-editor{
+  width:100%;min-height:110px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:0 0 10px 10px;
+  padding:0.55rem 0.8rem;
+  font-family:var(--font);font-size:0.85rem;color:var(--text);
+  outline:none;resize:vertical;overflow-y:auto;
+  line-height:1.8;
+  transition:border-color 0.15s;
+}
+.rich-editor:focus{border-color:var(--accent);}
+.rich-editor:empty::before{content:attr(data-placeholder);color:var(--text-muted);pointer-events:none;}
+
+/* 형광펜 색상 팔레트 팝업 */
+.color-popup{
+  display:none;position:absolute;z-index:300;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:10px;padding:0.5rem;
+  gap:0.3rem;flex-wrap:wrap;width:148px;
+  box-shadow:0 4px 16px rgba(180,130,180,0.18);
+}
+.color-popup.open{display:flex;}
+.color-swatch{
+  width:24px;height:24px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;transition:transform 0.12s;flex-shrink:0;
+}
+.color-swatch:hover{transform:scale(1.15);}
+.color-popup-wrap{position:relative;}
 .html-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--accent));color:#fff;border-radius:999px;padding:2px 7px;margin-left:4px;}
 .card-html-render{display:none;}
 .card-html-render::after{display:none;}
@@ -1150,7 +1204,47 @@ document.addEventListener('selectstart', e => {
     </div>
     <div>
       <div class="field-lbl" id="bodyFieldLbl">내용</div>
-      <textarea class="field-ta" id="inp-body" placeholder="내용을 입력하세요..."></textarea>
+      <!-- 리치 텍스트 툴바 (일반 모드) -->
+      <div class="rich-toolbar" id="richToolbar">
+        <button class="rich-toolbar-btn" title="굵게 (Ctrl+B)" onclick="execFmt('bold')" id="tbBold"><b>B</b></button>
+        <button class="rich-toolbar-btn" title="기울임 (Ctrl+I)" onclick="execFmt('italic')" id="tbItalic"><i>I</i></button>
+        <div class="rich-toolbar-sep"></div>
+        <!-- 글자색 -->
+        <div class="color-popup-wrap" id="textColorWrap">
+          <button class="rich-toolbar-btn" title="글자색" onclick="toggleColorPopup('textColorPopup')" id="tbTextColor" style="font-size:0.7rem;">A<span id="tbTextColorBar" style="display:block;height:3px;border-radius:2px;margin-top:1px;background:#4a3f4a;"></span></button>
+          <div class="color-popup" id="textColorPopup">
+            <div style="font-size:0.62rem;color:var(--text-muted);width:100%;margin-bottom:0.15rem;">글자색</div>
+            <div class="color-swatch" style="background:#4a3f4a" onclick="applyTextColor('#4a3f4a')" title="#4a3f4a"></div>
+            <div class="color-swatch" style="background:#e07a7a" onclick="applyTextColor('#e07a7a')" title="#e07a7a"></div>
+            <div class="color-swatch" style="background:#c97eb8" onclick="applyTextColor('#c97eb8')" title="#c97eb8"></div>
+            <div class="color-swatch" style="background:#7a9ee0" onclick="applyTextColor('#7a9ee0')" title="#7a9ee0"></div>
+            <div class="color-swatch" style="background:#5aaa7a" onclick="applyTextColor('#5aaa7a')" title="#5aaa7a"></div>
+            <div class="color-swatch" style="background:#e0a857" onclick="applyTextColor('#e0a857')" title="#e0a857"></div>
+            <div class="color-swatch" style="background:#7ac8e0" onclick="applyTextColor('#7ac8e0')" title="#7ac8e0"></div>
+            <div class="color-swatch" style="background:#9b7ae0" onclick="applyTextColor('#9b7ae0')" title="#9b7ae0"></div>
+            <input type="color" class="rich-toolbar-color" id="textColorCustom" title="직접 선택" onchange="applyTextColor(this.value)" style="width:24px;height:24px;padding:1px;">
+          </div>
+        </div>
+        <!-- 형광펜 -->
+        <div class="color-popup-wrap" id="hlColorWrap">
+          <button class="rich-toolbar-btn" title="형광펜" onclick="toggleColorPopup('hlColorPopup')" id="tbHL" style="font-size:0.75rem;">🖊</button>
+          <div class="color-popup" id="hlColorPopup">
+            <div style="font-size:0.62rem;color:var(--text-muted);width:100%;margin-bottom:0.15rem;">형광펜</div>
+            <div class="color-swatch" style="background:#fff176" onclick="applyHighlight('#fff176')" title="#fff176"></div>
+            <div class="color-swatch" style="background:#ffd6e7" onclick="applyHighlight('#ffd6e7')" title="#ffd6e7"></div>
+            <div class="color-swatch" style="background:#d4f1c4" onclick="applyHighlight('#d4f1c4')" title="#d4f1c4"></div>
+            <div class="color-swatch" style="background:#c8e6ff" onclick="applyHighlight('#c8e6ff')" title="#c8e6ff"></div>
+            <div class="color-swatch" style="background:#ffd6b3" onclick="applyHighlight('#ffd6b3')" title="#ffd6b3"></div>
+            <div class="color-swatch" style="background:#e8d5ff" onclick="applyHighlight('#e8d5ff')" title="#e8d5ff"></div>
+            <div class="color-swatch" style="background:#fff;border:2px dashed #ccc;" onclick="applyHighlight('transparent')" title="제거"></div>
+            <input type="color" class="rich-toolbar-color" id="hlColorCustom" title="직접 선택" onchange="applyHighlight(this.value)" style="width:24px;height:24px;padding:1px;">
+          </div>
+        </div>
+      </div>
+      <!-- 리치 에디터 (일반 모드) -->
+      <div class="rich-editor" id="richEditor" contenteditable="true" data-placeholder="내용을 입력하세요..." oninput="syncRichToPlain()" onkeyup="updateToolbarState()" onmouseup="updateToolbarState()" onkeydown="handleEditorKeydown(event)"></div>
+      <!-- 기존 textarea (HTML 모드에서만 노출) -->
+      <textarea class="field-ta" id="inp-body" placeholder="내용을 입력하세요..." style="display:none;"></textarea>
     </div>
     <div style="display:flex;align-items:center;gap:0.5rem;">
       <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);">
@@ -1841,6 +1935,8 @@ function openAddModal() {
   renderTypeChips();
   currentType = currentTabs[0]?.id||'log';
   ['inp-title','inp-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const richEditor = document.getElementById('richEditor');
+  if (richEditor) richEditor.innerHTML = '';
   clearItemImg();
   document.getElementById('imgUrlWrap').style.display='block';
   document.getElementById('inp-ishtml').checked=false;
@@ -1859,6 +1955,9 @@ function openEditItemModal(id) {
   document.getElementById('inp-title').value = it.title || '';
   document.getElementById('inp-body').value = it.body || '';
   document.getElementById('inp-ishtml').checked = !!it.isHtml;
+  // 리치 에디터에도 내용 불러오기
+  const richEditor = document.getElementById('richEditor');
+  if (richEditor) richEditor.innerHTML = it.body || '';
   toggleHtmlMode();
   if (it.img) {
     const prev=document.getElementById('inp-img-preview');
@@ -1879,15 +1978,31 @@ function toggleHtmlMode() {
   const isHtml = document.getElementById('inp-ishtml').checked;
   const ta = document.getElementById('inp-body');
   const lbl = document.getElementById('bodyFieldLbl');
+  const richEditor = document.getElementById('richEditor');
+  const richToolbar = document.getElementById('richToolbar');
   if (isHtml) {
     lbl.textContent = '🧩 HTML 코드';
+    // 리치 에디터 내용을 textarea로 이전
+    if (richEditor && richEditor.innerHTML && !ta.value) {
+      ta.value = richEditor.innerHTML;
+    }
     ta.placeholder = '<div style="..."> ... </div>\n게시물로 출력될 HTML을 그대로 입력하세요.';
     ta.style.fontFamily = "'SFMono-Regular',Consolas,Menlo,monospace";
+    ta.style.display = 'block';
+    if (richEditor) richEditor.style.display = 'none';
+    if (richToolbar) richToolbar.style.display = 'none';
     document.getElementById('imgUrlWrap').style.display='none';
   } else {
     lbl.textContent = '내용';
-    ta.placeholder = '내용을 입력하세요...';
-    ta.style.fontFamily = '';
+    // textarea 내용을 리치 에디터로 이전
+    if (richEditor) {
+      richEditor.style.display = 'block';
+      if (ta.value && !richEditor.innerHTML) {
+        richEditor.innerHTML = ta.value;
+      }
+    }
+    if (richToolbar) richToolbar.style.display = 'flex';
+    ta.style.display = 'none';
     document.getElementById('imgUrlWrap').style.display = 'block';
   }
 }
@@ -1912,22 +2027,128 @@ function clearItemImg() {
   const urlInp=document.getElementById('inp-img-url');
   if (urlInp) urlInp.value='';
 }
+// ── 리치 텍스트 에디터 ──
+let _savedRange = null;
+
+function execFmt(cmd) {
+  const editor = document.getElementById('richEditor');
+  editor.focus();
+  document.execCommand(cmd, false, null);
+  updateToolbarState();
+  syncRichToPlain();
+}
+
+function applyTextColor(color) {
+  const editor = document.getElementById('richEditor');
+  editor.focus();
+  restoreSelection();
+  document.execCommand('foreColor', false, color);
+  const bar = document.getElementById('tbTextColorBar');
+  if (bar) bar.style.background = color;
+  closeAllColorPopups();
+  updateToolbarState();
+  syncRichToPlain();
+}
+
+function applyHighlight(color) {
+  const editor = document.getElementById('richEditor');
+  editor.focus();
+  restoreSelection();
+  if (color === 'transparent') {
+    document.execCommand('hiliteColor', false, 'transparent');
+    document.execCommand('removeFormat', false, null);
+    // 재적용 후 다시 굵기/기울임 복원이 필요할 수 있어 hiliteColor만 처리
+    document.execCommand('hiliteColor', false, 'rgba(0,0,0,0)');
+  } else {
+    document.execCommand('hiliteColor', false, color);
+  }
+  closeAllColorPopups();
+  updateToolbarState();
+  syncRichToPlain();
+}
+
+function saveSelection() {
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0) _savedRange = sel.getRangeAt(0).cloneRange();
+}
+
+function restoreSelection() {
+  if (!_savedRange) return;
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(_savedRange);
+}
+
+function toggleColorPopup(id) {
+  saveSelection();
+  const popup = document.getElementById(id);
+  const wasOpen = popup.classList.contains('open');
+  closeAllColorPopups();
+  if (!wasOpen) popup.classList.add('open');
+}
+
+function closeAllColorPopups() {
+  document.querySelectorAll('.color-popup').forEach(p => p.classList.remove('open'));
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.color-popup-wrap')) closeAllColorPopups();
+});
+
+function updateToolbarState() {
+  const bold = document.getElementById('tbBold');
+  const italic = document.getElementById('tbItalic');
+  if (bold) bold.classList.toggle('active', document.queryCommandState('bold'));
+  if (italic) italic.classList.toggle('active', document.queryCommandState('italic'));
+}
+
+function handleEditorKeydown(e) {
+  if (e.key === 'b' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); execFmt('bold'); }
+  if (e.key === 'i' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); execFmt('italic'); }
+}
+
+function syncRichToPlain() {
+  // 리치 에디터의 HTML → inp-body(plain)에 저장
+  const richEditor = document.getElementById('richEditor');
+  const plain = document.getElementById('inp-body');
+  if (richEditor && plain) plain.value = richEditor.innerHTML;
+}
+
+function syncPlainToRich(html) {
+  const richEditor = document.getElementById('richEditor');
+  if (richEditor) richEditor.innerHTML = html || '';
+}
+
 async function saveItem() {
   if (!requireAdmin()) return;
   const title=document.getElementById('inp-title').value.trim();
   if (!title){alert('제목을 입력해주세요.');return;}
   const isHtml = document.getElementById('inp-ishtml').checked;
-  const body = document.getElementById('inp-body').value.trim();
+  // 리치 모드면 richEditor HTML, HTML 모드면 textarea
+  let body;
+  if (!isHtml) {
+    syncRichToPlain();
+    body = document.getElementById('inp-body').value.trim();
+  } else {
+    body = document.getElementById('inp-body').value.trim();
+  }
   const img = !isHtml ? (tempItemImg||'') : '';
   if (editingItemId !== null) {
     const it = currentItems.find(i=>i.id===editingItemId);
-    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml; it.img=img; }
+    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml||isRichHtml(body); it.img=img; }
     editingItemId = null;
   } else {
-    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml,img,date:new Date().toISOString().slice(0,10)});
+    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10)});
   }
   await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome();
 }
+
+function isRichHtml(body) {
+  // 리치 에디터로 작성한 내용에 서식 태그가 있으면 HTML로 간주
+  return /<(b|i|strong|em|span|mark)[^>]*>/i.test(body);
+}
+
+
 
 function openDetail(id) {
   const it=currentItems.find(i=>i.id===id); if(!it) return;
