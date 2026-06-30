@@ -2040,7 +2040,9 @@ async function ghLoadAll() {
       let content = file ? file.content : null;
       // 파일이 1MB가 넘어 잘린(truncated) 경우, raw_url로 전체 내용을 다시 받아온다
       if (file && file.truncated && file.raw_url) {
-        const rawRes = await fetch(file.raw_url, { headers: token ? { 'Authorization': 'token ' + token } : {} });
+        // raw.githubusercontent.com은 Authorization 헤더가 붙으면 CORS preflight 자체를 막아버리므로
+        // 헤더 없이 요청한다 (공개 Gist는 인증 없이도 raw 파일을 받을 수 있음).
+        const rawRes = await fetch(file.raw_url);
         if (!rawRes.ok) throw new Error('raw status ' + rawRes.status);
         content = await rawRes.text();
       }
