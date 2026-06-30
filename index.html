@@ -2037,7 +2037,14 @@ async function ghLoadAll() {
       if (!res.ok) throw new Error('status ' + res.status);
       const json = await res.json();
       const file = json.files && json.files[GITHUB_DATA_FILE];
-      ghCache = (file && file.content) ? JSON.parse(file.content) : {};
+      let content = file ? file.content : null;
+      // 파일이 1MB가 넘어 잘린(truncated) 경우, raw_url로 전체 내용을 다시 받아온다
+      if (file && file.truncated && file.raw_url) {
+        const rawRes = await fetch(file.raw_url, { headers: token ? { 'Authorization': 'token ' + token } : {} });
+        if (!rawRes.ok) throw new Error('raw status ' + rawRes.status);
+        content = await rawRes.text();
+      }
+      ghCache = content ? JSON.parse(content) : {};
     } catch (e) {
       console.warn('GitHub 데이터 불러오기 실패', e);
       showToast('⚠ 깃허브에서 불러오기 실패');
