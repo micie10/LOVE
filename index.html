@@ -36,9 +36,17 @@
   --pp-accent:#c75f6b;
   --pp-card:#ffffff;
   --pp-card-border:#ede8e2;
+
+  /* 바깥 배경 전용 변수 */
+  --outer-bg-image:none;
+  --outer-blur:0px;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
+
+/* 모바일 이미지 꾹 눌러 저장 메뉴 방지 (관리자 모드에서는 허용) */
+img{-webkit-touch-callout:none;}
+body.is-admin img{-webkit-touch-callout:default;}
 
 /* ── 창 모드: body = 바깥 배경, .app-window = 실제 앱 창 ── */
 body{
@@ -48,6 +56,21 @@ body{
   background: var(--outer-bg, #fafefe);
   display:flex;align-items:center;justify-content:center;
   padding:0;
+  position:relative;
+}
+
+/* 바깥 배경 이미지 + 블러 전용 레이어 (블러가 앱 창에 번지지 않도록 분리) */
+body::before{
+  content:'';
+  position:fixed;
+  top:-30px;left:-30px;right:-30px;bottom:-30px;
+  background-image:var(--outer-bg-image, none);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  filter:blur(var(--outer-blur, 0px));
+  z-index:0;
+  pointer-events:none;
 }
 
 /* 앱 전체를 감싸는 창 */
@@ -61,6 +84,7 @@ body{
   display:flex;
   flex-direction:column;
   position:relative;
+  z-index:1;
   min-width:420px;min-height:400px;
   max-width:calc(100vw - 2rem);max-height:calc(100vh - 2rem);
 }
@@ -592,35 +616,59 @@ word-break:break-word;}
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
 .detail-html-render table{max-width:100%;border-collapse:collapse;}
 
-/* ── 리치 텍스트 툴바 ── */
-.rich-toolbar{
-  display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;
-  background:var(--bg);border:1.5px solid var(--border);
-  border-radius:10px 10px 0 0;border-bottom:none;
-  padding:0.35rem 0.5rem;
+/* ── 플로팅 리치 텍스트 툴바 (드래그 선택 시 표시) ── */
+.rich-toolbar{display:none;} /* 기존 고정 툴바 숨김 */
+
+.floating-toolbar{
+  position:fixed;
+  z-index:9999;
+  display:none;
+  align-items:center;
+  gap:0.25rem;
+  background:var(--text);
+  border-radius:10px;
+  padding:0.3rem 0.45rem;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
+  pointer-events:auto;
+  transform:translateX(-50%);
 }
-.rich-toolbar-btn{
-  background:none;border:1.5px solid transparent;border-radius:6px;
+.floating-toolbar.show{display:flex;}
+.floating-toolbar-btn{
+  background:none;border:none;border-radius:6px;
   width:28px;height:28px;display:flex;align-items:center;justify-content:center;
   font-size:0.82rem;font-family:var(--font);cursor:pointer;
-  color:var(--text-sub);transition:background 0.12s,border-color 0.12s;
-  flex-shrink:0;
+  color:#fff;transition:background 0.12s;flex-shrink:0;
 }
-.rich-toolbar-btn:hover{background:var(--border);border-color:var(--border);}
-.rich-toolbar-btn.active{background:rgba(201,126,184,0.15);border-color:var(--accent);color:var(--accent);}
-.rich-toolbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0;margin:0 0.1rem;}
-.rich-toolbar-color{
-  width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);
-  padding:2px;cursor:pointer;background:none;flex-shrink:0;
+.floating-toolbar-btn:hover{background:rgba(255,255,255,0.18);}
+.floating-toolbar-btn.active{background:rgba(255,255,255,0.28);}
+.floating-toolbar-sep{width:1px;height:18px;background:rgba(255,255,255,0.25);flex-shrink:0;margin:0 0.05rem;}
+/* 플로팅 팔레트 팝업 */
+.floating-palette{
+  position:absolute;
+  bottom:calc(100% + 6px);
+  left:50%;transform:translateX(-50%);
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:12px;padding:0.5rem;
+  display:none;gap:0.3rem;flex-wrap:wrap;width:156px;
+  box-shadow:0 4px 16px rgba(180,130,180,0.22);
+  z-index:10;
 }
-.rich-toolbar-color:hover{border-color:var(--accent);}
-.rich-toolbar-label{font-size:0.65rem;color:var(--text-muted);white-space:nowrap;}
+.floating-palette.open{display:flex;}
+.floating-palette-label{font-size:0.6rem;color:var(--text-muted);width:100%;margin-bottom:0.1rem;}
+.floating-palette .color-swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform 0.12s;flex-shrink:0;}
+.floating-palette .color-swatch:hover{transform:scale(1.15);}
+.fp-wrap{position:relative;}
+/* 툴팁 꼬리 */
+.floating-toolbar::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:var(--text);
+}
 
 /* 리치 에디터 영역 */
 .rich-editor{
   width:100%;min-height:110px;
   background:var(--bg);border:1.5px solid var(--border);
-  border-radius:0 0 10px 10px;
+  border-radius:10px;
   padding:0.55rem 0.8rem;
   font-family:var(--font);font-size:0.85rem;color:var(--text);
   outline:none;resize:vertical;overflow-y:auto;
@@ -645,7 +693,7 @@ word-break:break-word;}
 }
 .color-swatch:hover{transform:scale(1.15);}
 .color-popup-wrap{position:relative;}
-.html-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.65rem;font-weight:700;background:linear-gradient(135deg,var(--p2),var(--accent));color:#fff;border-radius:999px;padding:2px 7px;margin-left:4px;}
+.html-badge{display:none;}
 .card-html-render{display:none;}
 .card-html-render::after{display:none;}
 
@@ -698,8 +746,13 @@ word-break:break-word;}
 .tab-list{display:flex;flex-direction:column;gap:0.4rem;}
 .tab-item{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border-radius:10px;padding:0.4rem 0.6rem;}
 .tab-item-name{flex:1;font-size:0.82rem;}
+.tab-item-move{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:2px 4px;line-height:1;}
+.tab-item-move:disabled{opacity:0.25;cursor:default;}
 .tab-item-edit{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.8rem;padding:2px 5px;}
 .tab-item-del{background:none;border:none;cursor:pointer;color:#e07a7a;font-size:0.8rem;padding:2px 5px;}
+/* 비밀글 */
+.card-secret-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;font-weight:700;background:rgba(180,130,180,0.18);color:var(--accent);border-radius:999px;padding:2px 7px;margin-left:4px;}
+.secret-blur{filter:blur(4px);pointer-events:none;user-select:none;}
 #lockScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
 #lockScreen.open{display:flex;}
 #githubTokenScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
@@ -919,6 +972,46 @@ document.addEventListener('selectstart', e => {
 });
 </script>
 
+
+<!-- 플로팅 서식 툴바 -->
+<div class="floating-toolbar" id="floatingToolbar">
+  <button class="floating-toolbar-btn" id="ftBold" title="굵게 (Ctrl+B)" onmousedown="event.preventDefault();execFmt('bold')"><b>B</b></button>
+  <button class="floating-toolbar-btn" id="ftItalic" title="기울임 (Ctrl+I)" onmousedown="event.preventDefault();execFmt('italic')"><i>I</i></button>
+  <div class="floating-toolbar-sep"></div>
+  <!-- 글자색 -->
+  <div class="fp-wrap">
+    <button class="floating-toolbar-btn" id="ftTextColor" title="글자색" onmousedown="event.preventDefault();toggleFloatingPalette('ftTextColorPalette')" style="font-size:0.7rem;flex-direction:column;gap:1px;">
+      A<span id="ftTextColorBar" style="display:block;height:3px;width:16px;border-radius:2px;background:#fff;"></span>
+    </button>
+    <div class="floating-palette" id="ftTextColorPalette">
+      <div class="floating-palette-label">글자색</div>
+      <div class="color-swatch" style="background:#4a3f4a" onmousedown="event.preventDefault();applyTextColor('#4a3f4a');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#e07a7a" onmousedown="event.preventDefault();applyTextColor('#e07a7a');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#c97eb8" onmousedown="event.preventDefault();applyTextColor('#c97eb8');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#7a9ee0" onmousedown="event.preventDefault();applyTextColor('#7a9ee0');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#5aaa7a" onmousedown="event.preventDefault();applyTextColor('#5aaa7a');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#e0a857" onmousedown="event.preventDefault();applyTextColor('#e0a857');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#7ac8e0" onmousedown="event.preventDefault();applyTextColor('#7ac8e0');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#9b7ae0" onmousedown="event.preventDefault();applyTextColor('#9b7ae0');closeFloatingPalettes()"></div>
+      <input type="color" style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;padding:0;" title="직접 선택" onchange="applyTextColor(this.value);closeFloatingPalettes()">
+    </div>
+  </div>
+  <!-- 형광펜 -->
+  <div class="fp-wrap">
+    <button class="floating-toolbar-btn" id="ftHL" title="형광펜" onmousedown="event.preventDefault();toggleFloatingPalette('ftHLPalette')" style="font-size:0.75rem;">🖊</button>
+    <div class="floating-palette" id="ftHLPalette">
+      <div class="floating-palette-label">형광펜</div>
+      <div class="color-swatch" style="background:#fff176" onmousedown="event.preventDefault();applyHighlight('#fff176');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#ffd6e7" onmousedown="event.preventDefault();applyHighlight('#ffd6e7');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#d4f1c4" onmousedown="event.preventDefault();applyHighlight('#d4f1c4');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#c8e6ff" onmousedown="event.preventDefault();applyHighlight('#c8e6ff');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#ffd6b3" onmousedown="event.preventDefault();applyHighlight('#ffd6b3');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#e8d5ff" onmousedown="event.preventDefault();applyHighlight('#e8d5ff');closeFloatingPalettes()"></div>
+      <div class="color-swatch" style="background:#fff;border:2px dashed #ccc;" onmousedown="event.preventDefault();applyHighlight('transparent');closeFloatingPalettes()"></div>
+      <input type="color" style="width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;padding:0;" title="직접 선택" onchange="applyHighlight(this.value);closeFloatingPalettes()">
+    </div>
+  </div>
+</div>
 
 <div class="app-window" id="appWindow">
   <!-- 맥OS 스타일 타이틀바 (드래그로 창 이동 가능) -->
@@ -1178,6 +1271,20 @@ document.addEventListener('selectstart', e => {
       </div>
     </div>
     <div>
+      <div class="sp-section" style="margin-bottom:0.6rem">바깥 배경 (창 바깥쪽)</div>
+      <div class="custom-colors">
+        <div class="color-row"><span class="color-lbl">배경색</span><input type="color" class="color-inp" id="c-outerbg" oninput="applyOuterColor()"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.6rem">
+        <input type="text" class="sp-input" id="outerImgUrlInput" placeholder="배경 이미지 URL (선택)">
+        <div style="display:flex;gap:0.5rem">
+          <button class="sp-btn" style="flex:1" onclick="applyOuterImage()">이미지 적용</button>
+          <button class="sp-btn" style="flex:1" onclick="removeOuterImage()">이미지 제거</button>
+        </div>
+        <div class="color-row"><span class="color-lbl">블러</span><input type="range" id="outerBlurRange" min="0" max="20" step="1" oninput="applyOuterBlur()" style="flex:1"></div>
+      </div>
+    </div>
+    <div>
       <div class="sp-section" style="margin-bottom:0.6rem">사이트 정보</div>
       <div style="display:flex;flex-direction:column;gap:0.5rem">
         <input type="text" class="sp-input" id="sp-sitename" placeholder="제목">
@@ -1249,6 +1356,12 @@ document.addEventListener('selectstart', e => {
     <div style="display:flex;align-items:center;gap:0.5rem;">
       <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);">
       <label for="inp-ishtml" style="font-size:0.8rem;color:var(--text-sub);cursor:pointer;">🧩 HTML 직접 입력</label>
+    </div>
+    <!-- 비밀글 (관리자 전용) -->
+    <div id="secretWrap" style="display:none;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+      <input type="checkbox" id="inp-issecret" onchange="toggleSecretMode()" style="accent-color:var(--accent);">
+      <label for="inp-issecret" style="font-size:0.8rem;color:var(--text-sub);cursor:pointer;">🔒 비밀글</label>
+      <input type="password" class="field-inp" id="inp-secret-pw" placeholder="비밀번호 입력" maxlength="30" style="display:none;max-width:180px;font-size:0.82rem;padding:0.4rem 0.7rem;">
     </div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addModal')">취소</button>
@@ -1354,6 +1467,23 @@ document.addEventListener('selectstart', e => {
 </div>
 
 <button class="float-settings admin-only" onclick="openSettings()">🎨 꾸미기</button>
+
+<!-- 비밀글 잠금 해제 모달 -->
+<div class="overlay center" id="secretUnlockModal" onclick="if(event.target===this)closeModal('secretUnlockModal')">
+  <div class="modal" style="max-width:320px;gap:1rem;">
+    <div class="modal-head"><span class="modal-ttl">🔒 비밀글</span><button class="x-btn" onclick="closeModal('secretUnlockModal')">✕</button></div>
+    <div style="font-size:0.82rem;color:var(--text-muted);text-align:center;">비밀번호를 입력해야 볼 수 있어요.</div>
+    <div class="lock-input-wrap">
+      <input type="password" class="lock-input" id="secretUnlockInput" placeholder="비밀번호" maxlength="30" onkeydown="if(event.key==='Enter')trySecretUnlock()">
+    </div>
+    <div class="lock-err" id="secretUnlockErr"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('secretUnlockModal')">취소</button>
+      <button class="btn-save" onclick="trySecretUnlock()">확인</button>
+    </div>
+  </div>
+</div>
+
 <div class="readonly-notice" id="readonlyNotice">
   👀 구경 모드 · 수정하려면 &nbsp;<button class="readonly-login" onclick="openLock()">관리자 로그인</button>
 </div>
@@ -1556,6 +1686,85 @@ const DEFAULT_COLORS = {
   'pp-bg':'#1a2a1e','pp-sidebar':'#f5f2ee','pp-green':'#24553d','pp-pink':'#e8a0a8',
   'pp-accent':'#c75f6b','pp-card':'#ffffff'
 };
+
+// 바깥 배경 (앱 창 바깥쪽) 기본값 — 색상/이미지/블러를 모두 페이지 공통으로 저장해요.
+const DEFAULT_OUTER = { color:'#fafefe', image:'', blur:0 };
+
+function applyOuterObj(o) {
+  const merged = Object.assign({}, DEFAULT_OUTER, o || {});
+  const r = document.documentElement.style;
+  r.setProperty('--outer-bg', merged.color);
+  r.setProperty('--outer-bg-image', merged.image ? `url('${merged.image}')` : 'none');
+  r.setProperty('--outer-blur', (merged.blur || 0) + 'px');
+}
+
+function collectOuterObj() {
+  const s = getComputedStyle(document.documentElement);
+  const color = s.getPropertyValue('--outer-bg').trim() || DEFAULT_OUTER.color;
+  const imgRaw = s.getPropertyValue('--outer-bg-image').trim();
+  const m = imgRaw.match(/url\(\s*['"]?(.*?)['"]?\s*\)/);
+  const image = m ? m[1] : '';
+  const blurRaw = s.getPropertyValue('--outer-blur').trim();
+  const blur = parseInt(blurRaw, 10) || 0;
+  return { color, image, blur };
+}
+
+async function restoreOuterBg() {
+  try {
+    const raw = await stoGet('da_outer_bg');
+    const o = raw ? JSON.parse(raw) : null;
+    applyOuterObj(o || DEFAULT_OUTER);
+  } catch (e) {
+    applyOuterObj(DEFAULT_OUTER);
+  }
+}
+
+async function saveOuterBg() {
+  await stoSet('da_outer_bg', JSON.stringify(collectOuterObj()));
+}
+
+function syncOuterInputs() {
+  const o = collectOuterObj();
+  const cEl = document.getElementById('c-outerbg');
+  if (cEl && /^#[0-9a-fA-F]{6}$/.test(o.color)) cEl.value = o.color;
+  const imgEl = document.getElementById('outerImgUrlInput');
+  if (imgEl) imgEl.value = o.image || '';
+  const blurEl = document.getElementById('outerBlurRange');
+  if (blurEl) blurEl.value = o.blur || 0;
+}
+
+async function applyOuterColor() {
+  if (!isAdmin) return;
+  const val = document.getElementById('c-outerbg').value;
+  document.documentElement.style.setProperty('--outer-bg', val);
+  await saveOuterBg();
+}
+
+async function applyOuterImage() {
+  if (!isAdmin) return;
+  const url = document.getElementById('outerImgUrlInput').value.trim();
+  if (!url) { showToast('이미지 URL을 입력해주세요'); return; }
+  document.documentElement.style.setProperty('--outer-bg-image', `url('${url}')`);
+  await saveOuterBg();
+  showToast('적용됨 ✓');
+}
+
+async function removeOuterImage() {
+  if (!isAdmin) return;
+  document.documentElement.style.setProperty('--outer-bg-image', 'none');
+  const imgEl = document.getElementById('outerImgUrlInput');
+  if (imgEl) imgEl.value = '';
+  await saveOuterBg();
+  showToast('이미지 제거됨');
+}
+
+async function applyOuterBlur() {
+  if (!isAdmin) return;
+  const v = document.getElementById('outerBlurRange').value;
+  document.documentElement.style.setProperty('--outer-blur', v + 'px');
+  await saveOuterBg();
+}
+
 // 현재 어느 페이지인지 추적
 let currentPageContext = 'hub'; // 'hub' | 'pair'
 
@@ -1873,12 +2082,21 @@ function openTabEditModal() {
   document.getElementById('tabEditModal').classList.add('open');
 }
 function renderTabList() {
+  const len = currentTabs.length;
   document.getElementById('tabList').innerHTML = currentTabs.map((t,i)=>`
     <div class="tab-item">
+      <button class="tab-item-move" onclick="moveTab(${i},-1)" ${i===0?'disabled':''} title="위로">▲</button>
+      <button class="tab-item-move" onclick="moveTab(${i},1)" ${i===len-1?'disabled':''} title="아래로">▼</button>
       <span class="tab-item-name">${esc(t.name)}</span>
       <button class="tab-item-edit" onclick="promptRenameTab(${i})">✎</button>
       <button class="tab-item-del" onclick="deleteTab(${i})">✕</button>
     </div>`).join('');
+}
+function moveTab(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= currentTabs.length) return;
+  [currentTabs[i], currentTabs[j]] = [currentTabs[j], currentTabs[i]];
+  debounceSave(); renderTabList(); renderTabBar();
 }
 function promptRenameTab(i) {
   const name = prompt('탭 이름 변경:', currentTabs[i].name);
@@ -1912,17 +2130,23 @@ function renderGrid() {
 function cardHTML(it) {
   const thumb = it.img?`<img class="card-thumb" src="${esc(it.img)}" loading="lazy" alt="">`:'';
   const pinned = currentPins.includes(it.id);
+  const secretBadge = it.secret ? `<span class="card-secret-badge">🔒 비밀글</span>` : '';
+  const blurClass = (it.secret && !isAdmin) ? ' secret-blur' : '';
   const acts = isAdmin ? `<div class="card-actions">
     <button class="card-act-btn" title="${pinned?'핀 해제':'핀'}" onclick="event.stopPropagation();togglePin(${it.id})">${pinned?'📌':'📍'}</button>
     <button class="card-act-btn" title="수정" onclick="event.stopPropagation();openEditItemModal(${it.id})">✎</button>
     <button class="card-act-btn" title="삭제" onclick="event.stopPropagation();deleteItem(${it.id})">✕</button>
   </div>` : '';
+  const bodySection = (!isAdmin && it.secret)
+    ? `<div class="card-body" style="color:var(--text-muted);font-size:0.78rem;">🔒 비밀번호가 필요해요</div>`
+    : (thumb + (it.isHtml
+        ? `<div class="card-html-render${blurClass}">${it.body}</div>`
+        : `<div class="card-body rich-body${blurClass}">${it.body}</div>`));
   return `<div class="card${pinned?' pinned':''}" onclick="openDetail(${it.id})">
     ${acts}
-    <div class="card-type-badge">${getTabName(it.type)}${it.isHtml?'<span class="html-badge">🧩 HTML</span>':''}</div>
+    <div class="card-type-badge">${getTabName(it.type)}${it.isHtml?'<span class="html-badge">🧩 HTML</span>':''}${secretBadge}</div>
     <div class="card-title">${esc(it.title)}</div>
-    ${thumb}
-    ${it.isHtml ? `<div class="card-html-render">${it.body}</div>` : `<div class="card-body">${esc(it.body)}</div>`}
+    ${bodySection}
     <div class="card-foot"><span class="card-date">${it.date||''}</span></div>
   </div>`;
 }
@@ -1941,6 +2165,11 @@ function openAddModal() {
   document.getElementById('imgUrlWrap').style.display='block';
   document.getElementById('inp-ishtml').checked=false;
   toggleHtmlMode();
+  const secretWrap = document.getElementById('secretWrap');
+  if (secretWrap) secretWrap.style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('inp-issecret').checked = false;
+  document.getElementById('inp-secret-pw').value = '';
+  document.getElementById('inp-secret-pw').style.display = 'none';
   document.getElementById('addModal').classList.add('open');
 }
 function openEditItemModal(id) {
@@ -1955,6 +2184,11 @@ function openEditItemModal(id) {
   document.getElementById('inp-title').value = it.title || '';
   document.getElementById('inp-body').value = it.body || '';
   document.getElementById('inp-ishtml').checked = !!it.isHtml;
+  const secretWrap = document.getElementById('secretWrap');
+  if (secretWrap) secretWrap.style.display = isAdmin ? 'flex' : 'none';
+  document.getElementById('inp-issecret').checked = !!it.secret;
+  document.getElementById('inp-secret-pw').value = it.secretPw || '';
+  document.getElementById('inp-secret-pw').style.display = it.secret ? 'block' : 'none';
   // 리치 에디터에도 내용 불러오기
   const richEditor = document.getElementById('richEditor');
   if (richEditor) richEditor.innerHTML = it.body || '';
@@ -1979,7 +2213,6 @@ function toggleHtmlMode() {
   const ta = document.getElementById('inp-body');
   const lbl = document.getElementById('bodyFieldLbl');
   const richEditor = document.getElementById('richEditor');
-  const richToolbar = document.getElementById('richToolbar');
   if (isHtml) {
     lbl.textContent = '🧩 HTML 코드';
     // 리치 에디터 내용을 textarea로 이전
@@ -1990,7 +2223,6 @@ function toggleHtmlMode() {
     ta.style.fontFamily = "'SFMono-Regular',Consolas,Menlo,monospace";
     ta.style.display = 'block';
     if (richEditor) richEditor.style.display = 'none';
-    if (richToolbar) richToolbar.style.display = 'none';
     document.getElementById('imgUrlWrap').style.display='none';
   } else {
     lbl.textContent = '내용';
@@ -2001,7 +2233,6 @@ function toggleHtmlMode() {
         richEditor.innerHTML = ta.value;
       }
     }
-    if (richToolbar) richToolbar.style.display = 'flex';
     ta.style.display = 'none';
     document.getElementById('imgUrlWrap').style.display = 'block';
   }
@@ -2107,6 +2338,76 @@ function handleEditorKeydown(e) {
   if (e.key === 'i' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); execFmt('italic'); }
 }
 
+// ── 플로팅 툴바 ──
+function showFloatingToolbar(sel) {
+  const toolbar = document.getElementById('floatingToolbar');
+  const range = sel.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  if (rect.width === 0) { hideFloatingToolbar(); return; }
+  toolbar.classList.add('show');
+  const tbW = toolbar.offsetWidth || 220;
+  let left = rect.left + rect.width / 2;
+  left = Math.max(tbW/2 + 8, Math.min(window.innerWidth - tbW/2 - 8, left));
+  toolbar.style.left = left + 'px';
+  toolbar.style.top = (rect.top + window.scrollY - toolbar.offsetHeight - 12) + 'px';
+  updateFloatingToolbarState();
+}
+function hideFloatingToolbar() {
+  document.getElementById('floatingToolbar').classList.remove('show');
+  closeFloatingPalettes();
+}
+function updateFloatingToolbarState() {
+  const bold = document.getElementById('ftBold');
+  const italic = document.getElementById('ftItalic');
+  if (bold) bold.classList.toggle('active', document.queryCommandState('bold'));
+  if (italic) italic.classList.toggle('active', document.queryCommandState('italic'));
+}
+function toggleFloatingPalette(id) {
+  const palette = document.getElementById(id);
+  const wasOpen = palette.classList.contains('open');
+  closeFloatingPalettes();
+  if (!wasOpen) palette.classList.add('open');
+}
+function closeFloatingPalettes() {
+  document.querySelectorAll('.floating-palette').forEach(p => p.classList.remove('open'));
+}
+
+// 리치 에디터에서 드래그 선택 감지
+document.addEventListener('mouseup', (e) => {
+  // 플로팅 팔레트/툴바 클릭은 무시
+  if (e.target.closest('#floatingToolbar')) return;
+  closeFloatingPalettes();
+  setTimeout(() => {
+    const sel = window.getSelection();
+    const editor = document.getElementById('richEditor');
+    if (!editor || !editor.contains(sel.anchorNode)) { hideFloatingToolbar(); return; }
+    if (!sel || sel.isCollapsed || sel.toString().trim() === '') { hideFloatingToolbar(); return; }
+    saveSelection();
+    showFloatingToolbar(sel);
+  }, 10);
+});
+
+document.addEventListener('keyup', (e) => {
+  const sel = window.getSelection();
+  const editor = document.getElementById('richEditor');
+  if (!editor || !editor.contains(sel?.anchorNode)) return;
+  if (!sel || sel.isCollapsed || sel.toString().trim() === '') { hideFloatingToolbar(); return; }
+  saveSelection();
+  showFloatingToolbar(sel);
+});
+
+// 에디터 바깥 클릭 시 툴바 숨김
+document.addEventListener('mousedown', (e) => {
+  if (e.target.closest('#floatingToolbar')) return;
+  hideFloatingToolbar();
+});
+
+function toggleSecretMode() {
+  const checked = document.getElementById('inp-issecret').checked;
+  document.getElementById('inp-secret-pw').style.display = checked ? 'block' : 'none';
+  if (!checked) document.getElementById('inp-secret-pw').value = '';
+}
+
 function syncRichToPlain() {
   // 리치 에디터의 HTML → inp-body(plain)에 저장
   const richEditor = document.getElementById('richEditor');
@@ -2133,24 +2434,57 @@ async function saveItem() {
     body = document.getElementById('inp-body').value.trim();
   }
   const img = !isHtml ? (tempItemImg||'') : '';
+  const isSecret = document.getElementById('inp-issecret')?.checked || false;
+  const secretPw = isSecret ? (document.getElementById('inp-secret-pw')?.value.trim() || '') : '';
   if (editingItemId !== null) {
     const it = currentItems.find(i=>i.id===editingItemId);
-    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml||isRichHtml(body); it.img=img; }
+    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml||isRichHtml(body); it.img=img; it.secret=isSecret; it.secretPw=secretPw; }
     editingItemId = null;
   } else {
-    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10)});
+    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10),secret:isSecret,secretPw});
   }
   await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome();
 }
 
 function isRichHtml(body) {
-  // 리치 에디터로 작성한 내용에 서식 태그가 있으면 HTML로 간주
-  return /<(b|i|strong|em|span|mark)[^>]*>/i.test(body);
+  // 리치 에디터 작성 내용은 HTML 모드로 간주하지 않음
+  // (HTML 직접 입력 체크박스를 눌렀을 때만 isHtml=true)
+  return false;
 }
 
 
 
+let _pendingSecretItemId = null;
+
 function openDetail(id) {
+  const it = currentItems.find(i=>i.id===id); if (!it) return;
+  if (it.secret && !isAdmin) {
+    _pendingSecretItemId = id;
+    document.getElementById('secretUnlockInput').value = '';
+    document.getElementById('secretUnlockErr').textContent = '';
+    document.getElementById('secretUnlockModal').classList.add('open');
+    setTimeout(()=>document.getElementById('secretUnlockInput').focus(), 80);
+    return;
+  }
+  _openDetailInner(id);
+}
+
+function trySecretUnlock() {
+  const id = _pendingSecretItemId;
+  const it = currentItems.find(i=>i.id===id);
+  if (!it) { closeModal('secretUnlockModal'); return; }
+  const entered = document.getElementById('secretUnlockInput').value;
+  if (entered === it.secretPw) {
+    closeModal('secretUnlockModal');
+    _openDetailInner(id);
+  } else {
+    document.getElementById('secretUnlockErr').textContent = '비밀번호가 맞지 않아요.';
+    document.getElementById('secretUnlockInput').value = '';
+    document.getElementById('secretUnlockInput').focus();
+  }
+}
+
+function _openDetailInner(id) {
   const it=currentItems.find(i=>i.id===id); if(!it) return;
   document.getElementById('d-ttl').textContent=it.title;
   const dImg=document.getElementById('d-img');
@@ -2164,7 +2498,7 @@ function openDetail(id) {
   } else {
     dBodyHtml.style.display='none'; dBodyHtml.innerHTML='';
     dBody.style.display='block';
-    dBody.innerHTML = (it.img ? `<img class="detail-img" src="${esc(it.img)}" alt="">` : '') + `<div class="detail-body-text">${esc(it.body)}</div>`;
+    dBody.innerHTML = (it.img ? `<img class="detail-img" src="${esc(it.img)}" alt="">` : '') + `<div class="detail-body-text">${it.body}</div>`;
   }
   document.getElementById('d-date').textContent=getTabName(it.type)+(it.date?' · '+it.date:'');
   const pinned=currentPins.includes(id);
@@ -2359,7 +2693,7 @@ function resetCoverStyle() {
 function openSettings() {
   if (!requireAdmin()) return;
   document.getElementById('settingsOverlay').classList.add('open');
-  syncColorInputs(); buildPaletteRow();
+  syncColorInputs(); buildPaletteRow(); syncOuterInputs();
 }
 function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
 function buildPaletteRow() {
@@ -2683,6 +3017,7 @@ function getSamples() {
 (async ()=>{
   await loadPairs();
   await restoreHubColors();
+  await restoreOuterBg();
   document.getElementById('readonlyNotice').classList.remove('show');
 })();
 </script>
