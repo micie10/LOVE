@@ -874,6 +874,74 @@ word-break:break-word;}
 }
 .arc-img-panel-add:hover{border-color:var(--pp-green);color:var(--pp-green);}
 .is-admin .arc-img-panel-add{display:block;}
+
+/* ===== STORY (Our story 타임라인) ===== */
+.story-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;background:var(--pp-sidebar);}
+.story-header{
+  background:var(--pp-card);border-bottom:1px solid var(--pp-card-border);
+  padding:1rem 1.5rem;flex-shrink:0;z-index:50;
+  display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;
+}
+.story-heading{font-size:0.95rem;font-weight:700;color:var(--pp-text);flex:1;}
+.story-scroll{flex:1;overflow-y:auto;padding:2.5rem 1.5rem 4rem;}
+.story-timeline{max-width:760px;margin:0 auto;position:relative;}
+.story-empty{max-width:680px;margin:2rem auto;text-align:center;color:var(--pp-text-muted);font-size:0.78rem;}
+.story-item{
+  position:relative;display:grid;grid-template-columns:1fr 28px 1fr;
+  align-items:start;column-gap:0.4rem;
+}
+.story-item::before{
+  content:'';position:absolute;left:50%;top:14px;bottom:-1.6rem;width:2px;
+  transform:translateX(-50%);
+  background:linear-gradient(var(--pp-accent),var(--pp-card-border));opacity:0.3;
+}
+.story-item:last-child::before{display:none;}
+.story-item-col{grid-column:1;padding-bottom:2.4rem;}
+.story-item.side-right .story-item-col{grid-column:3;}
+.story-item.side-left .story-item-col{text-align:right;}
+.story-item.side-right .story-item-col{text-align:left;}
+.story-card{
+  display:inline-block;max-width:100%;background:var(--story-box-color,#ffffff);
+  border:1px solid var(--pp-card-border);border-radius:14px;
+  padding:0.8rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);
+}
+.story-color-btn{
+  display:flex;align-items:center;gap:0.35rem;background:none;
+  border:1px solid var(--pp-card-border);border-radius:8px;
+  padding:0.28rem 0.6rem;font-family:var(--font);font-size:0.72rem;
+  color:var(--pp-text-sub);cursor:pointer;
+}
+.story-color-btn:hover{border-color:var(--pp-accent);color:var(--pp-accent);}
+.story-color-swatch{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.15);flex-shrink:0;}
+.story-dot{
+  grid-column:2;justify-self:center;margin-top:5px;width:10px;height:10px;border-radius:50%;
+  background:var(--pp-accent);box-shadow:0 0 0 4px rgba(199,95,107,0.12);flex-shrink:0;
+}
+.story-date{font-size:0.65rem;color:var(--pp-text-muted);font-weight:600;margin-bottom:0.15rem;}
+.story-title-row{display:flex;align-items:center;gap:0.4rem;}
+.story-item.side-left .story-title-row{justify-content:flex-end;}
+.story-item.side-right .story-title-row{justify-content:flex-start;}
+.story-title{font-size:0.88rem;font-weight:700;color:var(--pp-text);}
+.story-edit-btn{
+  display:none;background:none;border:1px solid var(--pp-card-border);border-radius:7px;
+  font-size:0.6rem;color:var(--pp-text-muted);padding:0.1rem 0.4rem;cursor:pointer;flex-shrink:0;
+}
+.is-admin .story-edit-btn{display:inline-block;}
+.story-edit-btn:hover{border-color:var(--pp-accent);color:var(--pp-accent);}
+.story-body{
+  margin-top:0.35rem;font-size:0.74rem;line-height:1.6;color:var(--pp-text-sub);
+  white-space:pre-wrap;word-break:break-word;text-align:left;
+}
+@media(max-width:640px){
+  .story-scroll{padding:1.5rem 0.75rem 3rem;}
+  .story-header{padding:0.85rem 1rem;}
+  .story-item{grid-template-columns:24px 1fr;column-gap:0.6rem;}
+  .story-item::before{left:12px;}
+  .story-item-col, .story-item.side-right .story-item-col{grid-column:2;text-align:left!important;}
+  .story-dot{grid-column:1;justify-self:start;margin-left:3px;}
+  .story-item.side-left .story-title-row, .story-item.side-right .story-title-row{justify-content:flex-start;}
+}
+
 /* ==========================================
    📱 모바일(스마트폰) 전용 UI 업그레이드
    ========================================== */
@@ -1094,6 +1162,9 @@ document.addEventListener('selectstart', e => {
         <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">📖</span> LOG
         </button>
+        <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">💌</span> STORY
+        </button>
       </nav>
 
       <div class="pp-sidebar-divider"></div>
@@ -1203,6 +1274,9 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item active" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">📖</span> LOG
           </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">💌</span> STORY
+          </button>
         </nav>
         <div class="pp-sidebar-divider"></div>
         <div class="pp-sidebar-footer">
@@ -1242,6 +1316,67 @@ document.addEventListener('selectstart', e => {
         <div id="arcImgSlots"></div>
         <button class="arc-img-panel-add" onclick="arcImgAddSlot()">＋ 이미지 추가</button>
       </div>
+    </div>
+  </div>
+
+  <div id="story" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;height:100%;">
+    <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
+      <!-- 사이드바 (스토리용) -->
+      <div class="pp-sidebar">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarStory" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
+          🌸
+        </div>
+        <div class="pp-sidebar-name" id="ppSidebarNameStory">PAIR</div>
+        <div class="pp-sidebar-subtitle" id="ppSidebarSubtitleStory">아카이브</div>
+        <nav class="pp-nav">
+          <button class="pp-nav-item" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[0].classList.add('active');">
+            <span class="pp-nav-icon">🏠</span> HOME
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
+            <span class="pp-nav-icon">📖</span> LOG
+          </button>
+          <button class="pp-nav-item active" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">💌</span> STORY
+          </button>
+        </nav>
+        <div class="pp-sidebar-divider"></div>
+        <div class="pp-sidebar-footer">
+          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <div class="pp-sidebar-credit" id="ppSidebarCreditStory">드림 아카이브</div>
+        </div>
+      </div>
+      <!-- 스토리 메인 -->
+      <div class="story-main">
+        <div class="story-header">
+          <button class="back-btn" onclick="goHub()">← 메인</button>
+          <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+          <span class="story-heading">이야</span>
+          <span class="admin-badge" id="adminBadgeStory">🔑 관리자</span>
+          <label class="story-color-btn admin-only">
+            <span class="story-color-swatch" id="storyColorSwatch" style="background:#ffffff;"></span>
+            박스 색상
+            <input type="color" id="storyColorInput" value="#ffffff" style="width:0;height:0;opacity:0;position:absolute;" oninput="setStoryBoxColor(this.value)">
+          </label>
+          <button class="add-btn admin-only" onclick="openStoryModal(-1)">+ 추가</button>
+        </div>
+        <div class="story-scroll">
+          <div class="story-timeline" id="storyTimeline"></div>
+          <div class="story-empty" id="storyEmpty" style="display:none;">아직 작성된 이야기가 없어요. ‘+ 추가’ 버튼으로 첫 이야기를 남겨보세요 🌸</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay center" id="storyModal" onclick="if(event.target===this)closeModal('storyModal')">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-ttl" id="storyModalTtl">이야기 추가</span><button class="x-btn" onclick="closeModal('storyModal')">✕</button></div>
+    <div><div class="field-lbl">제목</div><input type="text" class="field-inp" id="storyTitleInput" placeholder="예: 온도의 경계" maxlength="60"></div>
+    <div><div class="field-lbl">날짜 (선택)</div><input type="text" class="field-inp" id="storyDateInput" placeholder="예: 2026.03.12"></div>
+    <div><div class="field-lbl">내용</div><textarea class="field-inp" id="storyBodyInput" rows="8" style="resize:vertical;font-family:var(--font);line-height:1.6;" placeholder="이야기를 적어주세요..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-danger admin-only" id="storyDeleteBtn" onclick="deleteStoryItem()" style="display:none;">삭제</button>
+      <button class="btn-save" onclick="saveStoryItem()">저장</button>
     </div>
   </div>
 </div>
@@ -1519,6 +1654,8 @@ let currentDecos = [];
 let currentCfg = {};
 let currentTabs = [];
 let currentPins = [];
+let currentStory = [];
+let editingStoryIdx = -1;
 let currentTab = 'all';
 let currentType = 'log';
 let editingItemId = null;
@@ -1672,12 +1809,108 @@ async function saveCurrentPair() {
   d.cfg = currentCfg;
   d.tabs = currentTabs;
   d.pins = currentPins;
+  d.story = currentStory;
   await savePairData(currentPairId, d);
 }
 
 function debounceSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async ()=>{ await saveCurrentPair(); showToast('저장됨 ✓'); }, 600);
+}
+
+// ===== STORY (Our story 타임라인) =====
+function renderStory() {
+  const wrap = document.getElementById('storyTimeline');
+  const empty = document.getElementById('storyEmpty');
+  if (!wrap) return;
+  const boxColor = (currentCfg && currentCfg.storyBoxColor) || '#ffffff';
+  document.documentElement.style.setProperty('--story-box-color', boxColor);
+  const swatch = document.getElementById('storyColorSwatch');
+  const colorInput = document.getElementById('storyColorInput');
+  if (swatch) swatch.style.background = boxColor;
+  if (colorInput) colorInput.value = boxColor;
+  if (!currentStory || currentStory.length === 0) {
+    wrap.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.innerHTML = currentStory.map((s, i) => `
+    <div class="story-item ${i % 2 === 0 ? 'side-left' : 'side-right'}">
+      <div class="story-dot"></div>
+      <div class="story-item-col">
+        <div class="story-card">
+          ${s.date ? `<div class="story-date">${esc(s.date)}</div>` : ''}
+          <div class="story-title-row">
+            <div class="story-title">${esc(s.title || '')}</div>
+            <button class="story-edit-btn" onclick="openStoryModal(${i})">✎</button>
+          </div>
+          <div class="story-body">${esc(s.body || '')}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function setStoryBoxColor(color) {
+  if (!isAdmin) return;
+  currentCfg.storyBoxColor = color;
+  document.documentElement.style.setProperty('--story-box-color', color);
+  const swatch = document.getElementById('storyColorSwatch');
+  if (swatch) swatch.style.background = color;
+  await saveCurrentPair();
+  showToast('저장됨 ✓');
+}
+
+function openStoryModal(idx) {
+  editingStoryIdx = idx;
+  const titleEl = document.getElementById('storyModalTtl');
+  const titleInput = document.getElementById('storyTitleInput');
+  const dateInput = document.getElementById('storyDateInput');
+  const bodyInput = document.getElementById('storyBodyInput');
+  const delBtn = document.getElementById('storyDeleteBtn');
+  if (idx >= 0 && currentStory[idx]) {
+    titleEl.textContent = '이야기 수정';
+    titleInput.value = currentStory[idx].title || '';
+    dateInput.value = currentStory[idx].date || '';
+    bodyInput.value = currentStory[idx].body || '';
+    delBtn.style.display = 'inline-block';
+  } else {
+    titleEl.textContent = '이야기 추가';
+    titleInput.value = '';
+    dateInput.value = '';
+    bodyInput.value = '';
+    delBtn.style.display = 'none';
+  }
+  document.getElementById('storyModal').classList.add('open');
+  applyAdminUI();
+  setTimeout(()=>titleInput.focus(), 80);
+}
+
+async function saveStoryItem() {
+  const title = document.getElementById('storyTitleInput').value.trim();
+  const date = document.getElementById('storyDateInput').value.trim();
+  const body = document.getElementById('storyBodyInput').value.trim();
+  if (!title && !body) { closeModal('storyModal'); return; }
+  if (editingStoryIdx >= 0 && currentStory[editingStoryIdx]) {
+    currentStory[editingStoryIdx] = Object.assign({}, currentStory[editingStoryIdx], {title, date, body});
+  } else {
+    currentStory.push({id:Date.now(), title, date, body});
+  }
+  closeModal('storyModal');
+  renderStory();
+  await saveCurrentPair();
+  showToast('저장됨 ✓');
+}
+
+async function deleteStoryItem() {
+  if (editingStoryIdx < 0) return;
+  if (!confirm('이 이야기를 삭제할까요?')) return;
+  currentStory.splice(editingStoryIdx, 1);
+  closeModal('storyModal');
+  renderStory();
+  await saveCurrentPair();
+  showToast('삭제됨 ✓');
 }
 
 // 기본 CSS 색상값
@@ -1834,6 +2067,7 @@ async function openPair(pid) {
   currentCfg = d.cfg || {};
   currentTabs = d.tabs || DEFAULT_TABS.map(t=>({...t}));
   currentPins = d.pins || [];
+  currentStory = d.story || [];
   currentTab = 'all';
   currentPageContext = 'pair';
   await applyCfgColors();
@@ -1847,19 +2081,26 @@ async function openPair(pid) {
   const sideNameArc = document.getElementById('ppSidebarNameArc');
   const sideSubArc = document.getElementById('ppSidebarSubtitleArc');
   const sideCreditArc = document.getElementById('ppSidebarCreditArc');
+  const sideAvatarStory = document.getElementById('ppSidebarAvatarStory');
+  const sideNameStory = document.getElementById('ppSidebarNameStory');
+  const sideSubStory = document.getElementById('ppSidebarSubtitleStory');
+  const sideCreditStory = document.getElementById('ppSidebarCreditStory');
   if (pair) {
     // 이름
     const displayName = currentCfg.sidebarName || pair.name;
     if (sideName) sideName.textContent = displayName;
     if (sideNameArc) sideNameArc.textContent = displayName;
+    if (sideNameStory) sideNameStory.textContent = displayName;
     // 부제목
     const subtitle = currentCfg.sidebarSubtitle || '아카이브';
     if (sideSub) sideSub.textContent = subtitle;
     if (sideSubArc) sideSubArc.textContent = subtitle;
+    if (sideSubStory) sideSubStory.textContent = subtitle;
     // 크레딧
     const credit = currentCfg.sidebarCredit || '드림 아카이브';
     if (sideCredit) sideCredit.textContent = credit;
     if (sideCreditArc) sideCreditArc.textContent = credit;
+    if (sideCreditStory) sideCreditStory.textContent = credit;
     // 아바타
     const avatarSrc = currentCfg.sidebarAvatar || pair.avatar || '';
     const avatarHtml = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
@@ -1873,6 +2114,11 @@ async function openPair(pid) {
       const inp2 = sideAvatarArc.querySelector('input');
       sideAvatarArc.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
       if (inp2) sideAvatarArc.appendChild(inp2);
+    }
+    if (sideAvatarStory) {
+      const inp3 = sideAvatarStory.querySelector('input');
+      sideAvatarStory.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+      if (inp3) sideAvatarStory.appendChild(inp3);
     }
   }
   showSubPage('home');
@@ -1907,6 +2153,9 @@ async function saveSidebarMeta() {
   if (document.getElementById('ppSidebarNameArc')) document.getElementById('ppSidebarNameArc').textContent = name||'';
   if (document.getElementById('ppSidebarSubtitleArc')) document.getElementById('ppSidebarSubtitleArc').textContent = subtitle||'';
   if (document.getElementById('ppSidebarCreditArc')) document.getElementById('ppSidebarCreditArc').textContent = credit||'';
+  if (document.getElementById('ppSidebarNameStory')) document.getElementById('ppSidebarNameStory').textContent = name||'';
+  if (document.getElementById('ppSidebarSubtitleStory')) document.getElementById('ppSidebarSubtitleStory').textContent = subtitle||'';
+  if (document.getElementById('ppSidebarCreditStory')) document.getElementById('ppSidebarCreditStory').textContent = credit||'';
   currentCfg.sidebarName = name;
   currentCfg.sidebarSubtitle = subtitle;
   currentCfg.sidebarCredit = credit;
@@ -1919,7 +2168,7 @@ async function saveSidebarAvatar(e) {
   if (src === null) return;
   const finalSrc = src.trim();
   currentCfg.sidebarAvatar = finalSrc;
-  ['ppSidebarAvatar','ppSidebarAvatarArc'].forEach(id=>{
+  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;
     const inp = el.querySelector('input');
@@ -1963,15 +2212,23 @@ function showPage(id, direction='forward') {
 function showSubPage(id) {
   const homeEl = document.getElementById('home');
   const archiveEl = document.getElementById('archive');
+  const storyEl = document.getElementById('story');
   if (id === 'home') {
     homeEl.style.display = 'flex';
     archiveEl.style.display = 'none';
+    storyEl.style.display = 'none';
     renderHome();
   } else if (id === 'archive') {
     homeEl.style.display = 'none';
     archiveEl.style.display = 'flex';
+    storyEl.style.display = 'none';
     renderGrid();
     arcImgLoad();
+  } else if (id === 'story') {
+    homeEl.style.display = 'none';
+    archiveEl.style.display = 'none';
+    storyEl.style.display = 'flex';
+    renderStory();
   }
 }
 
