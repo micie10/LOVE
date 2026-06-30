@@ -1028,6 +1028,93 @@ word-break:break-word;}
 }
 .gallery-add-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
 .is-admin .gallery-add-btn{display:inline-flex;}
+
+/* ── 메모 ── */
+.memo-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.memo-write{
+  display:none;gap:0.6rem;align-items:flex-end;
+  padding:0.9rem 1.8rem;border-bottom:1px solid var(--pp-card-border);
+  flex-shrink:0;
+}
+.is-admin .memo-write{display:flex;}
+.memo-write textarea{
+  flex:1;resize:none;font-family:var(--font);font-size:0.85rem;line-height:1.5;
+  border:1px solid var(--pp-card-border);border-radius:12px;padding:0.6rem 0.8rem;
+  background:var(--pp-card);color:var(--pp-text);min-height:44px;max-height:120px;
+}
+.memo-write textarea:focus{outline:none;border-color:var(--pp-pink);}
+.memo-write-btn{
+  flex-shrink:0;padding:0.55rem 1.1rem;border-radius:999px;border:none;
+  background:var(--pp-accent);color:#fff;font-size:0.8rem;font-weight:700;
+  cursor:pointer;font-family:var(--font);
+}
+.memo-write-btn:hover{filter:brightness(1.06);}
+.memo-grid{
+  flex:1;min-height:0;overflow-y:auto;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+  gap:1.8rem 1.4rem;align-content:start;
+  padding:2.4rem 1.8rem 3rem;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.memo-grid::-webkit-scrollbar{display:none;}
+.memo-empty{
+  flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  color:var(--pp-text-muted);font-size:0.85rem;text-align:center;
+}
+.memo-note{
+  position:relative;width:100%;height:190px;padding:1.1rem 1rem 0.9rem;
+  font-family:'Pretendard',sans-serif;font-size:0.84rem;line-height:1.55;
+  color:#5a4a3a;
+  box-shadow:0 4px 10px rgba(80,60,40,0.14), 0 1px 3px rgba(80,60,40,0.1);
+  transition:transform 0.18s, box-shadow 0.18s;
+  cursor:default;
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.memo-note-text{
+  flex:1;min-height:0;overflow-y:auto;white-space:pre-wrap;word-break:break-word;
+  scrollbar-width:none;-ms-overflow-style:none;
+  display:flex;flex-direction:column;justify-content:center;text-align:left;
+}
+.memo-note-text::-webkit-scrollbar{display:none;}
+.memo-note::before{
+  content:'';position:absolute;top:-11px;left:50%;
+  transform:translateX(-50%) rotate(var(--pin-rot,-8deg));
+  width:54px;height:22px;
+  background:linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.25)),
+             var(--tape-color, rgba(245,205,120,0.75));
+  box-shadow:0 2px 4px rgba(0,0,0,0.12);
+  opacity:0.85;
+  border-radius:1px;
+}
+.memo-note::after{
+  content:'';position:absolute;top:-11px;left:50%;
+  transform:translateX(-50%) rotate(var(--pin-rot,-8deg));
+  width:54px;height:22px;
+  background-image:repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0 2px, transparent 2px 6px);
+  pointer-events:none;
+}
+.memo-note:hover{transform:translateY(-3px) rotate(0deg) !important;box-shadow:0 8px 18px rgba(80,60,40,0.22);z-index:2;}
+.memo-note[data-color="yellow"]{background:#fffbe0;transform:rotate(-2.5deg);--tape-color:rgba(245,205,120,0.8);}
+.memo-note[data-color="green"]{background:#e2f6ea;transform:rotate(2deg);--tape-color:rgba(140,200,170,0.8);}
+.memo-note[data-color="pink"]{background:#ffeaef;transform:rotate(-1.5deg);--tape-color:rgba(232,150,170,0.8);}
+.memo-note[data-color="blue"]{background:#eaf0ff;transform:rotate(2.5deg);--tape-color:rgba(150,170,230,0.8);}
+.memo-note[data-color="orange"]{background:#fff2e0;transform:rotate(-2deg);--tape-color:rgba(235,170,110,0.8);}
+.memo-color-picker{display:flex;gap:0.4rem;align-items:center;flex-shrink:0;padding-bottom:0.55rem;}
+.memo-color-dot{
+  width:20px;height:20px;border-radius:50%;cursor:pointer;
+  border:2px solid transparent;transition:border-color 0.15s, transform 0.15s;
+}
+.memo-color-dot:hover{transform:scale(1.1);}
+.memo-color-dot.selected{border-color:var(--pp-text);}
+.memo-note-date{font-size:0.66rem;color:#8a7a5a;margin-top:0.5rem;opacity:0.75;font-weight:600;flex-shrink:0;}
+.memo-note-del{
+  display:none;position:absolute;top:0.4rem;right:0.5rem;
+  width:20px;height:20px;border-radius:50%;border:none;
+  background:rgba(0,0,0,0.12);color:#5a4a3a;font-size:0.65rem;
+  align-items:center;justify-content:center;cursor:pointer;
+}
+.is-admin .memo-note-del{display:flex;}
+.memo-note-del:hover{background:rgba(0,0,0,0.25);}
 .story-timeline{max-width:760px;margin:0 auto;position:relative;}
 .story-empty{max-width:680px;margin:2rem auto;text-align:center;color:var(--pp-text-muted);font-size:0.78rem;}
 .story-item{
@@ -1340,19 +1427,22 @@ document.addEventListener('selectstart', e => {
         style="outline:none;cursor:default;">아카이브</div>
 
       <nav class="pp-nav">
-        <button class="pp-nav-item active" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <button class="pp-nav-item active" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">🏠</span> HOME
         </button>
-        <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">📖</span> LOG
         </button>
-        <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <button class="pp-nav-item" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">📝</span> MEMO
+        </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">💌</span> STORY
         </button>
-        <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">📷</span> GALLERY
         </button>
-      </nav>
+        </nav>
 
       <div class="pp-sidebar-divider"></div>
 
@@ -1465,6 +1555,9 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item active" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">📖</span> LOG
           </button>
+          <button class="pp-nav-item" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📝</span> MEMO
+          </button>
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
           </button>
@@ -1529,6 +1622,9 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
             <span class="pp-nav-icon">📖</span> LOG
           </button>
+          <button class="pp-nav-item" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📝</span> MEMO
+          </button>
           <button class="pp-nav-item active" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
           </button>
@@ -1584,7 +1680,10 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
             <span class="pp-nav-icon">📖</span> LOG
           </button>
-          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[2].classList.add('active');">
+          <button class="pp-nav-item" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📝</span> MEMO
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[3].classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
           </button>
           <button class="pp-nav-item active" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
@@ -1613,6 +1712,69 @@ document.addEventListener('selectstart', e => {
         <div class="gallery-body">
           <div class="gallery-grid" id="galleryGrid"></div>
           <div class="gallery-empty" id="galleryEmpty" style="display:none;">아직 이미지가 없어요 🌸</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="memo" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;height:100%;">
+    <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
+      <!-- 사이드바 (메모용) -->
+      <div class="pp-sidebar">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarMemo" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
+          🌸
+        </div>
+        <div class="pp-sidebar-name" id="ppSidebarNameMemo">PAIR</div>
+        <div class="pp-sidebar-subtitle" id="ppSidebarSubtitleMemo">아카이브</div>
+        <nav class="pp-nav">
+          <button class="pp-nav-item" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[0].classList.add('active');">
+            <span class="pp-nav-icon">🏠</span> HOME
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
+            <span class="pp-nav-icon">📖</span> LOG
+          </button>
+          <button class="pp-nav-item active" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📝</span> MEMO
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[3].classList.add('active');">
+            <span class="pp-nav-icon">💌</span> STORY
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[4].classList.add('active');">
+            <span class="pp-nav-icon">📷</span> GALLERY
+          </button>
+        </nav>
+        <div class="pp-sidebar-divider"></div>
+        <div class="pp-sidebar-footer">
+          <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
+          <div class="pp-sidebar-credit" id="ppSidebarCreditMemo">드림 아카이브</div>
+        </div>
+      </div>
+      <!-- 메모 메인 -->
+      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;">
+        <div class="arc-header">
+          <div class="arc-top">
+            <div class="arc-title-row">
+              <button class="back-btn" onclick="goHub()">← 메인</button>
+              <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+              <span class="arc-heading">메모</span>
+              <span class="admin-badge" id="adminBadgeMemo">🔑 관리자</span>
+            </div>
+          </div>
+        </div>
+        <div class="memo-body">
+          <div class="memo-write">
+            <div class="memo-color-picker" id="memoColorPicker">
+              <div class="memo-color-dot selected" data-color="yellow" style="background:#fffbe0;" onclick="selectMemoColor('yellow')"></div>
+              <div class="memo-color-dot" data-color="green" style="background:#e2f6ea;" onclick="selectMemoColor('green')"></div>
+              <div class="memo-color-dot" data-color="pink" style="background:#ffeaef;" onclick="selectMemoColor('pink')"></div>
+              <div class="memo-color-dot" data-color="blue" style="background:#eaf0ff;" onclick="selectMemoColor('blue')"></div>
+              <div class="memo-color-dot" data-color="orange" style="background:#fff2e0;" onclick="selectMemoColor('orange')"></div>
+            </div>
+            <textarea id="memoInput" placeholder="메모를 적어주세요... (LOG와는 별개의 독립적인 메모예요)" maxlength="500"></textarea>
+            <button class="memo-write-btn" onclick="addMemo()">＋ 메모 남기기</button>
+          </div>
+          <div class="memo-grid" id="memoGrid"></div>
+          <div class="memo-empty" id="memoEmpty" style="display:none;">아직 메모가 없어요. 메모를 남겨보세요 📝</div>
         </div>
       </div>
     </div>
@@ -2664,6 +2826,10 @@ async function openPair(pid) {
   const sideNameGal = document.getElementById('ppSidebarNameGal');
   const sideSubGal = document.getElementById('ppSidebarSubtitleGal');
   const sideCreditGal = document.getElementById('ppSidebarCreditGal');
+  const sideAvatarMemo = document.getElementById('ppSidebarAvatarMemo');
+  const sideNameMemo = document.getElementById('ppSidebarNameMemo');
+  const sideSubMemo = document.getElementById('ppSidebarSubtitleMemo');
+  const sideCreditMemo = document.getElementById('ppSidebarCreditMemo');
   if (pair) {
     // 이름
     const displayName = currentCfg.sidebarName || pair.name;
@@ -2671,18 +2837,21 @@ async function openPair(pid) {
     if (sideNameArc) sideNameArc.textContent = displayName;
     if (sideNameStory) sideNameStory.textContent = displayName;
     if (sideNameGal) sideNameGal.textContent = displayName;
+    if (sideNameMemo) sideNameMemo.textContent = displayName;
     // 부제목
     const subtitle = currentCfg.sidebarSubtitle || '아카이브';
     if (sideSub) sideSub.textContent = subtitle;
     if (sideSubArc) sideSubArc.textContent = subtitle;
     if (sideSubStory) sideSubStory.textContent = subtitle;
     if (sideSubGal) sideSubGal.textContent = subtitle;
+    if (sideSubMemo) sideSubMemo.textContent = subtitle;
     // 크레딧
     const credit = currentCfg.sidebarCredit || '드림 아카이브';
     if (sideCredit) sideCredit.textContent = credit;
     if (sideCreditArc) sideCreditArc.textContent = credit;
     if (sideCreditStory) sideCreditStory.textContent = credit;
     if (sideCreditGal) sideCreditGal.textContent = credit;
+    if (sideCreditMemo) sideCreditMemo.textContent = credit;
     // 아바타
     const avatarSrc = currentCfg.sidebarAvatar || pair.avatar || '';
     const avatarHtml = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
@@ -2706,6 +2875,11 @@ async function openPair(pid) {
       const inp4 = sideAvatarGal.querySelector('input');
       sideAvatarGal.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
       if (inp4) sideAvatarGal.appendChild(inp4);
+    }
+    if (sideAvatarMemo) {
+      const inp5 = sideAvatarMemo.querySelector('input');
+      sideAvatarMemo.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+      if (inp5) sideAvatarMemo.appendChild(inp5);
     }
   }
   showSubPage('home');
@@ -2747,6 +2921,9 @@ async function saveSidebarMeta() {
   if (document.getElementById('ppSidebarNameGal')) document.getElementById('ppSidebarNameGal').textContent = name||'';
   if (document.getElementById('ppSidebarSubtitleGal')) document.getElementById('ppSidebarSubtitleGal').textContent = subtitle||'';
   if (document.getElementById('ppSidebarCreditGal')) document.getElementById('ppSidebarCreditGal').textContent = credit||'';
+  if (document.getElementById('ppSidebarNameMemo')) document.getElementById('ppSidebarNameMemo').textContent = name||'';
+  if (document.getElementById('ppSidebarSubtitleMemo')) document.getElementById('ppSidebarSubtitleMemo').textContent = subtitle||'';
+  if (document.getElementById('ppSidebarCreditMemo')) document.getElementById('ppSidebarCreditMemo').textContent = credit||'';
   currentCfg.sidebarName = name;
   currentCfg.sidebarSubtitle = subtitle;
   currentCfg.sidebarCredit = credit;
@@ -2759,7 +2936,7 @@ async function saveSidebarAvatar(e) {
   if (src === null) return;
   const finalSrc = src.trim();
   currentCfg.sidebarAvatar = finalSrc;
-  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory','ppSidebarAvatarGal'].forEach(id=>{
+  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory','ppSidebarAvatarGal','ppSidebarAvatarMemo'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;
     const inp = el.querySelector('input');
@@ -2805,31 +2982,28 @@ function showSubPage(id) {
   const archiveEl = document.getElementById('archive');
   const storyEl = document.getElementById('story');
   const galleryEl = document.getElementById('gallery');
+  const memoEl = document.getElementById('memo');
+  homeEl.style.display = 'none';
+  archiveEl.style.display = 'none';
+  storyEl.style.display = 'none';
+  galleryEl.style.display = 'none';
+  memoEl.style.display = 'none';
   if (id === 'home') {
     homeEl.style.display = 'flex';
-    archiveEl.style.display = 'none';
-    storyEl.style.display = 'none';
-    galleryEl.style.display = 'none';
     renderHome();
   } else if (id === 'archive') {
-    homeEl.style.display = 'none';
     archiveEl.style.display = 'flex';
-    storyEl.style.display = 'none';
-    galleryEl.style.display = 'none';
     renderGrid();
     arcImgLoad();
   } else if (id === 'story') {
-    homeEl.style.display = 'none';
-    archiveEl.style.display = 'none';
     storyEl.style.display = 'flex';
-    galleryEl.style.display = 'none';
     renderStory();
   } else if (id === 'gallery') {
-    homeEl.style.display = 'none';
-    archiveEl.style.display = 'none';
-    storyEl.style.display = 'none';
     galleryEl.style.display = 'flex';
     renderGallery();
+  } else if (id === 'memo') {
+    memoEl.style.display = 'flex';
+    renderMemo();
   }
 }
 
@@ -2889,11 +3063,11 @@ function applyAdminUI() {
     if (el) el.contentEditable = isAdmin?'true':'false';
   });
   // 아바타 클릭 입력: 관리자만 파일 input 활성화
-  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input, #ppSidebarAvatarStory input, #ppSidebarAvatarGal input').forEach(inp=>{
+  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input, #ppSidebarAvatarStory input, #ppSidebarAvatarGal input, #ppSidebarAvatarMemo input').forEach(inp=>{
     inp.disabled = !isAdmin;
   });
   document.getElementById('readonlyNotice').classList.toggle('show', !isAdmin && !!currentPairId);
-  renderGrid(); renderHome(); renderGallery();
+  renderGrid(); renderHome(); renderGallery(); renderMemo();
 }
 
 function renderHome() {
@@ -3877,6 +4051,67 @@ async function saveCfgColors() {
 
 // ── 아카이브 이미지 패널 ──
 const ARC_IMG_KEY = () => 'da_arc_imgs_' + (currentPairId||'default');
+
+// ── 메모 (LOG와 완전히 독립된 메모지) ──
+const MEMO_KEY = () => 'da_memo_notes_' + (currentPairId||'default');
+const MEMO_COLORS = ['yellow','green','pink','blue','orange'];
+let selectedMemoColor = 'yellow';
+
+function selectMemoColor(color) {
+  selectedMemoColor = color;
+  document.querySelectorAll('#memoColorPicker .memo-color-dot').forEach(d=>{
+    d.classList.toggle('selected', d.dataset.color === color);
+  });
+}
+
+async function memoLoad() {
+  const raw = await stoGet(MEMO_KEY());
+  return raw ? JSON.parse(raw) : [];
+}
+
+function memoFormatDate(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function renderMemo() {
+  if (!currentPairId) return;
+  const grid = document.getElementById('memoGrid');
+  const empty = document.getElementById('memoEmpty');
+  const notes = (await memoLoad()).slice().sort((a,b)=>b.ts-a.ts);
+  empty.style.display = notes.length ? 'none' : 'flex';
+  grid.innerHTML = notes.map(n => `
+    <div class="memo-note" data-color="${n.color || 'yellow'}">
+      <button class="memo-note-del" title="삭제" onclick="deleteMemo(${n.ts})">✕</button>
+      <div class="memo-note-text">${esc(n.text)}</div>
+      <div class="memo-note-date">${memoFormatDate(n.ts)}</div>
+    </div>`).join('');
+}
+
+async function addMemo() {
+  if (!requireAdmin()) return;
+  const inp = document.getElementById('memoInput');
+  const text = inp.value.trim();
+  if (!text) return;
+  const notes = await memoLoad();
+  notes.push({ ts: Date.now(), text, color: selectedMemoColor });
+  await stoSet(MEMO_KEY(), JSON.stringify(notes));
+  inp.value = '';
+  await renderMemo();
+  const grid = document.getElementById('memoGrid');
+  if (grid) grid.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('메모가 남겨졌어요 📝');
+}
+
+async function deleteMemo(ts) {
+  if (!requireAdmin()) return;
+  if (!confirm('이 메모를 삭제할까요?')) return;
+  const notes = await memoLoad();
+  const filtered = notes.filter(n => n.ts !== ts);
+  await stoSet(MEMO_KEY(), JSON.stringify(filtered));
+  await renderMemo();
+  showToast('삭제됨');
+}
 
 async function arcImgLoad() {
   const raw = await stoGet(ARC_IMG_KEY());
