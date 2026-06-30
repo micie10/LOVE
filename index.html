@@ -289,6 +289,9 @@ body::before{
 .deco.admin-deco{cursor:move;}
 .deco img{display:block;border-radius:4px;}
 .deco-resize{position:absolute;bottom:-5px;right:-5px;width:14px;height:14px;background:white;border:1.5px solid var(--pp-pink);border-radius:3px;cursor:se-resize;display:none;z-index:2;}
+.deco-rotate{position:absolute;top:-22px;left:50%;transform:translateX(-50%);width:14px;height:14px;background:white;border:1.5px solid var(--pp-pink);border-radius:50%;cursor:grab;display:none;z-index:2;}
+.deco-rotate::after{content:'';position:absolute;left:50%;top:100%;width:1px;height:8px;background:var(--pp-pink);transform:translateX(-50%);}
+.deco.selected .deco-rotate{display:block;}
 .deco.selected .deco-resize{display:block;}
 .deco.selected{outline:2px solid var(--pp-pink);outline-offset:2px;}
 
@@ -323,6 +326,34 @@ body::before{
   backdrop-filter:blur(6px);
 }
 .icon-pill:hover{background:rgba(255,255,255,0.25);}
+
+.dday-badge{
+  position:absolute;bottom:1.1rem;right:1.1rem;z-index:20;
+  display:flex;align-items:center;gap:0.6rem;
+  background:var(--pp-card);
+  border:1px solid var(--pp-card-border);
+  border-radius:16px;padding:0.6rem 1rem;
+  box-shadow:0 6px 18px rgba(0,0,0,0.12);
+  cursor:default;
+}
+.is-admin .dday-badge{cursor:pointer;}
+.is-admin .dday-badge:hover{border-color:var(--pp-pink);}
+.dday-badge-icon{
+  width:30px;height:28px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--pp-pink-light),var(--pp-pink));
+  display:flex;align-items:center;justify-content:center;
+  clip-path:path('M15 27 C15 27 1 18 1 8.5 C1 3.8 4.6 1 8.5 1 C11.5 1 14 2.8 15 5.5 C16 2.8 18.5 1 21.5 1 C25.4 1 29 3.8 29 8.5 C29 18 15 27 15 27 Z');
+}
+.dday-badge-text{display:flex;flex-direction:column;line-height:1.25;}
+.dday-badge-label{
+  font-size:0.62rem;color:var(--pp-text-muted);
+  letter-spacing:0.04em;
+  max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.dday-badge-num{
+  font-size:0.95rem;font-weight:800;color:var(--pp-accent);
+  letter-spacing:-0.01em;
+}
 
 .admin-only{display:none!important;}
 .admin-only.show{display:inline-flex!important;}
@@ -396,7 +427,10 @@ body::before{
   flex:1;padding:1.25rem 1.5rem 3rem;
   display:flex;flex-direction:column;gap:1.25rem;
   overflow-y:auto;
+  scrollbar-width:none;        /* Firefox */
+  -ms-overflow-style:none;     /* IE/Edge */
 }
+.pp-home-content::-webkit-scrollbar{display:none;}  /* Chrome/Safari */
 
 /* 핀/최근 섹션 */
 .home-pinned{padding:0;}
@@ -418,25 +452,29 @@ body::before{
 .pin-manage-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
 
 .recent-row{
-  display: flex;
-  flex-direction: column;    /* 세로로 정렬 */
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0,1fr));   /* 최대 7개, 정사각형 */
   gap: 0.7rem;
-  max-height: 280px;         /* 💡 원하는 스크롤 박스 높이 지정 (조절 가능) */
-  overflow-y: auto;          /* 💡 글이 많아지면 세로 스크롤바 생성 */
-  padding-right: 0.4rem;
-  flex-shrink: 0;            /* 부모 때문에 박스 크기가 작아지는 것 방지 */
 }
-.recent-row::-webkit-scrollbar{display:none;}
+@media (max-width: 900px){
+  .recent-row{grid-template-columns: repeat(4, minmax(0,1fr));}
+}
+@media (max-width: 560px){
+  .recent-row{grid-template-columns: repeat(3, minmax(0,1fr));}
+}
 
 .mini-card{
-  flex:0 0 148px;background:var(--pp-card);
+  aspect-ratio: 1 / 1;background:var(--pp-card);
   border:1px solid var(--pp-card-border);border-radius:12px;
   padding:0.8rem 0.85rem;cursor:pointer;
+  display:flex;flex-direction:column;justify-content:space-between;
   transition:border-color 0.15s,transform 0.15s;position:relative;
 }
 .mini-card:hover{border-color:var(--pp-green);transform:translateY(-2px);}
+.mini-card.dragging{opacity:0.4;}
+.mini-card[draggable="true"]{cursor:grab;}
 .mini-type{font-size:0.65rem;color:var(--pp-text-muted);margin-bottom:0.25rem;letter-spacing:0.04em;}
-.mini-title{font-size:0.8rem;font-weight:600;color:var(--pp-text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mini-title{font-size:0.8rem;font-weight:600;color:var(--pp-text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .mini-date{font-size:0.63rem;color:var(--pp-text-muted);margin-top:0.35rem;}
 .pin-mark{position:absolute;top:0.4rem;right:0.4rem;font-size:0.65rem;}
 
@@ -517,7 +555,10 @@ body::before{
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.arc-grid::-webkit-scrollbar{display:none;}
 
 /* 아카이브 카드 — 둥근 사각형 카드 스타일 */
 .card{
@@ -793,11 +834,12 @@ word-break:break-word;}
   background:var(--pp-sidebar);
   border-left:1px solid var(--pp-card-border);
   display:flex;flex-direction:column;
-  overflow-y:auto;scrollbar-width:none;
+  overflow-y:auto;scrollbar-width:none;-ms-overflow-style:none;
   padding:0.85rem 0.75rem 1rem;
   gap:0.6rem;
   align-self:stretch;
 }
+.arc-img-panel::-webkit-scrollbar{display:none;}
 .arc-img-panel::-webkit-scrollbar{display:none;}
 .arc-img-panel-label{
   font-size:0.62rem;font-weight:700;letter-spacing:0.09em;
@@ -883,7 +925,37 @@ word-break:break-word;}
   display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;
 }
 .story-heading{font-size:0.95rem;font-weight:700;color:var(--pp-text);flex:1;}
-.story-scroll{flex:1;overflow-y:auto;padding:2.5rem 1.5rem 4rem;}
+.story-scroll{flex:1;overflow-y:auto;padding:2.5rem 1.5rem 4rem;scrollbar-width:none;-ms-overflow-style:none;}
+.story-scroll::-webkit-scrollbar{display:none;}
+
+/* ── 갤러리 ── */
+.gallery-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.gallery-grid{
+  flex:1;min-height:0;overflow-y:auto;
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1rem;padding:1.1rem 1.8rem 3rem;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.gallery-grid::-webkit-scrollbar{display:none;}
+.gallery-thumb{
+  aspect-ratio:4/3;border-radius:18px;overflow:hidden;cursor:pointer;
+  border:1px solid var(--pp-card-border);background:var(--pp-card);
+  position:relative;
+}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.2s;}
+.gallery-thumb:hover img{transform:scale(1.06);}
+.gallery-empty{
+  flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
+  color:var(--pp-text-muted);font-size:0.85rem;text-align:center;
+}
+.gallery-add-btn{
+  display:none;align-items:center;gap:0.3rem;
+  padding:0.4rem 0.85rem;border-radius:999px;border:1px solid var(--pp-card-border);
+  background:var(--pp-card);color:var(--pp-text);font-size:0.78rem;font-weight:600;
+  cursor:pointer;margin-left:auto;
+}
+.gallery-add-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
+.is-admin .gallery-add-btn{display:inline-flex;}
 .story-timeline{max-width:760px;margin:0 auto;position:relative;}
 .story-empty{max-width:680px;margin:2rem auto;text-align:center;color:var(--pp-text-muted);font-size:0.78rem;}
 .story-item{
@@ -959,20 +1031,9 @@ word-break:break-word;}
     padding: 0;
   }
 
-  /* 2. 최근 기록 좌우 스와이프 (가로 스크롤) */
+  /* 2. 최근 기록: 정사각형 그리드 (위 .recent-row 미디어쿼리에서 컬럼 수 조정) */
   .recent-row {
-    flex-direction: row;           
-    overflow-x: auto;              
-    overflow-y: hidden;            
-    padding-bottom: 0.5rem;        
-    scroll-snap-type: x mandatory; 
-  }
-  .recent-row::-webkit-scrollbar {
-    display: none;                 
-  }
-  .mini-card {
-    flex: 0 0 160px;               
-    scroll-snap-align: start;      
+    padding-bottom: 0.5rem;
   }
 
   /* 3. 페어 목록(메인 허브) 2열 고정 */
@@ -1165,6 +1226,9 @@ document.addEventListener('selectstart', e => {
         <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">💌</span> STORY
         </button>
+        <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">📷</span> GALLERY
+        </button>
       </nav>
 
       <div class="pp-sidebar-divider"></div>
@@ -1189,7 +1253,13 @@ document.addEventListener('selectstart', e => {
           <button class="icon-pill admin-only" onclick="triggerCoverImg()">🖼 커버 이미지</button>
           <button class="icon-pill admin-only" onclick="toggleStickerPalette()">✦ 스티커</button>
           <button class="icon-pill admin-only" onclick="toggleImgControls()">⚙ 이미지 조정</button>
-          <button class="icon-pill admin-only" onclick="openSettings()">🎨 꾸미기</button>
+        </div>
+        <div class="dday-badge" id="ddayBadge" onclick="editDday()" style="display:none;">
+          <div class="dday-badge-icon" id="ddayBadgeIcon"></div>
+          <div class="dday-badge-text">
+            <div class="dday-badge-label" id="ddayBadgeLabel"></div>
+            <div class="dday-badge-num" id="ddayBadgeNum"></div>
+          </div>
         </div>
         <div class="sticker-palette" id="stickerPalette">
           <button class="sticker-btn" onclick="addSticker('🌸')">🌸</button>
@@ -1236,8 +1306,6 @@ document.addEventListener('selectstart', e => {
           <span class="admin-badge" id="adminBadge">🔑 관리자 &nbsp;<button class="admin-logout" onclick="openGhTokenScreen()">동기화</button>&nbsp;<button class="admin-logout" onclick="logout()">로그아웃</button></span>
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-          <button class="go-archive-btn viewer-only" id="loginBtn" style="background:none;border:1px solid var(--pp-card-border);color:var(--pp-text-sub);font-size:0.78rem;" onclick="openLock()">🔑 로그인</button>
-          <button class="go-archive-btn" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">기록 보기 →</button>
         </div>
       </div>
 
@@ -1276,6 +1344,9 @@ document.addEventListener('selectstart', e => {
           </button>
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📷</span> GALLERY
           </button>
         </nav>
         <div class="pp-sidebar-divider"></div>
@@ -1338,6 +1409,9 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item active" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
           </button>
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📷</span> GALLERY
+          </button>
         </nav>
         <div class="pp-sidebar-divider"></div>
         <div class="pp-sidebar-footer">
@@ -1362,6 +1436,56 @@ document.addEventListener('selectstart', e => {
         <div class="story-scroll">
           <div class="story-timeline" id="storyTimeline"></div>
           <div class="story-empty" id="storyEmpty" style="display:none;">아직 작성된 이야기가 없어요. ‘+ 추가’ 버튼으로 첫 이야기를 남겨보세요 🌸</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gallery" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;height:100%;">
+    <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
+      <!-- 사이드바 (갤러리용) -->
+      <div class="pp-sidebar">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarGal" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
+          🌸
+        </div>
+        <div class="pp-sidebar-name" id="ppSidebarNameGal">PAIR</div>
+        <div class="pp-sidebar-subtitle" id="ppSidebarSubtitleGal">아카이브</div>
+        <nav class="pp-nav">
+          <button class="pp-nav-item" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[0].classList.add('active');">
+            <span class="pp-nav-icon">🏠</span> HOME
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
+            <span class="pp-nav-icon">📖</span> LOG
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[2].classList.add('active');">
+            <span class="pp-nav-icon">💌</span> STORY
+          </button>
+          <button class="pp-nav-item active" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">📷</span> GALLERY
+          </button>
+        </nav>
+        <div class="pp-sidebar-divider"></div>
+        <div class="pp-sidebar-footer">
+          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <div class="pp-sidebar-credit" id="ppSidebarCreditGal">드림 아카이브</div>
+        </div>
+      </div>
+      <!-- 갤러리 메인 -->
+      <div style="flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;">
+        <div class="arc-header">
+          <div class="arc-top">
+            <div class="arc-title-row">
+              <button class="back-btn" onclick="goHub()">← 메인</button>
+              <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+              <span class="arc-heading">갤러리</span>
+              <span class="admin-badge" id="adminBadgeGal">🔑 관리자</span>
+              <button class="gallery-add-btn" onclick="openGalleryAddModal()">＋ 이미지 추가</button>
+            </div>
+          </div>
+        </div>
+        <div class="gallery-body">
+          <div class="gallery-grid" id="galleryGrid"></div>
+          <div class="gallery-empty" id="galleryEmpty" style="display:none;">아직 이미지가 없어요 🌸</div>
         </div>
       </div>
     </div>
@@ -1434,7 +1558,7 @@ document.addEventListener('selectstart', e => {
 <div class="overlay center" id="addModal" onclick="if(event.target===this)closeModal('addModal')">
   <div class="modal">
     <div class="modal-head"><span class="modal-ttl" id="addModalTtl">새 항목 추가</span><button class="x-btn" onclick="closeModal('addModal')">✕</button></div>
-    <div><div class="field-lbl">유형</div><div class="type-chips" id="typeChips"></div></div>
+    <div id="typeFieldWrap"><div class="field-lbl">유형</div><div class="type-chips" id="typeChips"></div></div>
     <div><div class="field-lbl">제목</div><input type="text" class="field-inp" id="inp-title" placeholder="제목을 입력하세요"></div>
     <div id="imgUrlWrap" style="display:none">
       <div class="field-lbl">이미지 URL</div>
@@ -1557,6 +1681,7 @@ document.addEventListener('selectstart', e => {
       <button class="btn-save" onclick="addNewTab()">추가</button>
     </div>
     <div class="modal-actions">
+      <button class="btn-ghost" onclick="restoreDefaultTabs()">기본 탭 복원</button>
       <button class="btn-ghost" onclick="closeModal('tabEditModal')">닫기</button>
     </div>
   </div>
@@ -1601,6 +1726,35 @@ document.addEventListener('selectstart', e => {
   </div>
 </div>
 
+<div class="overlay center" id="ddayModal" onclick="if(event.target===this)closeModal('ddayModal')">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-ttl">D-DAY 설정</span><button class="x-btn" onclick="closeModal('ddayModal')">✕</button></div>
+    <div><div class="field-lbl">기준 날짜</div><input type="date" class="field-inp" id="dday-date"></div>
+    <div><div class="field-lbl">라벨</div><input type="text" class="field-inp" id="dday-label" placeholder="예: 사귄 지"></div>
+    <div style="display:flex;gap:0.7rem;">
+      <div style="flex:1;"><div class="field-lbl">박스 배경색</div><input type="color" class="field-inp" id="dday-boxbg" style="height:38px;padding:0.2rem;"></div>
+      <div style="flex:1;"><div class="field-lbl">박스 테두리색</div><input type="color" class="field-inp" id="dday-boxborder" style="height:38px;padding:0.2rem;"></div>
+    </div>
+    <div style="display:flex;gap:0.7rem;">
+      <div style="flex:1;"><div class="field-lbl">하트 색상</div><input type="color" class="field-inp" id="dday-heartcolor" style="height:38px;padding:0.2rem;"></div>
+    </div>
+    <div style="display:flex;gap:0.7rem;">
+      <div style="flex:1;"><div class="field-lbl">숫자 글자색</div><input type="color" class="field-inp" id="dday-numcolor" style="height:38px;padding:0.2rem;"></div>
+      <div style="flex:1;"><div class="field-lbl">라벨 글자색</div><input type="color" class="field-inp" id="dday-labelcolor" style="height:38px;padding:0.2rem;"></div>
+    </div>
+    <div>
+      <div class="field-lbl">하트 안 이미지 URL <span style="font-weight:400;color:var(--pp-text-muted);">(넣으면 색상 대신 이미지가 표시돼요)</span></div>
+      <input type="text" class="field-inp" id="dday-heartimg" placeholder="https://..." oninput="document.getElementById('dday-heart-preview').style.display=this.value.trim()?'block':'none';">
+    </div>
+    <div class="dday-badge-icon" id="dday-heart-preview" style="margin:0.3rem 0;display:none;width:46px;height:43px;background-size:cover;background-position:center;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="resetDdayStyle()">스타일 초기화</button>
+      <button class="btn-ghost" onclick="closeModal('ddayModal')">취소</button>
+      <button class="btn-save" onclick="saveDdaySettings()">저장</button>
+    </div>
+  </div>
+</div>
+
 <button class="float-settings admin-only" onclick="openSettings()">🎨 꾸미기</button>
 
 <!-- 비밀글 잠금 해제 모달 -->
@@ -1634,7 +1788,7 @@ const GITHUB_DATA_FILE = 'love_archive_data.json';
 const GH_TOKEN_KEY = 'da_gh_token';
 const DEFAULT_TABS = [
   {id:'log', name:'📖 LOG'},
-  {id:'gallery', name:'📷 GALLERY'},
+  {id:'photogallery', name:'📷 GALLERY'},
   {id:'daily', name:'☀ DAILY'},
   {id:'memo', name:'📝 MEMO'},
 ];
@@ -2085,22 +2239,29 @@ async function openPair(pid) {
   const sideNameStory = document.getElementById('ppSidebarNameStory');
   const sideSubStory = document.getElementById('ppSidebarSubtitleStory');
   const sideCreditStory = document.getElementById('ppSidebarCreditStory');
+  const sideAvatarGal = document.getElementById('ppSidebarAvatarGal');
+  const sideNameGal = document.getElementById('ppSidebarNameGal');
+  const sideSubGal = document.getElementById('ppSidebarSubtitleGal');
+  const sideCreditGal = document.getElementById('ppSidebarCreditGal');
   if (pair) {
     // 이름
     const displayName = currentCfg.sidebarName || pair.name;
     if (sideName) sideName.textContent = displayName;
     if (sideNameArc) sideNameArc.textContent = displayName;
     if (sideNameStory) sideNameStory.textContent = displayName;
+    if (sideNameGal) sideNameGal.textContent = displayName;
     // 부제목
     const subtitle = currentCfg.sidebarSubtitle || '아카이브';
     if (sideSub) sideSub.textContent = subtitle;
     if (sideSubArc) sideSubArc.textContent = subtitle;
     if (sideSubStory) sideSubStory.textContent = subtitle;
+    if (sideSubGal) sideSubGal.textContent = subtitle;
     // 크레딧
     const credit = currentCfg.sidebarCredit || '드림 아카이브';
     if (sideCredit) sideCredit.textContent = credit;
     if (sideCreditArc) sideCreditArc.textContent = credit;
     if (sideCreditStory) sideCreditStory.textContent = credit;
+    if (sideCreditGal) sideCreditGal.textContent = credit;
     // 아바타
     const avatarSrc = currentCfg.sidebarAvatar || pair.avatar || '';
     const avatarHtml = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
@@ -2119,6 +2280,11 @@ async function openPair(pid) {
       const inp3 = sideAvatarStory.querySelector('input');
       sideAvatarStory.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
       if (inp3) sideAvatarStory.appendChild(inp3);
+    }
+    if (sideAvatarGal) {
+      const inp4 = sideAvatarGal.querySelector('input');
+      sideAvatarGal.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+      if (inp4) sideAvatarGal.appendChild(inp4);
     }
   }
   showSubPage('home');
@@ -2140,6 +2306,7 @@ async function openPair(pid) {
   document.getElementById('coverPosY').value = cfg.coverPosY||50;
   document.getElementById('coverTitle').textContent = cfg.title || pair.name + ' 아카이브';
   document.getElementById('coverSub').textContent = cfg.sub || '✦ 드림 백업 · 로그 · 이미지 모음';
+  renderDday();
 }
 
 function goHub() { currentPageContext='hub'; restoreHubColors(); showPage('hub', 'back'); renderHub(); applyAdminUI(); }
@@ -2156,6 +2323,9 @@ async function saveSidebarMeta() {
   if (document.getElementById('ppSidebarNameStory')) document.getElementById('ppSidebarNameStory').textContent = name||'';
   if (document.getElementById('ppSidebarSubtitleStory')) document.getElementById('ppSidebarSubtitleStory').textContent = subtitle||'';
   if (document.getElementById('ppSidebarCreditStory')) document.getElementById('ppSidebarCreditStory').textContent = credit||'';
+  if (document.getElementById('ppSidebarNameGal')) document.getElementById('ppSidebarNameGal').textContent = name||'';
+  if (document.getElementById('ppSidebarSubtitleGal')) document.getElementById('ppSidebarSubtitleGal').textContent = subtitle||'';
+  if (document.getElementById('ppSidebarCreditGal')) document.getElementById('ppSidebarCreditGal').textContent = credit||'';
   currentCfg.sidebarName = name;
   currentCfg.sidebarSubtitle = subtitle;
   currentCfg.sidebarCredit = credit;
@@ -2168,7 +2338,7 @@ async function saveSidebarAvatar(e) {
   if (src === null) return;
   const finalSrc = src.trim();
   currentCfg.sidebarAvatar = finalSrc;
-  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory'].forEach(id=>{
+  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory','ppSidebarAvatarGal'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;
     const inp = el.querySelector('input');
@@ -2213,23 +2383,44 @@ function showSubPage(id) {
   const homeEl = document.getElementById('home');
   const archiveEl = document.getElementById('archive');
   const storyEl = document.getElementById('story');
+  const galleryEl = document.getElementById('gallery');
   if (id === 'home') {
     homeEl.style.display = 'flex';
     archiveEl.style.display = 'none';
     storyEl.style.display = 'none';
+    galleryEl.style.display = 'none';
     renderHome();
   } else if (id === 'archive') {
     homeEl.style.display = 'none';
     archiveEl.style.display = 'flex';
     storyEl.style.display = 'none';
+    galleryEl.style.display = 'none';
     renderGrid();
     arcImgLoad();
   } else if (id === 'story') {
     homeEl.style.display = 'none';
     archiveEl.style.display = 'none';
     storyEl.style.display = 'flex';
+    galleryEl.style.display = 'none';
     renderStory();
+  } else if (id === 'gallery') {
+    homeEl.style.display = 'none';
+    archiveEl.style.display = 'none';
+    storyEl.style.display = 'none';
+    galleryEl.style.display = 'flex';
+    renderGallery();
   }
+}
+
+function renderGallery() {
+  const grid = document.getElementById('galleryGrid');
+  const empty = document.getElementById('galleryEmpty');
+  const imgs = currentItems.filter(it=>it.type==='photogallery' && it.img);
+  empty.style.display = imgs.length ? 'none' : 'block';
+  grid.innerHTML = imgs.map(it=>`
+    <div class="gallery-thumb" onclick="openDetail(${it.id})" title="${esc(it.title)}">
+      <img src="${esc(it.img)}" loading="lazy" alt="">
+    </div>`).join('');
 }
 
 function openLock() {
@@ -2262,6 +2453,7 @@ function applyAdminUI() {
   document.body.classList.toggle('is-admin', isAdmin);
   document.querySelectorAll('.admin-only').forEach(el=>el.classList.toggle('show',isAdmin));
   document.querySelectorAll('.viewer-only').forEach(el=>el.classList.toggle('hide',isAdmin));
+  if (typeof renderDday === 'function') renderDday();
   ['adminBadge','adminBadgeArc','hubAdminBadge'].forEach(id=>{
     const el = document.getElementById(id);
     if (el) el.classList.toggle('show', isAdmin);
@@ -2276,11 +2468,11 @@ function applyAdminUI() {
     if (el) el.contentEditable = isAdmin?'true':'false';
   });
   // 아바타 클릭 입력: 관리자만 파일 input 활성화
-  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input').forEach(inp=>{
+  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input, #ppSidebarAvatarStory input, #ppSidebarAvatarGal input').forEach(inp=>{
     inp.disabled = !isAdmin;
   });
   document.getElementById('readonlyNotice').classList.toggle('show', !isAdmin && !!currentPairId);
-  renderGrid(); renderHome();
+  renderGrid(); renderHome(); renderGallery();
 }
 
 function renderHome() {
@@ -2294,21 +2486,55 @@ function renderHome() {
     ).join('');
   const pinSec = document.getElementById('homePinnedSection');
   const pinnedRow = document.getElementById('pinnedRow');
-  const pinned = currentItems.filter(it=>currentPins.includes(it.id));
+  const pinned = currentPins.map(id=>currentItems.find(it=>it.id===id)).filter(Boolean).slice(0,7);
   pinSec.style.display = pinned.length ? 'block' : 'none';
   pinnedRow.innerHTML = pinned.map(it=>`
-    <div class="mini-card" onclick="openDetail(${it.id})">
+    <div class="mini-card" draggable="${isAdmin}" data-id="${it.id}" onclick="openDetail(${it.id})">
       <div class="pin-mark">📌</div>
       <div class="mini-type">${getTabName(it.type)}</div>
       <div class="mini-title">${esc(it.title)}</div>
       <div class="mini-date">${it.date||''}</div>
     </div>`).join('');
-  document.getElementById('recentRow').innerHTML = [...currentItems].slice(0,8).map(it=>`
+  if (isAdmin) bindPinDrag();
+  document.getElementById('recentRow').innerHTML = [...currentItems].slice(0,7).map(it=>`
     <div class="mini-card" onclick="openDetail(${it.id})">
       <div class="mini-type">${getTabName(it.type)}</div>
       <div class="mini-title">${esc(it.title)}</div>
       <div class="mini-date">${it.date||''}</div>
     </div>`).join('') || '<span style="font-size:0.82rem;color:var(--text-muted)">아직 항목이 없어요</span>';
+}
+
+function bindPinDrag() {
+  const row = document.getElementById('pinnedRow');
+  let dragId = null;
+  row.querySelectorAll('.mini-card').forEach(card=>{
+    card.addEventListener('dragstart', e=>{
+      dragId = card.dataset.id;
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    card.addEventListener('dragend', ()=>{
+      card.classList.remove('dragging');
+      dragId = null;
+    });
+    card.addEventListener('dragover', e=>{
+      e.preventDefault();
+      if (!dragId || card.dataset.id===dragId) return;
+      const cards = [...row.querySelectorAll('.mini-card')];
+      const dragEl = row.querySelector('.dragging');
+      const targetIdx = cards.indexOf(card);
+      const dragIdx = cards.indexOf(dragEl);
+      if (dragIdx < targetIdx) row.insertBefore(dragEl, card.nextSibling);
+      else row.insertBefore(dragEl, card);
+    });
+    card.addEventListener('drop', async e=>{
+      e.preventDefault();
+      const newOrder = [...row.querySelectorAll('.mini-card')].map(c=>parseInt(c.dataset.id));
+      const rest = currentPins.filter(id=>!newOrder.includes(id));
+      currentPins = [...newOrder, ...rest];
+      await saveCurrentPair();
+    });
+  });
 }
 
 function getTabName(typeId) {
@@ -2318,7 +2544,7 @@ function getTabName(typeId) {
 function renderTabBar() {
   const bar = document.getElementById('tabBar');
   bar.innerHTML = `<button class="tab active" data-tab="all" onclick="setTab(this)">전체</button>` +
-    currentTabs.map(t=>`<button class="tab" data-tab="${t.id}" onclick="setTab(this)">${esc(t.name)}</button>`).join('') +
+    currentTabs.filter(t=>t.id!=='photogallery').map(t=>`<button class="tab" data-tab="${t.id}" onclick="setTab(this)">${esc(t.name)}</button>`).join('') +
     `<button class="tab-add-btn" title="탭 관리" onclick="openTabEditModal()">✎</button>`;
   renderTypeChips();
 }
@@ -2371,11 +2597,19 @@ function addNewTab() {
   document.getElementById('newTabName').value='';
   debounceSave(); renderTabList(); renderTabBar();
 }
+function restoreDefaultTabs() {
+  const existingIds = currentTabs.map(t=>t.id);
+  const missing = DEFAULT_TABS.filter(t=>!existingIds.includes(t.id));
+  if (!missing.length) { showToast('이미 기본 탭이 모두 있어요'); return; }
+  currentTabs = [...DEFAULT_TABS.map(t=>({...t})).filter(t=>missing.some(m=>m.id===t.id)), ...currentTabs];
+  debounceSave(); renderTabList(); renderTabBar(); showToast('기본 탭 복원됨 ✓');
+}
 
 function renderGrid() {
   if (!currentPairId) return;
   const q = (document.getElementById('searchInput')?.value||'').toLowerCase();
   const filtered = currentItems.filter(it=>{
+    if (it.type==='photogallery') return false;
     const matchTab = currentTab==='all'||it.type===currentTab;
     const matchQ = !q||it.title.toLowerCase().includes(q)||it.body.toLowerCase().includes(q);
     return matchTab&&matchQ;
@@ -2408,6 +2642,12 @@ function cardHTML(it) {
   </div>`;
 }
 
+function openGalleryAddModal() {
+  openAddModal();
+  currentType = 'photogallery';
+  document.querySelectorAll('#typeChips .type-chip').forEach(c=>c.classList.toggle('on', c.dataset.v==='photogallery'));
+  document.getElementById('typeFieldWrap').style.display = 'none';
+}
 function openAddModal() {
   if (!requireAdmin()) return;
   editingItemId = null; tempItemImg = null;
@@ -2415,6 +2655,7 @@ function openAddModal() {
   document.getElementById('addModalSaveBtn').textContent = '저장';
   renderTypeChips();
   currentType = currentTabs[0]?.id||'log';
+  document.getElementById('typeFieldWrap').style.display = '';
   ['inp-title','inp-body'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const richEditor = document.getElementById('richEditor');
   if (richEditor) richEditor.innerHTML = '';
@@ -2436,6 +2677,7 @@ function openEditItemModal(id) {
   document.getElementById('addModalTtl').textContent = '항목 수정';
   document.getElementById('addModalSaveBtn').textContent = '수정 완료';
   renderTypeChips();
+  document.getElementById('typeFieldWrap').style.display = '';
   currentType = it.type;
   document.querySelectorAll('#typeChips .type-chip').forEach(c=>c.classList.toggle('on', c.dataset.v===it.type));
   document.getElementById('inp-title').value = it.title || '';
@@ -2700,7 +2942,7 @@ async function saveItem() {
   } else {
     currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10),secret:isSecret,secretPw});
   }
-  await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome();
+  await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome(); renderGallery();
 }
 
 function isRichHtml(body) {
@@ -2771,7 +3013,7 @@ async function deleteItem(id) {
   if (!confirm('삭제할까요?')) return;
   currentItems=currentItems.filter(i=>i.id!==id);
   currentPins=currentPins.filter(p=>p!==id);
-  await saveCurrentPair(); showToast('삭제됨'); renderGrid(); renderHome();
+  await saveCurrentPair(); showToast('삭제됨'); renderGrid(); renderHome(); renderGallery();
 }
 async function togglePin(id) {
   if (!requireAdmin()) return;
@@ -2781,7 +3023,7 @@ async function togglePin(id) {
     if (currentPins.length>=12){alert('최대 12개까지 핀할 수 있어요.');return;}
     currentPins.push(id);
   }
-  await saveCurrentPair(); renderGrid(); renderHome();
+  await saveCurrentPair(); renderGrid(); renderHome(); renderGallery();
 }
 
 function openPinModal() {
@@ -2831,6 +3073,7 @@ function renderDecos() {
     const el=document.createElement('div');
     el.className='deco'+(isAdmin?' admin-deco':'');
     el.style.left=d.x+'%'; el.style.top=d.y+'%';
+    el.style.transform='rotate('+(d.rotation||0)+'deg)';
     el.dataset.id=d.id;
     if (d.type==='img') {
       const img=document.createElement('img');
@@ -2841,10 +3084,13 @@ function renderDecos() {
       el.textContent=d.emoji;
     }
     if (isAdmin) {
-      el.title='드래그 이동 | 더블클릭 삭제 | 우클릭 크기변경';
+      el.title='드래그 이동 | 더블클릭 삭제 | 우클릭 크기변경 | 위쪽 손잡이로 회전';
       const resizeHandle=document.createElement('div');
       resizeHandle.className='deco-resize';
       el.appendChild(resizeHandle);
+      const rotateHandle=document.createElement('div');
+      rotateHandle.className='deco-rotate';
+      el.appendChild(rotateHandle);
       el.addEventListener('dblclick',async ()=>{
         currentDecos=currentDecos.filter(x=>x.id!==d.id);
         await saveCurrentPair(); renderDecos();
@@ -2860,6 +3106,7 @@ function renderDecos() {
       });
       makeDraggable(el, d);
       makeResizable(resizeHandle, el, d);
+      makeRotatable(rotateHandle, el, d);
     }
     layer.appendChild(el);
   });
@@ -2908,6 +3155,27 @@ function makeResizable(handle, el, dObj) {
     }
   });
   document.addEventListener('mouseup',()=>{if(resizing){resizing=false;debounceSave();}});
+}
+function makeRotatable(handle, el, dObj) {
+  let rotating=false, cx, cy;
+  const start=(clientX,clientY)=>{
+    rotating=true;
+    const r=el.getBoundingClientRect();
+    cx=r.left+r.width/2; cy=r.top+r.height/2;
+  };
+  const move=(clientX,clientY)=>{
+    if (!rotating) return;
+    const angle=Math.atan2(clientY-cy, clientX-cx)*180/Math.PI + 90;
+    dObj.rotation=Math.round(angle);
+    el.style.transform='rotate('+dObj.rotation+'deg)';
+  };
+  const end=()=>{if(rotating){rotating=false;debounceSave();}};
+  handle.addEventListener('mousedown',e=>{e.preventDefault();e.stopPropagation();start(e.clientX,e.clientY);});
+  document.addEventListener('mousemove',e=>move(e.clientX,e.clientY));
+  document.addEventListener('mouseup',end);
+  handle.addEventListener('touchstart',e=>{e.preventDefault();e.stopPropagation();start(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+  document.addEventListener('touchmove',e=>{if(rotating){move(e.touches[0].clientX,e.touches[0].clientY);}},{passive:true});
+  document.addEventListener('touchend',end);
 }
 
 function triggerCoverImg() {
@@ -3017,6 +3285,92 @@ async function saveCoverText() {
   currentCfg.title = title; currentCfg.sub = sub;
   document.title = title || '드림 아카이브';
   await saveCurrentPair();
+}
+function renderDday() {
+  const badge = document.getElementById('ddayBadge');
+  const numEl = document.getElementById('ddayBadgeNum');
+  const lblEl = document.getElementById('ddayBadgeLabel');
+  const iconEl = document.getElementById('ddayBadgeIcon');
+  if (!badge || !numEl || !lblEl) return;
+  const cfg = currentCfg || {};
+  const dateStr = cfg.ddayDate;
+  badge.style.background = cfg.ddayBoxBg || '';
+  badge.style.borderColor = cfg.ddayBoxBorder || '';
+  numEl.style.color = cfg.ddayNumColor || '';
+  lblEl.style.color = cfg.ddayLabelColor || '';
+  if (iconEl) {
+    if (cfg.ddayHeartImg) {
+      iconEl.style.backgroundImage = `url('${cfg.ddayHeartImg.replace(/'/g,"%27")}')`;
+      iconEl.style.backgroundSize = 'cover';
+      iconEl.style.backgroundPosition = 'center';
+    } else {
+      iconEl.style.backgroundImage = '';
+      const c = cfg.ddayHeartColor;
+      iconEl.style.background = c ? c : '';
+    }
+  }
+  if (!dateStr) {
+    if (isAdmin) {
+      badge.style.display = 'flex';
+      lblEl.textContent = '+ D-DAY 설정';
+      numEl.textContent = '';
+    } else {
+      badge.style.display = 'none';
+    }
+    return;
+  }
+  badge.style.display = 'flex';
+  const target = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diffDays = Math.round((today - target) / 86400000);
+  numEl.textContent = diffDays === 0 ? 'D-DAY' : (diffDays > 0 ? 'D+' + diffDays : 'D' + diffDays);
+  lblEl.textContent = cfg.ddayLabel || '';
+}
+function editDday() {
+  if (!isAdmin) return;
+  const cfg = currentCfg || {};
+  document.getElementById('dday-date').value = cfg.ddayDate || '';
+  document.getElementById('dday-label').value = cfg.ddayLabel || '';
+  document.getElementById('dday-boxbg').value = cfg.ddayBoxBg || '#ffffff';
+  document.getElementById('dday-boxborder').value = cfg.ddayBoxBorder || '#ede8e2';
+  document.getElementById('dday-heartcolor').value = cfg.ddayHeartColor || '#e8a0a8';
+  document.getElementById('dday-numcolor').value = cfg.ddayNumColor || '#c75f6b';
+  document.getElementById('dday-labelcolor').value = cfg.ddayLabelColor || '#a89898';
+  const heartImgInp = document.getElementById('dday-heartimg');
+  heartImgInp.value = cfg.ddayHeartImg || '';
+  const preview = document.getElementById('dday-heart-preview');
+  if (cfg.ddayHeartImg) {
+    preview.style.display = 'block';
+    preview.style.backgroundImage = `url('${cfg.ddayHeartImg.replace(/'/g,"%27")}')`;
+  } else {
+    preview.style.display = 'none';
+  }
+  document.getElementById('ddayModal').classList.add('open');
+}
+async function saveDdaySettings() {
+  if (!isAdmin) return;
+  const dateVal = document.getElementById('dday-date').value;
+  currentCfg.ddayDate = dateVal || null;
+  currentCfg.ddayLabel = document.getElementById('dday-label').value.trim();
+  currentCfg.ddayBoxBg = document.getElementById('dday-boxbg').value;
+  currentCfg.ddayBoxBorder = document.getElementById('dday-boxborder').value;
+  currentCfg.ddayHeartColor = document.getElementById('dday-heartcolor').value;
+  currentCfg.ddayNumColor = document.getElementById('dday-numcolor').value;
+  currentCfg.ddayLabelColor = document.getElementById('dday-labelcolor').value;
+  currentCfg.ddayHeartImg = document.getElementById('dday-heartimg').value.trim();
+  renderDday();
+  closeModal('ddayModal');
+  await saveCurrentPair();
+  showToast('저장됨 ✓');
+}
+function resetDdayStyle() {
+  document.getElementById('dday-boxbg').value = '#ffffff';
+  document.getElementById('dday-boxborder').value = '#ede8e2';
+  document.getElementById('dday-heartcolor').value = '#e8a0a8';
+  document.getElementById('dday-numcolor').value = '#c75f6b';
+  document.getElementById('dday-labelcolor').value = '#a89898';
+  document.getElementById('dday-heartimg').value = '';
+  document.getElementById('dday-heart-preview').style.display = 'none';
 }
 async function saveCfgColors() {
   const colorCfg = collectColors();
@@ -3263,7 +3617,7 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 function getSamples() {
   return [
     {id:1,type:'log',title:'[AU] 현대 카페 첫 만남 썰',body:'오늘 카페 알바 중에 진짜 완벽한 사람이 들어왔는데... 아메리카노 한 잔 시키면서 눈이 마주쳤는데 심장이 폭발하는 줄 알았어요.',date:'2025-06-20',img:''},
-    {id:2,type:'gallery',title:'드림 팬아트 — 여름 바닷가',body:'여름 드림으로 그려봤어요 🌊 물 반사 표현이 마음에 들어요.',date:'2025-06-18',img:'https://picsum.photos/seed/pastel1/400/225'},
+    {id:2,type:'photogallery',title:'드림 팬아트 — 여름 바닷가',body:'여름 드림으로 그려봤어요 🌊 물 반사 표현이 마음에 들어요.',date:'2025-06-18',img:'https://picsum.photos/seed/pastel1/400/225'},
     {id:3,type:'daily',title:'드림 일상 6/15',body:'나만의 드림 세계에서는 그 사람이 나한테 먼저 손 내밀어줘요.',date:'2025-06-15',img:''},
     {id:4,type:'memo',title:'학교물 설정 메모',body:'배경: 2000년대 초 고등학교\n상대: 밴드부 드러머\n계절: 가을학기\n핵심: 옥상 일몰 장면',date:'2025-06-10',img:''},
     {id:5,type:'log',title:'[완결] 별밤 캠핑 로그',body:'드디어 완결! 5편짜리 캠핑 AU. 마지막 고백씬 쓰면서 혼자 설레서 못 잔 게 함정ㅠ',date:'2025-06-05',img:''},
