@@ -698,13 +698,8 @@ word-break:break-word;}
 .tab-list{display:flex;flex-direction:column;gap:0.4rem;}
 .tab-item{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border-radius:10px;padding:0.4rem 0.6rem;}
 .tab-item-name{flex:1;font-size:0.82rem;}
-.tab-item-move{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.75rem;padding:2px 4px;line-height:1;}
-.tab-item-move:disabled{opacity:0.25;cursor:default;}
 .tab-item-edit{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:0.8rem;padding:2px 5px;}
 .tab-item-del{background:none;border:none;cursor:pointer;color:#e07a7a;font-size:0.8rem;padding:2px 5px;}
-/* 비밀글 자물쇠 배지 */
-.card-secret-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.62rem;font-weight:700;background:rgba(180,130,180,0.18);color:var(--accent);border-radius:999px;padding:2px 7px;margin-left:4px;}
-.secret-blur{filter:blur(4px);pointer-events:none;user-select:none;}
 #lockScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
 #lockScreen.open{display:flex;}
 #githubTokenScreen{display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;align-items:center;justify-content:center;}
@@ -1255,12 +1250,6 @@ document.addEventListener('selectstart', e => {
       <input type="checkbox" id="inp-ishtml" onchange="toggleHtmlMode()" style="accent-color:var(--accent);">
       <label for="inp-ishtml" style="font-size:0.8rem;color:var(--text-sub);cursor:pointer;">🧩 HTML 직접 입력</label>
     </div>
-    <!-- 비밀글 설정 (관리자만 표시) -->
-    <div id="secretWrap" style="display:none;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-      <input type="checkbox" id="inp-issecret" onchange="toggleSecretMode()" style="accent-color:var(--accent);">
-      <label for="inp-issecret" style="font-size:0.8rem;color:var(--text-sub);cursor:pointer;">🔒 비밀글</label>
-      <input type="password" class="field-inp" id="inp-secret-pw" placeholder="비밀번호 입력" maxlength="30" style="display:none;max-width:180px;font-size:0.82rem;padding:0.4rem 0.7rem;">
-    </div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('addModal')">취소</button>
       <button class="btn-save" id="addModalSaveBtn" onclick="saveItem()">저장</button>
@@ -1365,23 +1354,6 @@ document.addEventListener('selectstart', e => {
 </div>
 
 <button class="float-settings admin-only" onclick="openSettings()">🎨 꾸미기</button>
-
-<!-- 비밀글 잠금 해제 모달 -->
-<div class="overlay center" id="secretUnlockModal" onclick="if(event.target===this)closeModal('secretUnlockModal')">
-  <div class="modal" style="max-width:320px;gap:1rem;">
-    <div class="modal-head"><span class="modal-ttl">🔒 비밀글</span><button class="x-btn" onclick="closeModal('secretUnlockModal')">✕</button></div>
-    <div style="font-size:0.82rem;color:var(--text-muted);text-align:center;">비밀번호를 입력해야 볼 수 있어요.</div>
-    <div class="lock-input-wrap">
-      <input type="password" class="lock-input" id="secretUnlockInput" placeholder="비밀번호" maxlength="30" onkeydown="if(event.key==='Enter')trySecretUnlock()">
-    </div>
-    <div class="lock-err" id="secretUnlockErr"></div>
-    <div class="modal-actions">
-      <button class="btn-ghost" onclick="closeModal('secretUnlockModal')">취소</button>
-      <button class="btn-save" onclick="trySecretUnlock()">확인</button>
-    </div>
-  </div>
-</div>
-
 <div class="readonly-notice" id="readonlyNotice">
   👀 구경 모드 · 수정하려면 &nbsp;<button class="readonly-login" onclick="openLock()">관리자 로그인</button>
 </div>
@@ -1901,21 +1873,12 @@ function openTabEditModal() {
   document.getElementById('tabEditModal').classList.add('open');
 }
 function renderTabList() {
-  const len = currentTabs.length;
   document.getElementById('tabList').innerHTML = currentTabs.map((t,i)=>`
     <div class="tab-item">
-      <button class="tab-item-move" onclick="moveTab(${i},-1)" ${i===0?'disabled':''} title="위로">▲</button>
-      <button class="tab-item-move" onclick="moveTab(${i},1)" ${i===len-1?'disabled':''} title="아래로">▼</button>
       <span class="tab-item-name">${esc(t.name)}</span>
       <button class="tab-item-edit" onclick="promptRenameTab(${i})">✎</button>
       <button class="tab-item-del" onclick="deleteTab(${i})">✕</button>
     </div>`).join('');
-}
-function moveTab(i, dir) {
-  const j = i + dir;
-  if (j < 0 || j >= currentTabs.length) return;
-  [currentTabs[i], currentTabs[j]] = [currentTabs[j], currentTabs[i]];
-  debounceSave(); renderTabList(); renderTabBar();
 }
 function promptRenameTab(i) {
   const name = prompt('탭 이름 변경:', currentTabs[i].name);
@@ -1949,8 +1912,6 @@ function renderGrid() {
 function cardHTML(it) {
   const thumb = it.img?`<img class="card-thumb" src="${esc(it.img)}" loading="lazy" alt="">`:'';
   const pinned = currentPins.includes(it.id);
-  const secretBadge = it.secret ? `<span class="card-secret-badge">🔒 비밀글</span>` : '';
-  const blurClass = (it.secret && !isAdmin) ? ' secret-blur' : '';
   const acts = isAdmin ? `<div class="card-actions">
     <button class="card-act-btn" title="${pinned?'핀 해제':'핀'}" onclick="event.stopPropagation();togglePin(${it.id})">${pinned?'📌':'📍'}</button>
     <button class="card-act-btn" title="수정" onclick="event.stopPropagation();openEditItemModal(${it.id})">✎</button>
@@ -1958,9 +1919,10 @@ function cardHTML(it) {
   </div>` : '';
   return `<div class="card${pinned?' pinned':''}" onclick="openDetail(${it.id})">
     ${acts}
-    <div class="card-type-badge">${getTabName(it.type)}${it.isHtml?'<span class="html-badge">🧩 HTML</span>':''}${secretBadge}</div>
-    <div class="card-title${blurClass}">${esc(it.title)}</div>
-    ${!isAdmin && it.secret ? `<div class="card-body" style="color:var(--text-muted);font-size:0.78rem;">🔒 비밀번호가 필요해요</div>` : (thumb + (it.isHtml ? `<div class="card-html-render${blurClass}">${it.body}</div>` : `<div class="card-body${blurClass}">${esc(it.body)}</div>`))}
+    <div class="card-type-badge">${getTabName(it.type)}${it.isHtml?'<span class="html-badge">🧩 HTML</span>':''}</div>
+    <div class="card-title">${esc(it.title)}</div>
+    ${thumb}
+    ${it.isHtml ? `<div class="card-html-render">${it.body}</div>` : `<div class="card-body">${esc(it.body)}</div>`}
     <div class="card-foot"><span class="card-date">${it.date||''}</span></div>
   </div>`;
 }
@@ -1979,12 +1941,6 @@ function openAddModal() {
   document.getElementById('imgUrlWrap').style.display='block';
   document.getElementById('inp-ishtml').checked=false;
   toggleHtmlMode();
-  // 비밀글 초기화
-  const secretWrap = document.getElementById('secretWrap');
-  if (secretWrap) { secretWrap.style.display = isAdmin ? 'flex' : 'none'; }
-  document.getElementById('inp-issecret').checked = false;
-  document.getElementById('inp-secret-pw').value = '';
-  document.getElementById('inp-secret-pw').style.display = 'none';
   document.getElementById('addModal').classList.add('open');
 }
 function openEditItemModal(id) {
@@ -1999,13 +1955,6 @@ function openEditItemModal(id) {
   document.getElementById('inp-title').value = it.title || '';
   document.getElementById('inp-body').value = it.body || '';
   document.getElementById('inp-ishtml').checked = !!it.isHtml;
-  // 비밀글 복원
-  const secretWrap = document.getElementById('secretWrap');
-  if (secretWrap) { secretWrap.style.display = isAdmin ? 'flex' : 'none'; }
-  const isSecretChk = document.getElementById('inp-issecret');
-  const secretPwInp = document.getElementById('inp-secret-pw');
-  if (isSecretChk) { isSecretChk.checked = !!it.secret; }
-  if (secretPwInp) { secretPwInp.value = it.secretPw || ''; secretPwInp.style.display = it.secret ? 'block' : 'none'; }
   // 리치 에디터에도 내용 불러오기
   const richEditor = document.getElementById('richEditor');
   if (richEditor) richEditor.innerHTML = it.body || '';
@@ -2158,11 +2107,7 @@ function handleEditorKeydown(e) {
   if (e.key === 'i' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); execFmt('italic'); }
 }
 
-function toggleSecretMode() {
-  const checked = document.getElementById('inp-issecret').checked;
-  document.getElementById('inp-secret-pw').style.display = checked ? 'block' : 'none';
-  if (!checked) document.getElementById('inp-secret-pw').value = '';
-}
+function syncRichToPlain() {
   // 리치 에디터의 HTML → inp-body(plain)에 저장
   const richEditor = document.getElementById('richEditor');
   const plain = document.getElementById('inp-body');
@@ -2188,14 +2133,12 @@ async function saveItem() {
     body = document.getElementById('inp-body').value.trim();
   }
   const img = !isHtml ? (tempItemImg||'') : '';
-  const isSecret = document.getElementById('inp-issecret')?.checked || false;
-  const secretPw = isSecret ? (document.getElementById('inp-secret-pw')?.value.trim() || '') : '';
   if (editingItemId !== null) {
     const it = currentItems.find(i=>i.id===editingItemId);
-    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml||isRichHtml(body); it.img=img; it.secret=isSecret; it.secretPw=secretPw; }
+    if (it) { it.type=currentType; it.title=title; it.body=body; it.isHtml=isHtml||isRichHtml(body); it.img=img; }
     editingItemId = null;
   } else {
-    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10),secret:isSecret,secretPw});
+    currentItems.unshift({id:Date.now(),type:currentType,title,body,isHtml:isHtml||isRichHtml(body),img,date:new Date().toISOString().slice(0,10)});
   }
   await saveCurrentPair(); showToast('저장됨 ✓'); closeModal('addModal'); renderGrid(); renderHome();
 }
@@ -2207,38 +2150,7 @@ function isRichHtml(body) {
 
 
 
-let _pendingSecretItemId = null;
-
 function openDetail(id) {
-  const it=currentItems.find(i=>i.id===id); if(!it) return;
-  // 비밀글 처리: 관리자가 아니고 비밀글이면 비밀번호 모달
-  if (it.secret && !isAdmin) {
-    _pendingSecretItemId = id;
-    document.getElementById('secretUnlockInput').value = '';
-    document.getElementById('secretUnlockErr').textContent = '';
-    document.getElementById('secretUnlockModal').classList.add('open');
-    setTimeout(()=>document.getElementById('secretUnlockInput').focus(), 80);
-    return;
-  }
-  _openDetailInner(id);
-}
-
-function trySecretUnlock() {
-  const id = _pendingSecretItemId;
-  const it = currentItems.find(i=>i.id===id);
-  if (!it) { closeModal('secretUnlockModal'); return; }
-  const entered = document.getElementById('secretUnlockInput').value;
-  if (entered === it.secretPw) {
-    closeModal('secretUnlockModal');
-    _openDetailInner(id);
-  } else {
-    document.getElementById('secretUnlockErr').textContent = '비밀번호가 맞지 않아요.';
-    document.getElementById('secretUnlockInput').value = '';
-    document.getElementById('secretUnlockInput').focus();
-  }
-}
-
-function _openDetailInner(id) {
   const it=currentItems.find(i=>i.id===id); if(!it) return;
   document.getElementById('d-ttl').textContent=it.title;
   const dImg=document.getElementById('d-img');
