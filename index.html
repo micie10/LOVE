@@ -181,6 +181,7 @@ body::before{
   scrollbar-width:none;
   border-radius:0;
   align-self:stretch;
+  position:relative;z-index:410;
 }
 .pp-sidebar::-webkit-scrollbar{display:none;}
 
@@ -771,6 +772,8 @@ word-break:break-word;}
   .pp-sidebar{width:64px;padding:1rem 0;}
   .pp-sidebar-name,.pp-sidebar-subtitle,.pp-sidebar-credit{display:none;}
   .pp-sidebar-avatar{width:40px;height:40px;font-size:1rem;margin-bottom:0.5rem;}
+  body:not(.is-admin) .pp-sidebar-avatar{cursor:pointer;}
+  body:not(.is-admin) .pp-sidebar-avatar:active{transform:scale(0.92);transition:transform 0.1s;}
   .pp-nav-item{padding:0.5rem;justify-content:center;}
   .pp-nav-item span:last-child{display:none;}
   .pp-nav-icon{width:auto;}
@@ -1240,7 +1243,7 @@ document.addEventListener('selectstart', e => {
     <!-- 사이드바 -->
     <div class="pp-sidebar" id="ppSidebar">
       <!-- 아바타: 관리자면 클릭해서 이미지 변경 -->
-      <div class="pp-sidebar-avatar" id="ppSidebarAvatar" title="이미지 변경 (관리자만)" onclick="if(isAdmin){saveSidebarAvatar();}">
+      <div class="pp-sidebar-avatar" id="ppSidebarAvatar" title="이미지 변경 (관리자만)" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
         🌸
       </div>
       <div class="pp-sidebar-name" id="ppSidebarName"
@@ -1350,7 +1353,7 @@ document.addEventListener('selectstart', e => {
       <div class="pp-home-content">
         <div class="home-pinned" id="homePinnedSection">
           <div class="section-label">
-            📌 선택된 항목
+            📌 
             <button class="pin-manage-btn admin-only" onclick="openPinModal()">편집</button>
           </div>
           <div class="recent-row" id="pinnedRow"></div>
@@ -1368,7 +1371,7 @@ document.addEventListener('selectstart', e => {
     <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
       <!-- 사이드바 (아카이브용) -->
       <div class="pp-sidebar">
-        <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarArc" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
           🌸
         </div>
         <div class="pp-sidebar-name" id="ppSidebarNameArc">PAIR</div>
@@ -1432,7 +1435,7 @@ document.addEventListener('selectstart', e => {
     <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
       <!-- 사이드바 (스토리용) -->
       <div class="pp-sidebar">
-        <div class="pp-sidebar-avatar" id="ppSidebarAvatarStory" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarStory" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
           🌸
         </div>
         <div class="pp-sidebar-name" id="ppSidebarNameStory">PAIR</div>
@@ -1483,7 +1486,7 @@ document.addEventListener('selectstart', e => {
     <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
       <!-- 사이드바 (갤러리용) -->
       <div class="pp-sidebar">
-        <div class="pp-sidebar-avatar" id="ppSidebarAvatarGal" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarGal" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
           🌸
         </div>
         <div class="pp-sidebar-name" id="ppSidebarNameGal">PAIR</div>
