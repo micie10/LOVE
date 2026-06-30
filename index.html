@@ -653,6 +653,29 @@ word-break:break-word;}
     padding-right:8px;
 }
 .detail-date{font-size:0.75rem;color:var(--text-muted);}
+
+/* ── 댓글 영역 ── */
+.comment-section{margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--border);}
+.comment-section-title{font-size:0.8rem;font-weight:700;color:var(--text-sub);margin-bottom:0.7rem;}
+.comment-list{display:flex;flex-direction:column;gap:0.6rem;margin-bottom:0.9rem;}
+.comment-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0.55rem 0.7rem;position:relative;}
+.comment-item-head{display:flex;align-items:center;gap:0.4rem;margin-bottom:0.25rem;}
+.comment-author{font-size:0.78rem;font-weight:700;color:var(--accent);}
+.comment-date{font-size:0.68rem;color:var(--text-muted);}
+.comment-text{font-size:0.82rem;color:var(--text);white-space:pre-wrap;line-height:1.55;overflow-wrap:break-word;}
+.comment-del-btn{position:absolute;top:0.45rem;right:0.55rem;background:none;border:none;font-size:0.7rem;color:var(--text-muted);cursor:pointer;}
+.comment-del-btn:hover{color:#e07a7a;}
+.comment-empty{font-size:0.78rem;color:var(--text-muted);padding:0.3rem 0;}
+.comment-form{display:flex;flex-direction:column;gap:0.45rem;}
+.comment-form-row{display:flex;gap:0.45rem;}
+.comment-form-row .field-inp{flex:1;}
+.comment-form textarea.field-ta{min-height:60px;font-size:0.82rem;}
+.comment-secret-toggle{display:flex;align-items:center;gap:0.35rem;font-size:0.74rem;color:var(--text-muted);cursor:pointer;user-select:none;}
+.comment-secret-toggle input{accent-color:var(--accent);cursor:pointer;}
+.comment-secret-badge{font-size:0.68rem;color:var(--accent);font-weight:600;margin-left:0.15rem;}
+.comment-text.locked{color:var(--text-muted);font-style:italic;}
+.comment-submit-btn{align-self:flex-end;background:var(--accent);border:none;border-radius:999px;padding:0.45rem 1.1rem;font-family:var(--font);font-size:0.8rem;color:#fff;cursor:pointer;transition:opacity 0.15s;}
+.comment-submit-btn:hover{opacity:0.88;}
 .detail-html-render{font-size:0.88rem;line-height:1.8;overflow-wrap:break-word;
     word-break:break-word;}
 .detail-html-render img,.detail-html-render video,.detail-html-render iframe{max-width:100%;border-radius:8px;}
@@ -947,9 +970,12 @@ word-break:break-word;}
 .story-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;background:var(--pp-sidebar);}
 .story-header{
   background:var(--pp-card);border-bottom:1px solid var(--pp-card-border);
-  padding:1rem 1.5rem;flex-shrink:0;z-index:50;
-  display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;
+  padding:1rem 1.5rem 0;flex-shrink:0;z-index:50;
+  display:flex;flex-direction:column;gap:0.6rem;
 }
+.story-top-row{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+.story-tab-bar{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;align-items:center;padding-bottom:0.1rem;}
+.story-tab-bar::-webkit-scrollbar{display:none;}
 .story-heading{font-size:0.95rem;font-weight:700;color:var(--pp-text);flex:1;}
 .story-scroll{flex:1;overflow-y:auto;padding:2.5rem 1.5rem 4rem;scrollbar-width:none;-ms-overflow-style:none;}
 .story-scroll::-webkit-scrollbar{display:none;}
@@ -1483,16 +1509,19 @@ document.addEventListener('selectstart', e => {
       <!-- 스토리 메인 -->
       <div class="story-main">
         <div class="story-header">
-          <button class="back-btn" onclick="goHub()">← 메인</button>
-          <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
-          <span class="story-heading">이야기 </span>
-          <span class="admin-badge" id="adminBadgeStory">🔑 관리자</span>
-          <label class="story-color-btn admin-only">
-            <span class="story-color-swatch" id="storyColorSwatch" style="background:#ffffff;"></span>
-            박스 색상
-            <input type="color" id="storyColorInput" value="#ffffff" style="width:0;height:0;opacity:0;position:absolute;" oninput="setStoryBoxColor(this.value)">
-          </label>
-          <button class="add-btn admin-only" onclick="openStoryModal(-1)">+ 추가</button>
+          <div class="story-top-row">
+            <button class="back-btn" onclick="goHub()">← 메인</button>
+            <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+            <span class="story-heading">이야기 </span>
+            <span class="admin-badge" id="adminBadgeStory">🔑 관리자</span>
+            <label class="story-color-btn admin-only">
+              <span class="story-color-swatch" id="storyColorSwatch" style="background:#ffffff;"></span>
+              박스 색상
+              <input type="color" id="storyColorInput" value="#ffffff" style="width:0;height:0;opacity:0;position:absolute;" oninput="setStoryBoxColor(this.value)">
+            </label>
+            <button class="add-btn admin-only" onclick="openStoryModal(-1)">+ 추가</button>
+          </div>
+          <div class="story-tab-bar" id="storyTabBar"></div>
         </div>
         <div class="story-scroll">
           <div class="story-timeline" id="storyTimeline"></div>
@@ -1703,6 +1732,21 @@ document.addEventListener('selectstart', e => {
       <div class="detail-scroll">
         <div class="detail-body" id="d-body"></div>
         <div class="detail-html-render" id="d-body-html" style="display:none"></div>
+
+        <div class="comment-section">
+          <div class="comment-section-title">💬 댓글</div>
+          <div class="comment-list" id="d-comment-list"></div>
+          <div class="comment-form">
+            <div class="comment-form-row">
+              <input type="text" class="field-inp" id="d-comment-name" placeholder="이름" maxlength="20">
+            </div>
+            <textarea class="field-ta" id="d-comment-text" placeholder="댓글을 남겨주세요..." rows="2"></textarea>
+            <label class="comment-secret-toggle">
+              <input type="checkbox" id="d-comment-secret"> 🔒 비밀 댓글로 남기기 (관리자만 볼 수 있어요)
+            </label>
+            <button class="comment-submit-btn" onclick="addComment()">등록</button>
+          </div>
+        </div>
       </div>
 
       <div class="detail-date" id="d-date"></div>
@@ -1729,6 +1773,20 @@ document.addEventListener('selectstart', e => {
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('pinModal')">취소</button>
       <button class="btn-save" onclick="savePins()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay center" id="storyTabEditModal" onclick="if(event.target===this)closeModal('storyTabEditModal')">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-ttl">서사 관리</span><button class="x-btn" onclick="closeModal('storyTabEditModal')">✕</button></div>
+    <div class="tab-list" id="storyTabList"></div>
+    <div style="display:flex;gap:0.5rem;">
+      <input type="text" class="field-inp" id="newStoryLineName" placeholder="새 서사 이름 (예: 서사 2)">
+      <button class="btn-save" onclick="addNewStoryLineFromModal()">추가</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('storyTabEditModal')">닫기</button>
     </div>
   </div>
 </div>
@@ -1869,7 +1927,8 @@ let currentDecos = [];
 let currentCfg = {};
 let currentTabs = [];
 let currentPins = [];
-let currentStory = [];
+let currentStoryLines = [];
+let currentStoryLineIdx = 0;
 let editingStoryIdx = -1;
 let currentTab = 'all';
 let currentType = 'log';
@@ -2024,7 +2083,7 @@ async function saveCurrentPair() {
   d.cfg = currentCfg;
   d.tabs = currentTabs;
   d.pins = currentPins;
-  d.story = currentStory;
+  d.storyLines = currentStoryLines;
   await savePairData(currentPairId, d);
 }
 
@@ -2033,24 +2092,153 @@ function debounceSave() {
   saveTimer = setTimeout(async ()=>{ await saveCurrentPair(); showToast('저장됨 ✓'); }, 600);
 }
 
-// ===== STORY (Our story 타임라인) =====
+// ===== STORY (Our story 타임라인 — 여러 개의 "서사" 지원) =====
+function ensureStoryLines() {
+  if (!currentStoryLines || !Array.isArray(currentStoryLines) || !currentStoryLines.length) {
+    currentStoryLines = [{ id: 'story_default', name: '서사 1', items: [] }];
+  }
+  if (currentStoryLineIdx == null || currentStoryLineIdx < 0 || currentStoryLineIdx >= currentStoryLines.length) {
+    currentStoryLineIdx = 0;
+  }
+}
+function activeStoryItems() {
+  ensureStoryLines();
+  if (!Array.isArray(currentStoryLines[currentStoryLineIdx].items)) currentStoryLines[currentStoryLineIdx].items = [];
+  return currentStoryLines[currentStoryLineIdx].items;
+}
+
+function renderStoryTabs() {
+  ensureStoryLines();
+  const bar = document.getElementById('storyTabBar');
+  if (!bar) return;
+  bar.innerHTML = currentStoryLines.map((line, i) => `
+    <button class="tab${i === currentStoryLineIdx ? ' active' : ''}" onclick="setStoryLine(${i})" oncontextmenu="event.preventDefault();manageStoryLine(${i})" title="${isAdmin ? '우클릭(길게 누르기)으로 이름변경/삭제' : ''}">${esc(line.name)}</button>
+  `).join('') +
+    `<button class="tab-add-btn" title="서사 추가" onclick="addStoryLine()">＋</button>` +
+    `<button class="tab-add-btn" title="서사 이름 변경 / 삭제" onclick="openStoryTabEditModal()" style="font-size:0.75rem;">✎</button>`;
+}
+
+function setStoryLine(i) {
+  if (!currentStoryLines || i < 0 || i >= currentStoryLines.length) return;
+  currentStoryLineIdx = i;
+  renderStoryTabs();
+  renderStory();
+}
+
+async function addStoryLine() {
+  if (!requireAdmin()) return;
+  ensureStoryLines();
+  const name = prompt('새 서사 이름을 입력하세요 (예: 서사 2)', '서사 ' + (currentStoryLines.length + 1));
+  if (name === null || !name.trim()) return;
+  currentStoryLines.push({ id: 'story_' + Date.now(), name: name.trim(), items: [] });
+  currentStoryLineIdx = currentStoryLines.length - 1;
+  await saveCurrentPair();
+  renderStoryTabs();
+  renderStory();
+  showToast('서사가 추가됐어요 ✓');
+}
+
+async function manageStoryLine(i) {
+  if (!requireAdmin()) return;
+  const line = currentStoryLines[i];
+  if (!line) return;
+  const action = prompt(`"${line.name}" 관리\n새 이름을 입력하면 이름이 바뀌고,\n"삭제"라고 입력하면 이 서사가 통째로 삭제돼요.`, line.name);
+  if (action === null) return;
+  const trimmed = action.trim();
+  if (!trimmed) return;
+  if (trimmed === '삭제') {
+    if (currentStoryLines.length <= 1) { alert('최소 1개의 서사는 있어야 해요.'); return; }
+    if (!confirm(`"${line.name}" 서사를 삭제할까요?\n안에 있는 이야기들도 모두 함께 삭제돼요.`)) return;
+    currentStoryLines.splice(i, 1);
+    if (currentStoryLineIdx >= currentStoryLines.length) currentStoryLineIdx = currentStoryLines.length - 1;
+  } else {
+    line.name = trimmed;
+  }
+  await saveCurrentPair();
+  renderStoryTabs();
+  renderStory();
+  showToast('저장됨 ✓');
+}
+
+function openStoryTabEditModal() {
+  if (!requireAdmin()) return;
+  ensureStoryLines();
+  renderStoryTabList();
+  document.getElementById('newStoryLineName').value = '';
+  document.getElementById('storyTabEditModal').classList.add('open');
+}
+function renderStoryTabList() {
+  const len = currentStoryLines.length;
+  document.getElementById('storyTabList').innerHTML = currentStoryLines.map((line, i) => `
+    <div class="tab-item">
+      <button class="tab-item-move" onclick="moveStoryLine(${i},-1)" ${i===0?'disabled':''} title="위로">▲</button>
+      <button class="tab-item-move" onclick="moveStoryLine(${i},1)" ${i===len-1?'disabled':''} title="아래로">▼</button>
+      <span class="tab-item-name">${esc(line.name)}</span>
+      <button class="tab-item-edit" onclick="promptRenameStoryLine(${i})">✎</button>
+      <button class="tab-item-del" onclick="deleteStoryLineAt(${i})">✕</button>
+    </div>`).join('');
+}
+function moveStoryLine(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= currentStoryLines.length) return;
+  [currentStoryLines[i], currentStoryLines[j]] = [currentStoryLines[j], currentStoryLines[i]];
+  if (currentStoryLineIdx === i) currentStoryLineIdx = j;
+  else if (currentStoryLineIdx === j) currentStoryLineIdx = i;
+  debounceSave();
+  renderStoryTabList();
+  renderStoryTabs();
+}
+function promptRenameStoryLine(i) {
+  const line = currentStoryLines[i];
+  if (!line) return;
+  const name = prompt('서사 이름 변경:', line.name);
+  if (name && name.trim()) {
+    line.name = name.trim();
+    debounceSave();
+    renderStoryTabList();
+    renderStoryTabs();
+  }
+}
+function deleteStoryLineAt(i) {
+  if (currentStoryLines.length <= 1) { alert('최소 1개의 서사는 있어야 해요.'); return; }
+  const line = currentStoryLines[i];
+  if (!confirm(`"${line.name}" 서사를 삭제할까요?\n안에 있는 이야기들도 모두 함께 삭제돼요.`)) return;
+  currentStoryLines.splice(i, 1);
+  if (currentStoryLineIdx >= currentStoryLines.length) currentStoryLineIdx = currentStoryLines.length - 1;
+  debounceSave();
+  renderStoryTabList();
+  renderStoryTabs();
+  renderStory();
+}
+function addNewStoryLineFromModal() {
+  const name = document.getElementById('newStoryLineName').value.trim();
+  if (!name) return;
+  currentStoryLines.push({ id: 'story_' + Date.now(), name, items: [] });
+  document.getElementById('newStoryLineName').value = '';
+  debounceSave();
+  renderStoryTabList();
+  renderStoryTabs();
+}
+
 function renderStory() {
   const wrap = document.getElementById('storyTimeline');
   const empty = document.getElementById('storyEmpty');
   if (!wrap) return;
+  renderStoryTabs();
+  const items = activeStoryItems();
   const boxColor = (currentCfg && currentCfg.storyBoxColor) || '#ffffff';
   document.documentElement.style.setProperty('--story-box-color', boxColor);
   const swatch = document.getElementById('storyColorSwatch');
   const colorInput = document.getElementById('storyColorInput');
   if (swatch) swatch.style.background = boxColor;
   if (colorInput) colorInput.value = boxColor;
-  if (!currentStory || currentStory.length === 0) {
+  if (!items || items.length === 0) {
     wrap.innerHTML = '';
     empty.style.display = 'block';
     return;
   }
   empty.style.display = 'none';
-  wrap.innerHTML = currentStory.map((s, i) => `
+  wrap.innerHTML = items.map((s, i) => `
     <div class="story-item ${i % 2 === 0 ? 'side-left' : 'side-right'}">
       <div class="story-dot"></div>
       <div class="story-item-col">
@@ -2078,20 +2266,22 @@ async function setStoryBoxColor(color) {
 }
 
 function openStoryModal(idx) {
+  ensureStoryLines();
+  const items = activeStoryItems();
   editingStoryIdx = idx;
   const titleEl = document.getElementById('storyModalTtl');
   const titleInput = document.getElementById('storyTitleInput');
   const dateInput = document.getElementById('storyDateInput');
   const bodyInput = document.getElementById('storyBodyInput');
   const delBtn = document.getElementById('storyDeleteBtn');
-  if (idx >= 0 && currentStory[idx]) {
-    titleEl.textContent = '이야기 수정';
-    titleInput.value = currentStory[idx].title || '';
-    dateInput.value = currentStory[idx].date || '';
-    bodyInput.value = currentStory[idx].body || '';
+  if (idx >= 0 && items[idx]) {
+    titleEl.textContent = `이야기 수정 · ${currentStoryLines[currentStoryLineIdx].name}`;
+    titleInput.value = items[idx].title || '';
+    dateInput.value = items[idx].date || '';
+    bodyInput.value = items[idx].body || '';
     delBtn.style.display = 'inline-block';
   } else {
-    titleEl.textContent = '이야기 추가';
+    titleEl.textContent = `이야기 추가 · ${currentStoryLines[currentStoryLineIdx].name}`;
     titleInput.value = '';
     dateInput.value = '';
     bodyInput.value = '';
@@ -2103,14 +2293,15 @@ function openStoryModal(idx) {
 }
 
 async function saveStoryItem() {
+  const items = activeStoryItems();
   const title = document.getElementById('storyTitleInput').value.trim();
   const date = document.getElementById('storyDateInput').value.trim();
   const body = document.getElementById('storyBodyInput').value.trim();
   if (!title && !body) { closeModal('storyModal'); return; }
-  if (editingStoryIdx >= 0 && currentStory[editingStoryIdx]) {
-    currentStory[editingStoryIdx] = Object.assign({}, currentStory[editingStoryIdx], {title, date, body});
+  if (editingStoryIdx >= 0 && items[editingStoryIdx]) {
+    items[editingStoryIdx] = Object.assign({}, items[editingStoryIdx], {title, date, body});
   } else {
-    currentStory.push({id:Date.now(), title, date, body});
+    items.push({id:Date.now(), title, date, body});
   }
   closeModal('storyModal');
   renderStory();
@@ -2121,7 +2312,8 @@ async function saveStoryItem() {
 async function deleteStoryItem() {
   if (editingStoryIdx < 0) return;
   if (!confirm('이 이야기를 삭제할까요?')) return;
-  currentStory.splice(editingStoryIdx, 1);
+  const items = activeStoryItems();
+  items.splice(editingStoryIdx, 1);
   closeModal('storyModal');
   renderStory();
   await saveCurrentPair();
@@ -2282,7 +2474,15 @@ async function openPair(pid) {
   currentCfg = d.cfg || {};
   currentTabs = d.tabs || DEFAULT_TABS.map(t=>({...t}));
   currentPins = d.pins || [];
-  currentStory = d.story || [];
+  if (d.storyLines && Array.isArray(d.storyLines) && d.storyLines.length) {
+    currentStoryLines = d.storyLines;
+  } else if (d.story && Array.isArray(d.story) && d.story.length) {
+    // 예전 단일 타임라인 데이터를 "서사 1"로 자동 이전
+    currentStoryLines = [{ id: 'story_default', name: '서사 1', items: d.story }];
+  } else {
+    currentStoryLines = [{ id: 'story_default', name: '서사 1', items: [] }];
+  }
+  currentStoryLineIdx = 0;
   currentTab = 'all';
   currentPageContext = 'pair';
   await applyCfgColors();
@@ -3068,6 +3268,71 @@ function _openDetailInner(id) {
   document.getElementById('d-pin-btn').onclick=()=>{togglePin(id);closeModal('detailModal');};
   document.getElementById('detailModal').classList.add('open');
   document.querySelectorAll('#detailModal .admin-only').forEach(el=>el.classList.toggle('show',isAdmin));
+  currentCommentItemId = id;
+  document.getElementById('d-comment-name').value = localStorage.getItem('da_comment_name') || '';
+  document.getElementById('d-comment-text').value = '';
+  const secretChk0 = document.getElementById('d-comment-secret');
+  if (secretChk0) secretChk0.checked = false;
+  renderComments(it);
+}
+
+let currentCommentItemId = null;
+function renderComments(it) {
+  const list = document.getElementById('d-comment-list');
+  const comments = it.comments || [];
+  if (!comments.length) {
+    list.innerHTML = `<div class="comment-empty">아직 댓글이 없어요. 첫 댓글을 남겨보세요 🌸</div>`;
+    return;
+  }
+  list.innerHTML = comments.map(c => {
+    const locked = c.secret && !isAdmin;
+    const bodyHtml = locked
+      ? `<div class="comment-text locked">🔒 비밀 댓글이에요. 관리자만 볼 수 있어요.</div>`
+      : `<div class="comment-text">${esc(c.text)}</div>`;
+    return `
+    <div class="comment-item">
+      ${isAdmin ? `<button class="comment-del-btn" onclick="deleteComment(${it.id}, '${c.id}')">✕</button>` : ''}
+      <div class="comment-item-head">
+        <span class="comment-author">${esc(c.author || '익명')}</span>
+        <span class="comment-date">${esc(c.date || '')}</span>
+        ${c.secret ? `<span class="comment-secret-badge">🔒 비밀</span>` : ''}
+      </div>
+      ${bodyHtml}
+    </div>`;
+  }).join('');
+}
+async function addComment() {
+  const it = currentItems.find(i => i.id === currentCommentItemId);
+  if (!it) return;
+  const nameInp = document.getElementById('d-comment-name');
+  const textInp = document.getElementById('d-comment-text');
+  const author = nameInp.value.trim() || '익명';
+  const text = textInp.value.trim();
+  if (!text) { alert('댓글 내용을 입력해주세요.'); return; }
+  const secretChk = document.getElementById('d-comment-secret');
+  const isSecret = secretChk ? secretChk.checked : false;
+  if (!it.comments) it.comments = [];
+  it.comments.push({
+    id: 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    author, text, secret: isSecret,
+    date: new Date().toISOString().slice(0, 16).replace('T', ' ')
+  });
+  localStorage.setItem('da_comment_name', author);
+  textInp.value = '';
+  if (secretChk) secretChk.checked = false;
+  await saveCurrentPair();
+  renderComments(it);
+  showToast('댓글이 등록됐어요 ✓');
+}
+async function deleteComment(itemId, commentId) {
+  if (!isAdmin) return;
+  if (!confirm('이 댓글을 삭제할까요?')) return;
+  const it = currentItems.find(i => i.id === itemId);
+  if (!it || !it.comments) return;
+  it.comments = it.comments.filter(c => c.id !== commentId);
+  await saveCurrentPair();
+  renderComments(it);
+  showToast('삭제됨');
 }
 async function deleteItem(id) {
   if (!requireAdmin()) return;
