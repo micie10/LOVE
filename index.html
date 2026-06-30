@@ -774,7 +774,12 @@ word-break:break-word;}
   .pp-nav-item{padding:0.5rem;justify-content:center;}
   .pp-nav-item span:last-child{display:none;}
   .pp-nav-icon{width:auto;}
-  .pp-sidebar-footer .back-btn{font-size:0.6rem;padding:0.15rem 0.4rem;}
+  .pp-sidebar-footer .back-btn.sidebar-back-btn{
+    font-size:0.95rem;padding:0.45rem;
+    width:36px;height:36px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .pp-sidebar-footer .back-btn.sidebar-back-btn .back-label{display:none;}
   .cover{height:48vw;min-height:180px;}
   .cover-textbox{margin:0 0.75rem 1rem;}
   .home-strip{padding:0.75rem 1rem;}
@@ -783,6 +788,15 @@ word-break:break-word;}
   padding: 0.8rem 1rem 2rem;
 }
   .arc-header{padding:0.85rem 1rem 0;}
+
+  /* 검색창을 제목(기록) 줄 오른쪽으로 이동 */
+  .arc-top{flex-wrap:nowrap;gap:0.5rem;}
+  .arc-title-row{flex:1;min-width:0;gap:0.4rem;}
+  .arc-title-row .back-btn{font-size:0.68rem;padding:0.22rem 0.5rem;flex-shrink:0;}
+  .arc-title-row .arc-heading{flex-shrink:0;font-size:0.85rem;}
+  .arc-controls{margin-left:0;flex-shrink:0;}
+  .search-wrap input{width:34vw;min-width:90px;padding-left:1.7rem;font-size:0.74rem;}
+  .add-btn{padding:0.38rem 0.6rem;font-size:0.72rem;}
 }
 .tab-list{display:flex;flex-direction:column;gap:0.4rem;}
 .tab-item{display:flex;align-items:center;gap:0.5rem;background:var(--bg);border-radius:10px;padding:0.4rem 0.6rem;}
@@ -1256,7 +1270,7 @@ document.addEventListener('selectstart', e => {
       <div class="pp-sidebar-divider"></div>
 
       <div class="pp-sidebar-footer">
-        <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+        <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
         <div class="pp-sidebar-credit" id="ppSidebarCredit"
           contenteditable="false"
           onblur="saveSidebarMeta()"
@@ -1373,7 +1387,7 @@ document.addEventListener('selectstart', e => {
         </nav>
         <div class="pp-sidebar-divider"></div>
         <div class="pp-sidebar-footer">
-          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
           <div class="pp-sidebar-credit" id="ppSidebarCreditArc">드림 아카이브</div>
         </div>
       </div>
@@ -1437,7 +1451,7 @@ document.addEventListener('selectstart', e => {
         </nav>
         <div class="pp-sidebar-divider"></div>
         <div class="pp-sidebar-footer">
-          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
           <div class="pp-sidebar-credit" id="ppSidebarCreditStory">드림 아카이브</div>
         </div>
       </div>
@@ -1488,7 +1502,7 @@ document.addEventListener('selectstart', e => {
         </nav>
         <div class="pp-sidebar-divider"></div>
         <div class="pp-sidebar-footer">
-          <button class="back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()">← 메인</button>
+          <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
           <div class="pp-sidebar-credit" id="ppSidebarCreditGal">드림 아카이브</div>
         </div>
       </div>
