@@ -45,8 +45,8 @@
 html{scroll-behavior:smooth;}
 
 /* 모바일 이미지 꾹 눌러 저장 메뉴 방지 (관리자 모드에서는 허용) */
-img{-webkit-touch-callout:none;}
-body.is-admin img{-webkit-touch-callout:default;}
+img{-webkit-touch-callout:none;-webkit-user-drag:none;user-select:none;-webkit-user-select:none;}
+body.is-admin img{-webkit-touch-callout:default;-webkit-user-drag:auto;user-select:auto;-webkit-user-select:auto;}
 
 /* ── 창 모드: body = 바깥 배경, .app-window = 실제 앱 창 ── */
 body{
