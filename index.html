@@ -1963,6 +1963,7 @@ document.addEventListener('selectstart', e => {
         <button class="btn-danger admin-only" id="d-del-btn">삭제</button>
         <button class="btn-ghost admin-only" id="d-pin-btn">📍 핀 추가</button>
         <button class="btn-ghost admin-only" id="d-edit-btn">✎ 수정</button>
+        <button class="btn-ghost admin-only" id="d-share-btn">🔗 공유</button>
         <button class="btn-ghost" onclick="closeModal('detailModal')">닫기</button>
       </div>
 
@@ -2115,6 +2116,21 @@ document.addEventListener('selectstart', e => {
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal('secretUnlockModal')">취소</button>
       <button class="btn-save" onclick="trySecretUnlock()">확인</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay center" id="shareLinkModal" onclick="if(event.target===this)closeModal('shareLinkModal')">
+  <div class="modal" style="max-width:340px;gap:1rem;">
+    <div class="modal-head"><span class="modal-ttl">🔗 글 공유</span><button class="x-btn" onclick="closeModal('shareLinkModal')">✕</button></div>
+    <div style="font-size:0.8rem;color:var(--text-muted);">아래 링크를 복사해서 공유해주세요. 링크를 열면 이 글이 바로 보여요.</div>
+    <div class="field-group">
+      <input type="text" class="field-inp" id="shareUrlInput" readonly onclick="this.select()" style="font-size:0.78rem;">
+    </div>
+    <div class="lock-err" id="shareLinkErr" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="shareNativeBtn" onclick="nativeShareLink()" style="display:none;">📤 다른 앱으로 공유</button>
+      <button class="btn-save" onclick="copyShareLink()">📋 링크 복사</button>
     </div>
   </div>
 </div>
@@ -3600,6 +3616,7 @@ function _openDetailInner(id) {
   document.getElementById('d-edit-btn').onclick=()=>{closeModal('detailModal');openEditItemModal(id);};
   document.getElementById('d-pin-btn').textContent=pinned?'📌 핀 해제':'📍 핀 추가';
   document.getElementById('d-pin-btn').onclick=()=>{togglePin(id);closeModal('detailModal');};
+  document.getElementById('d-share-btn').onclick=()=>shareItem(id);
   document.getElementById('detailModal').classList.add('open');
   document.querySelectorAll('#detailModal .admin-only').forEach(el=>el.classList.toggle('show',isAdmin));
   currentCommentItemId = id;
@@ -3608,6 +3625,84 @@ function _openDetailInner(id) {
   const secretChk0 = document.getElementById('d-comment-secret');
   if (secretChk0) secretChk0.checked = false;
   renderComments(it);
+}
+
+// ── 글 공유 기능 (관리자 전용) ──
+function buildShareUrl(id) {
+  const url = new URL(location.href);
+  url.hash = '';
+  url.searchParams.set('pair', currentPairId || '');
+  url.searchParams.set('item', id);
+  return url.toString();
+}
+let _shareUrlCache = '';
+function shareItem(id) {
+  if (!isAdmin) { showToast('관리자만 공유할 수 있어요'); return; }
+  const it = currentItems.find(i => i.id === id);
+  if (!it) return;
+  _shareUrlCache = buildShareUrl(id);
+  const inp = document.getElementById('shareUrlInput');
+  inp.value = _shareUrlCache;
+  document.getElementById('shareLinkErr').style.display = 'none';
+  document.getElementById('shareLinkErr').textContent = '';
+  const nativeBtn = document.getElementById('shareNativeBtn');
+  nativeBtn.style.display = (navigator.share ? '' : 'none');
+  document.getElementById('shareLinkModal').classList.add('open');
+  setTimeout(() => { inp.focus(); inp.select(); }, 80);
+}
+async function nativeShareLink() {
+  const it = currentItems.find(i => i.id === currentCommentItemId);
+  try {
+    await navigator.share({ title: it ? it.title : 'LOVE', url: _shareUrlCache });
+    closeModal('shareLinkModal');
+  } catch (e) { /* 사용자가 취소한 경우 등은 무시 */ }
+}
+async function copyShareLink() {
+  const inp = document.getElementById('shareUrlInput');
+  const url = inp.value || _shareUrlCache;
+  const errEl = document.getElementById('shareLinkErr');
+  errEl.style.display = 'none';
+  let copied = false;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try { await navigator.clipboard.writeText(url); copied = true; } catch (e) { copied = false; }
+  }
+  if (!copied) {
+    try {
+      inp.focus(); inp.select(); inp.setSelectionRange(0, url.length);
+      copied = document.execCommand('copy');
+    } catch (e) { copied = false; }
+  }
+  if (copied) {
+    showToast('링크가 복사되었어요 📋');
+    closeModal('shareLinkModal');
+  } else {
+    inp.focus(); inp.select();
+    errEl.textContent = '자동 복사에 실패했어요. 위 링크를 직접 선택해서 복사해주세요.';
+    errEl.style.display = 'block';
+  }
+}
+// URL에 ?pair=...&item=...이 있으면 해당 글을 자동으로 열어줘요 (공유 링크로 접속했을 때, 관리자 여부와 무관하게 동작)
+async function tryOpenSharedItem() {
+  const params = new URLSearchParams(location.search);
+  const pid = params.get('pair');
+  const itemIdRaw = params.get('item');
+  if (!pid || !itemIdRaw) return;
+  const pair = pairs.find(p => p.id === pid);
+  if (!pair) return;
+  await openPair(pid);
+  const itemId = /^\d+$/.test(itemIdRaw) ? Number(itemIdRaw) : itemIdRaw;
+  const it = currentItems.find(i => i.id === itemId);
+  if (!it) return;
+  showSubPage('archive');
+  document.querySelectorAll('.pp-nav-item').forEach(n => n.classList.remove('active'));
+  const archiveNavBtn = document.querySelector('.pp-nav-item[onclick*="\'archive\'"]');
+  if (archiveNavBtn) archiveNavBtn.classList.add('active');
+  if (it.type !== 'photogallery') {
+    currentTab = it.type;
+    document.querySelectorAll('#tabBar .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === it.type));
+    renderGrid();
+  }
+  openDetail(it.id);
 }
 
 let currentCommentItemId = null;
@@ -4351,6 +4446,7 @@ function getSamples() {
   await restoreHubColors();
   await restoreOuterBg();
   document.getElementById('readonlyNotice').classList.remove('show');
+  await tryOpenSharedItem();
 })();
 </script>
 </body>
