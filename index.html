@@ -1185,7 +1185,7 @@ word-break:break-word;}
   .story-item{grid-template-columns:24px 1fr;column-gap:0.6rem;}
   .story-item::before{left:12px;}
   .story-item-col, .story-item.side-right .story-item-col{grid-column:2;text-align:left!important;}
-  .story-dot{grid-column:1;justify-self:start;margin-left:3px;}
+  .story-dot{position:absolute;left:12px;top:5px;transform:translateX(-50%);grid-column:auto;justify-self:auto;margin-left:0;}
   .story-item.side-left .story-title-row, .story-item.side-right .story-title-row{justify-content:flex-start;}
 }
 
@@ -4077,7 +4077,8 @@ function renderDday() {
   badge.style.display = 'flex';
   const target = new Date(dateStr + 'T00:00:00');
   const today = new Date(); today.setHours(0,0,0,0);
-  const diffDays = Math.round((today - target) / 86400000);
+  let diffDays = Math.round((today - target) / 86400000);
+  if (diffDays >= 0) diffDays += 1; // 지정한 날짜 자체를 1일로 취급 (예: 사귄 날 = D+1)
   numEl.textContent = diffDays === 0 ? 'D-DAY' : (diffDays > 0 ? 'D+' + diffDays : 'D' + diffDays);
   lblEl.textContent = cfg.ddayLabel || '';
 }
