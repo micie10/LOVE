@@ -1106,7 +1106,8 @@ word-break:break-word;}
 .is-admin .profile-image-box{cursor:pointer;}
 @media(max-width:900px){
   .profile-body{flex-direction:column;overflow-y:auto;}
-  .profile-divider{width:100%;height:1px;}
+  .profile-divider{width:100%;height:1px;margin:0.4rem 0;}
+  .profile-divider::before{top:50%;left:50%;transform:translate(-50%,-50%);padding:0.2rem 0.6rem;}
   .profile-col{overflow:visible;}
 }
 
