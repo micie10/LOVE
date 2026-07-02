@@ -1029,6 +1029,87 @@ word-break:break-word;}
 .gallery-add-btn:hover{border-color:var(--pp-green);color:var(--pp-green);}
 .is-admin .gallery-add-btn{display:inline-flex;}
 
+/* ── 프로필 (PROFILE) ── */
+.profile-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;overflow:hidden;height:100%;max-height:100%;}
+.profile-body{flex:1;min-height:0;display:flex;overflow:hidden;}
+.profile-col{flex:1;min-width:0;overflow-y:auto;padding:1.4rem 1.4rem 3rem;scrollbar-width:none;-ms-overflow-style:none;}
+.profile-col::-webkit-scrollbar{display:none;}
+.profile-divider{width:1px;flex-shrink:0;background:var(--pp-card-border);position:relative;}
+.profile-divider::before{content:'♡';position:absolute;top:1.2rem;left:50%;transform:translateX(-50%);background:var(--pp-sidebar);color:var(--pp-text-muted);font-size:0.75rem;padding:0.2rem 0;}
+.profile-card{background:var(--pp-card);border:1px solid var(--pp-card-border);border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+.profile-card-header{display:flex;align-items:center;justify-content:space-between;padding:0.9rem 1.1rem 0.7rem;border-bottom:1.5px solid var(--pp-text);}
+.profile-card-label{font-size:0.68rem;font-weight:700;letter-spacing:0.1em;color:var(--pp-text-muted);}
+.profile-card-tag{font-size:0.65rem;font-weight:700;letter-spacing:0.05em;border:1px solid var(--pp-text);border-radius:5px;padding:0.15rem 0.55rem;color:var(--pp-text);}
+.profile-section{border-top:1px solid var(--pp-card-border);}
+.profile-section:first-of-type{border-top:none;}
+.profile-section-bar{
+  background:var(--profile-accent,#24553d);color:#fff;
+  font-size:0.68rem;font-weight:700;letter-spacing:0.08em;
+  padding:0.4rem 1rem;display:flex;align-items:center;gap:0.5rem;justify-content:space-between;
+}
+.profile-section-bar-btns{display:flex;gap:0.35rem;align-items:center;flex-shrink:0;}
+.profile-section-title{flex:1;min-width:0;outline:none;}
+.is-admin .profile-section-title{cursor:text;}
+.is-admin .profile-section-title:hover{background:rgba(255,255,255,0.15);border-radius:4px;}
+.profile-mini-btn{background:rgba(255,255,255,0.22);border:none;border-radius:6px;color:#fff;font-size:0.62rem;font-family:var(--font);padding:0.2rem 0.5rem;cursor:pointer;line-height:1.4;white-space:nowrap;}
+.profile-mini-btn:hover{background:rgba(255,255,255,0.36);}
+.profile-mini-btn:disabled{opacity:0.3;cursor:default;}
+.profile-mini-btn:disabled:hover{background:rgba(255,255,255,0.22);}
+.profile-color-input{width:0;height:0;opacity:0;position:absolute;}
+.profile-image-box{
+  width:100%;aspect-ratio:16/9;background:#eee no-repeat center/cover;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.profile-image-box .profile-image-placeholder{color:var(--pp-text-muted);font-size:0.75rem;display:flex;flex-direction:column;align-items:center;gap:0.3rem;}
+.profile-image-box .profile-image-placeholder span{font-size:1.6rem;}
+.profile-quote{padding:0.9rem 1.1rem;}
+.profile-quote-text{font-size:0.85rem;line-height:1.6;color:var(--pp-text);outline:none;min-height:1.4em;}
+.profile-quote-author{margin-top:0.5rem;font-size:0.72rem;color:var(--pp-text-muted);outline:none;}
+.profile-section-row{display:flex;border-top:1px solid var(--pp-card-border);}
+.profile-section-row .profile-section{flex:1;min-width:0;border-top:none;}
+.profile-section-row .profile-section + .profile-section{border-left:1px solid var(--pp-card-border);}
+.profile-table-wrap{position:relative;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+.profile-table-wrap::-webkit-scrollbar{display:none;}
+.profile-table{border-collapse:collapse;font-size:0.76rem;}
+.profile-table td{padding:0.5rem 0.7rem;border-top:1px solid var(--pp-card-border);vertical-align:top;overflow:hidden;text-overflow:ellipsis;}
+.profile-table tr:first-child td{border-top:none;}
+.profile-table td.k{color:var(--pp-text-muted);font-weight:600;background:rgba(0,0,0,0.02);white-space:nowrap;}
+.profile-table td.v{outline:none;color:var(--pp-text);word-break:break-word;}
+.profile-col-handle{
+  display:none;position:absolute;top:0;bottom:0;width:10px;margin-left:-5px;
+  cursor:col-resize;z-index:5;
+}
+.profile-col-handle::after{content:'';position:absolute;top:0;bottom:0;left:4px;width:2px;background:transparent;transition:background 0.12s;}
+.profile-col-handle:hover::after{background:var(--pp-accent);}
+.profile-col-handle.show{display:block;}
+.profile-col-handle[data-col="v1"]{left:calc(76px + var(--v1w, 140px));}
+.profile-col-handle[data-col="v2"]{left:calc(76px + var(--v1w, 140px) + 76px + var(--v2w, 140px));}
+.profile-text{padding:0.9rem 1.1rem;font-size:0.8rem;line-height:1.75;color:var(--pp-text);outline:none;white-space:pre-wrap;}
+.profile-likes-row{display:flex;}
+.profile-likes-col{flex:1;min-width:0;padding:0.9rem 1.1rem;}
+.profile-likes-col + .profile-likes-col{border-left:1px solid var(--pp-card-border);}
+.profile-likes-label{font-size:0.68rem;font-weight:700;letter-spacing:0.05em;color:var(--pp-text-muted);margin-bottom:0.55rem;display:flex;align-items:center;gap:0.4rem;}
+.profile-tags{display:flex;flex-wrap:wrap;gap:0.4rem;}
+.profile-tag{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-size:0.72rem;font-weight:600;border-radius:999px;
+  padding:0.25rem 0.65rem;
+  background:rgba(61,122,90,0.12);color:var(--pp-green);border:1px solid rgba(61,122,90,0.3);
+}
+.profile-tags.dislikes .profile-tag{background:rgba(199,95,107,0.1);color:var(--pp-accent);border-color:rgba(199,95,107,0.28);}
+.profile-tag-del{background:none;border:none;cursor:pointer;color:inherit;font-size:0.65rem;opacity:0.6;padding:0;line-height:1;}
+.profile-tag-del:hover{opacity:1;}
+.profile-tag-add{background:none;border:1px dashed var(--pp-card-border);border-radius:999px;width:20px;height:20px;line-height:1;font-size:0.75rem;color:var(--pp-text-muted);cursor:pointer;display:none;align-items:center;justify-content:center;}
+.is-admin .profile-tag-add{display:inline-flex;}
+.is-admin .profile-quote-text,.is-admin .profile-quote-author,.is-admin .profile-table td.v,.is-admin .profile-text{cursor:text;}
+.is-admin .profile-quote-text:hover,.is-admin .profile-quote-author:hover,.is-admin .profile-table td.v:hover,.is-admin .profile-text:hover{background:rgba(201,126,184,0.06);}
+.is-admin .profile-image-box{cursor:pointer;}
+@media(max-width:900px){
+  .profile-body{flex-direction:column;overflow-y:auto;}
+  .profile-divider{width:100%;height:1px;}
+  .profile-col{overflow:visible;}
+}
+
 /* ── 메모 ── */
 .memo-body{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
 .memo-write{
@@ -1439,6 +1520,9 @@ document.addEventListener('selectstart', e => {
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">💌</span> STORY
         </button>
+          <button class="pp-nav-item" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+          <span class="pp-nav-icon">🪪</span> PROFILE
+        </button>
           <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
           <span class="pp-nav-icon">📷</span> GALLERY
         </button>
@@ -1560,7 +1644,10 @@ document.addEventListener('selectstart', e => {
           </button>
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
+          </button>          <button class="pp-nav-item" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">🪪</span> PROFILE
           </button>
+
           <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">📷</span> GALLERY
           </button>
@@ -1627,7 +1714,10 @@ document.addEventListener('selectstart', e => {
           </button>
           <button class="pp-nav-item active" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
+          </button>          <button class="pp-nav-item" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">🪪</span> PROFILE
           </button>
+
           <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">📷</span> GALLERY
           </button>
@@ -1685,7 +1775,10 @@ document.addEventListener('selectstart', e => {
           </button>
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[3].classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
+          </button>          <button class="pp-nav-item" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">🪪</span> PROFILE
           </button>
+
           <button class="pp-nav-item active" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
             <span class="pp-nav-icon">📷</span> GALLERY
           </button>
@@ -1738,8 +1831,11 @@ document.addEventListener('selectstart', e => {
           </button>
           <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[3].classList.add('active');">
             <span class="pp-nav-icon">💌</span> STORY
+          </button>          <button class="pp-nav-item" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">🪪</span> PROFILE
           </button>
-          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[4].classList.add('active');">
+
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[5].classList.add('active');">
             <span class="pp-nav-icon">📷</span> GALLERY
           </button>
         </nav>
@@ -1775,6 +1871,62 @@ document.addEventListener('selectstart', e => {
           </div>
           <div class="memo-grid" id="memoGrid"></div>
           <div class="memo-empty" id="memoEmpty" style="display:none;">아직 메모가 없어요. 메모를 남겨보세요 📝</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="profile" style="display:none;background:var(--pp-sidebar);flex:1;overflow:hidden;min-height:0;height:100%;">
+    <div style="display:flex;flex:1;min-height:0;min-width:0;height:100%;">
+      <!-- 사이드바 (프로필용) -->
+      <div class="pp-sidebar">
+        <div class="pp-sidebar-avatar" id="ppSidebarAvatarProf" style="cursor:pointer;" title="이미지 변경" onclick="if(isAdmin){saveSidebarAvatar();}else if(window.innerWidth<=768){goHub();}">
+          🌸
+        </div>
+        <div class="pp-sidebar-name" id="ppSidebarNameProf">PAIR</div>
+        <div class="pp-sidebar-subtitle" id="ppSidebarSubtitleProf">아카이브</div>
+        <nav class="pp-nav">
+          <button class="pp-nav-item" onclick="showSubPage('home');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[0].classList.add('active');">
+            <span class="pp-nav-icon">🏠</span> HOME
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('archive');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[1].classList.add('active');">
+            <span class="pp-nav-icon">📖</span> LOG
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('memo');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[2].classList.add('active');">
+            <span class="pp-nav-icon">📝</span> MEMO
+          </button>
+          <button class="pp-nav-item" onclick="showSubPage('story');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[3].classList.add('active');">
+            <span class="pp-nav-icon">💌</span> STORY
+          </button>          <button class="pp-nav-item active" onclick="showSubPage('profile');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active');">
+            <span class="pp-nav-icon">🪪</span> PROFILE
+          </button>
+
+          <button class="pp-nav-item" onclick="showSubPage('gallery');document.querySelectorAll('.pp-nav-item').forEach(n=>n.classList.remove('active'));document.querySelectorAll('.pp-nav-item')[5].classList.add('active');">
+            <span class="pp-nav-icon">📷</span> GALLERY
+          </button>
+        </nav>
+        <div class="pp-sidebar-divider"></div>
+        <div class="pp-sidebar-footer">
+          <button class="back-btn sidebar-back-btn" style="font-size:0.7rem;padding:0.22rem 0.65rem;" onclick="goHub()"><span class="back-arrow">←</span><span class="back-label"> 메인</span></button>
+          <div class="pp-sidebar-credit" id="ppSidebarCreditProf">드림 아카이브</div>
+        </div>
+      </div>
+      <!-- 프로필 메인 -->
+      <div class="profile-main">
+        <div class="arc-header">
+          <div class="arc-top">
+            <div class="arc-title-row">
+              <button class="back-btn" onclick="goHub()">← 메인</button>
+              <button class="back-btn" onclick="showSubPage('home')">← 홈</button>
+              <span class="arc-heading">프로필</span>
+              <span class="admin-badge" id="adminBadgeProf">🔑 관리자</span>
+            </div>
+          </div>
+        </div>
+        <div class="profile-body">
+          <div class="profile-col" id="profileColLeft"></div>
+          <div class="profile-divider"></div>
+          <div class="profile-col" id="profileColRight"></div>
         </div>
       </div>
     </div>
@@ -2846,6 +2998,10 @@ async function openPair(pid) {
   const sideNameMemo = document.getElementById('ppSidebarNameMemo');
   const sideSubMemo = document.getElementById('ppSidebarSubtitleMemo');
   const sideCreditMemo = document.getElementById('ppSidebarCreditMemo');
+  const sideAvatarProf = document.getElementById('ppSidebarAvatarProf');
+  const sideNameProf = document.getElementById('ppSidebarNameProf');
+  const sideSubProf = document.getElementById('ppSidebarSubtitleProf');
+  const sideCreditProf = document.getElementById('ppSidebarCreditProf');
   if (pair) {
     // 이름
     const displayName = currentCfg.sidebarName || pair.name;
@@ -2854,6 +3010,7 @@ async function openPair(pid) {
     if (sideNameStory) sideNameStory.textContent = displayName;
     if (sideNameGal) sideNameGal.textContent = displayName;
     if (sideNameMemo) sideNameMemo.textContent = displayName;
+    if (sideNameProf) sideNameProf.textContent = displayName;
     // 부제목
     const subtitle = currentCfg.sidebarSubtitle || '아카이브';
     if (sideSub) sideSub.textContent = subtitle;
@@ -2861,6 +3018,7 @@ async function openPair(pid) {
     if (sideSubStory) sideSubStory.textContent = subtitle;
     if (sideSubGal) sideSubGal.textContent = subtitle;
     if (sideSubMemo) sideSubMemo.textContent = subtitle;
+    if (sideSubProf) sideSubProf.textContent = subtitle;
     // 크레딧
     const credit = currentCfg.sidebarCredit || '드림 아카이브';
     if (sideCredit) sideCredit.textContent = credit;
@@ -2868,6 +3026,7 @@ async function openPair(pid) {
     if (sideCreditStory) sideCreditStory.textContent = credit;
     if (sideCreditGal) sideCreditGal.textContent = credit;
     if (sideCreditMemo) sideCreditMemo.textContent = credit;
+    if (sideCreditProf) sideCreditProf.textContent = credit;
     // 아바타
     const avatarSrc = currentCfg.sidebarAvatar || pair.avatar || '';
     const avatarHtml = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
@@ -2896,6 +3055,11 @@ async function openPair(pid) {
       const inp5 = sideAvatarMemo.querySelector('input');
       sideAvatarMemo.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
       if (inp5) sideAvatarMemo.appendChild(inp5);
+    }
+    if (sideAvatarProf) {
+      const inp6 = sideAvatarProf.querySelector('input');
+      sideAvatarProf.innerHTML = avatarSrc ? `<img src="${esc(avatarSrc)}" onload="this.classList.add('loaded')" alt="">` : '🌸';
+      if (inp6) sideAvatarProf.appendChild(inp6);
     }
   }
   showSubPage('home');
@@ -2940,6 +3104,9 @@ async function saveSidebarMeta() {
   if (document.getElementById('ppSidebarNameMemo')) document.getElementById('ppSidebarNameMemo').textContent = name||'';
   if (document.getElementById('ppSidebarSubtitleMemo')) document.getElementById('ppSidebarSubtitleMemo').textContent = subtitle||'';
   if (document.getElementById('ppSidebarCreditMemo')) document.getElementById('ppSidebarCreditMemo').textContent = credit||'';
+  if (document.getElementById('ppSidebarNameProf')) document.getElementById('ppSidebarNameProf').textContent = name||'';
+  if (document.getElementById('ppSidebarSubtitleProf')) document.getElementById('ppSidebarSubtitleProf').textContent = subtitle||'';
+  if (document.getElementById('ppSidebarCreditProf')) document.getElementById('ppSidebarCreditProf').textContent = credit||'';
   currentCfg.sidebarName = name;
   currentCfg.sidebarSubtitle = subtitle;
   currentCfg.sidebarCredit = credit;
@@ -2952,7 +3119,7 @@ async function saveSidebarAvatar(e) {
   if (src === null) return;
   const finalSrc = src.trim();
   currentCfg.sidebarAvatar = finalSrc;
-  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory','ppSidebarAvatarGal','ppSidebarAvatarMemo'].forEach(id=>{
+  ['ppSidebarAvatar','ppSidebarAvatarArc','ppSidebarAvatarStory','ppSidebarAvatarGal','ppSidebarAvatarMemo','ppSidebarAvatarProf'].forEach(id=>{
     const el = document.getElementById(id);
     if (!el) return;
     const inp = el.querySelector('input');
@@ -2999,11 +3166,13 @@ function showSubPage(id) {
   const storyEl = document.getElementById('story');
   const galleryEl = document.getElementById('gallery');
   const memoEl = document.getElementById('memo');
+  const profileEl = document.getElementById('profile');
   homeEl.style.display = 'none';
   archiveEl.style.display = 'none';
   storyEl.style.display = 'none';
   galleryEl.style.display = 'none';
   memoEl.style.display = 'none';
+  profileEl.style.display = 'none';
   if (id === 'home') {
     homeEl.style.display = 'flex';
     renderHome();
@@ -3020,6 +3189,9 @@ function showSubPage(id) {
   } else if (id === 'memo') {
     memoEl.style.display = 'flex';
     renderMemo();
+  } else if (id === 'profile') {
+    profileEl.style.display = 'flex';
+    renderProfile();
   }
 }
 
@@ -3079,11 +3251,13 @@ function applyAdminUI() {
     if (el) el.contentEditable = isAdmin?'true':'false';
   });
   // 아바타 클릭 입력: 관리자만 파일 input 활성화
-  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input, #ppSidebarAvatarStory input, #ppSidebarAvatarGal input, #ppSidebarAvatarMemo input').forEach(inp=>{
+  document.querySelectorAll('#ppSidebarAvatar input, #ppSidebarAvatarArc input, #ppSidebarAvatarStory input, #ppSidebarAvatarGal input, #ppSidebarAvatarMemo input, #ppSidebarAvatarProf input').forEach(inp=>{
     inp.disabled = !isAdmin;
   });
   document.getElementById('readonlyNotice').classList.toggle('show', !isAdmin && !!currentPairId);
+  document.querySelectorAll('.profile-editable').forEach(el=>{ el.contentEditable = isAdmin?'true':'false'; });
   renderGrid(); renderHome(); renderGallery(); renderMemo();
+  if (typeof renderProfile === 'function') renderProfile();
 }
 
 function renderHome() {
@@ -4147,6 +4321,298 @@ async function saveCfgColors() {
 
 // ── 아카이브 이미지 패널 ──
 const ARC_IMG_KEY = () => 'da_arc_imgs_' + (currentPairId||'default');
+
+// ── 프로필 (PROFILE) ──
+const PROFILE_KEY = () => 'da_profile_' + (currentPairId||'default');
+const PROFILE_BASIC_KEYS = [['name'],['age'],['gender'],['rank'],['position'],['height'],['affiliation']];
+const PROFILE_BASIC_FIELD_ORDER = ['name','age','gender','rank','position','height','affiliation'];
+const PROFILE_SECTION_ORDER_DEFAULT = ['image','quote','basic','appearance','personality','ability','backstory','likes'];
+const PROFILE_SECTION_TITLES_DEFAULT = { image:'IMAGE', quote:'QUOTE', basic:'BASIC INFORMATION', appearance:'APPEARANCE', personality:'PERSONALITY', ability:'ABILITY', backstory:'BACKSTORY', likes:'LIKES & DISLIKES' };
+const PROFILE_BASIC_LABELS_DEFAULT = { name:'이름', age:'나이', gender:'성별', rank:'등급', position:'포지션', height:'키', affiliation:'소속' };
+let currentProfileData = null;
+
+function defaultProfileSide() {
+  return {
+    color: '#24553d',
+    image: '',
+    quote: '',
+    quoteAuthor: '',
+    basic: { name:'', age:'', gender:'', rank:'', position:'', height:'', affiliation:'' },
+    basicLabels: Object.assign({}, PROFILE_BASIC_LABELS_DEFAULT),
+    titles: Object.assign({}, PROFILE_SECTION_TITLES_DEFAULT),
+    order: PROFILE_SECTION_ORDER_DEFAULT.slice(),
+    colWidths: { v1: 140, v2: 140 },
+    appearance: '',
+    personality: '',
+    ability: '',
+    backstory: '',
+    likes: [],
+    dislikes: []
+  };
+}
+
+function mergeProfileSide(saved) {
+  const base = defaultProfileSide();
+  if (!saved) return base;
+  // 순서: 저장된 값 중 유효한 키만 사용하고, 빠진 키는 뒤에 채워 넣기
+  let order = Array.isArray(saved.order) ? saved.order.filter(k => PROFILE_SECTION_ORDER_DEFAULT.includes(k)) : [];
+  PROFILE_SECTION_ORDER_DEFAULT.forEach(k => { if (!order.includes(k)) order.push(k); });
+  return {
+    color: saved.color || base.color,
+    image: saved.image || '',
+    quote: saved.quote || '',
+    quoteAuthor: saved.quoteAuthor || '',
+    basic: Object.assign({}, base.basic, saved.basic || {}),
+    basicLabels: Object.assign({}, base.basicLabels, saved.basicLabels || {}),
+    titles: Object.assign({}, base.titles, saved.titles || {}),
+    order: order,
+    colWidths: Object.assign({}, base.colWidths, saved.colWidths || {}),
+    appearance: saved.appearance || '',
+    personality: saved.personality || '',
+    ability: saved.ability || '',
+    backstory: saved.backstory || '',
+    likes: Array.isArray(saved.likes) ? saved.likes : [],
+    dislikes: Array.isArray(saved.dislikes) ? saved.dislikes : []
+  };
+}
+
+async function profileLoad() {
+  const raw = await stoGet(PROFILE_KEY());
+  const parsed = raw ? JSON.parse(raw) : {};
+  return { left: mergeProfileSide(parsed.left), right: mergeProfileSide(parsed.right) };
+}
+
+async function profileSave() {
+  if (!currentProfileData) return;
+  await stoSet(PROFILE_KEY(), JSON.stringify(currentProfileData));
+}
+
+async function renderProfile() {
+  if (!currentPairId) return;
+  currentProfileData = await profileLoad();
+  renderProfileSide('left');
+  renderProfileSide('right');
+}
+
+function renderProfileSide(side) {
+  const el = document.getElementById(side === 'left' ? 'profileColLeft' : 'profileColRight');
+  if (!el || !currentProfileData) return;
+  el.innerHTML = profileCardHTML(side, currentProfileData[side]);
+  profileAttachColResize(side);
+}
+
+function profileTableRows(side, dataObj, labels) {
+  let rows = '';
+  const ce = isAdmin ? 'true' : 'false';
+  const kOpts = ` onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"`;
+  for (let i = 0; i < PROFILE_BASIC_FIELD_ORDER.length; i += 2) {
+    const k1 = PROFILE_BASIC_FIELD_ORDER[i];
+    const k2 = PROFILE_BASIC_FIELD_ORDER[i + 1];
+    rows += '<tr>';
+    rows += `<td class="k profile-editable" contenteditable="${ce}" data-side="${side}" data-field="basicLabels.${k1}" onblur="profileFieldBlur(this)"${kOpts}>${esc(labels[k1]||'')}</td>`;
+    rows += `<td class="v profile-editable" contenteditable="${ce}" data-side="${side}" data-field="basic.${k1}" onblur="profileFieldBlur(this)"${kOpts}>${esc(dataObj[k1]||'')}</td>`;
+    if (k2) {
+      rows += `<td class="k profile-editable" contenteditable="${ce}" data-side="${side}" data-field="basicLabels.${k2}" onblur="profileFieldBlur(this)"${kOpts}>${esc(labels[k2]||'')}</td>`;
+      rows += `<td class="v profile-editable" contenteditable="${ce}" data-side="${side}" data-field="basic.${k2}" onblur="profileFieldBlur(this)"${kOpts}>${esc(dataObj[k2]||'')}</td>`;
+    } else {
+      rows += '<td class="k"></td><td class="v"></td>';
+    }
+    rows += '</tr>';
+  }
+  return rows;
+}
+
+function profileTagsHTML(side, type, arr) {
+  const showCls = isAdmin ? ' show' : '';
+  return arr.map((t, idx) => `
+    <span class="profile-tag">${esc(t)}<button class="profile-tag-del admin-only${showCls}" title="삭제" onclick="profileRemoveTag('${side}','${type}',${idx})">✕</button></span>
+  `).join('');
+}
+
+function profileSectionBar(side, key, d, extraBtnsHtml) {
+  const ce = isAdmin ? 'true' : 'false';
+  const showCls = isAdmin ? ' show' : '';
+  const idx = d.order.indexOf(key);
+  const isFirst = idx <= 0, isLast = idx >= d.order.length - 1;
+  const upBtn = `<button class="profile-mini-btn" title="위로 이동" ${isFirst?'disabled':''} onclick="profileMoveSection('${side}','${key}',-1)">↑</button>`;
+  const downBtn = `<button class="profile-mini-btn" title="아래로 이동" ${isLast?'disabled':''} onclick="profileMoveSection('${side}','${key}',1)">↓</button>`;
+  return `<div class="profile-section-bar" style="--profile-accent:${esc(d.color)}">
+    <span class="profile-editable profile-section-title" contenteditable="${ce}" data-side="${side}" data-field="titles.${key}" onblur="profileFieldBlur(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">${esc(d.titles[key] || '')}</span>
+    <div class="profile-section-bar-btns admin-only${showCls}">${extraBtnsHtml||''}${upBtn}${downBtn}</div>
+  </div>`;
+}
+
+function profileSectionBody(side, key, d) {
+  const ce = isAdmin ? 'true' : 'false';
+  const editable = (field, val, extra) => `contenteditable="${ce}" data-side="${side}" data-field="${field}" onblur="profileFieldBlur(this)"${extra||''}`;
+  if (key === 'image') {
+    return `<div class="profile-image-box" style="${d.image?`background-image:url('${esc(d.image)}')`:''}" onclick="if(isAdmin)profileChangeImage('${side}')">
+        ${d.image ? '' : '<div class="profile-image-placeholder"><span>🖼</span><span>이미지 없음</span></div>'}
+      </div>`;
+  }
+  if (key === 'quote') {
+    return `<div class="profile-quote">
+        <div class="profile-quote-text profile-editable" ${editable('quote', d.quote)}>${esc(d.quote) || (isAdmin?'명대사를 입력해주세요.':'')}</div>
+        <div class="profile-quote-author profile-editable" ${editable('quoteAuthor', d.quoteAuthor, ` onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}"`)}>${d.quoteAuthor ? '— ' + esc(d.quoteAuthor) : (isAdmin?'— 이름':'')}</div>
+      </div>`;
+  }
+  if (key === 'basic') {
+    const v1 = d.colWidths.v1 || 140, v2 = d.colWidths.v2 || 140;
+    return `<div class="profile-table-wrap" id="profTableWrap-${side}" style="--v1w:${v1}px;--v2w:${v2}px;">
+        <table class="profile-table" style="table-layout:fixed;">
+          <colgroup><col style="width:76px"><col class="profcol-v1" style="width:${v1}px"><col style="width:76px"><col class="profcol-v2" style="width:${v2}px"></colgroup>
+          <tbody>${profileTableRows(side, d.basic, d.basicLabels)}</tbody>
+        </table>
+        <div class="profile-col-handle admin-only${isAdmin?' show':''}" data-side="${side}" data-col="v1" title="너비 조절"></div>
+        <div class="profile-col-handle admin-only${isAdmin?' show':''}" data-side="${side}" data-col="v2" title="너비 조절"></div>
+      </div>`;
+  }
+  if (key === 'appearance') return `<div class="profile-text profile-editable" ${editable('appearance', d.appearance)}>${esc(d.appearance)}</div>`;
+  if (key === 'personality') return `<div class="profile-text profile-editable" ${editable('personality', d.personality)}>${esc(d.personality)}</div>`;
+  if (key === 'ability') return `<div class="profile-text profile-editable" ${editable('ability', d.ability)}>${esc(d.ability) || (isAdmin?'능력을 설명해주세요.':'')}</div>`;
+  if (key === 'backstory') return `<div class="profile-text profile-editable" ${editable('backstory', d.backstory)}>${esc(d.backstory)}</div>`;
+  if (key === 'likes') {
+    const showCls = isAdmin ? ' show' : '';
+    return `<div class="profile-likes-row">
+        <div class="profile-likes-col">
+          <div class="profile-likes-label">LIKES <button class="profile-tag-add admin-only${showCls}" title="추가" onclick="profileAddTag('${side}','likes')">＋</button></div>
+          <div class="profile-tags">${profileTagsHTML(side, 'likes', d.likes)}</div>
+        </div>
+        <div class="profile-likes-col">
+          <div class="profile-likes-label">DISLIKES <button class="profile-tag-add admin-only${showCls}" title="추가" onclick="profileAddTag('${side}','dislikes')">＋</button></div>
+          <div class="profile-tags dislikes">${profileTagsHTML(side, 'dislikes', d.dislikes)}</div>
+        </div>
+      </div>`;
+  }
+  return '';
+}
+
+function profileCardHTML(side, d) {
+  const showCls = isAdmin ? ' show' : '';
+  const imageExtraBtns = `
+    <label class="profile-mini-btn">🎨 색상<input type="color" class="profile-color-input" value="${esc(d.color)}" oninput="profileSetColor('${side}',this.value)"></label>
+    <button class="profile-mini-btn" onclick="profileChangeImage('${side}')">🖼 변경</button>`;
+  const sectionsHtml = d.order.map(key => {
+    const extra = key === 'image' ? imageExtraBtns : '';
+    return `<div class="profile-section" data-key="${key}">
+      ${profileSectionBar(side, key, d, extra)}
+      ${profileSectionBody(side, key, d)}
+    </div>`;
+  }).join('');
+  return `
+  <div class="profile-card">
+    ${sectionsHtml}
+  </div>`;
+}
+
+async function profileFieldBlur(el) {
+  if (!isAdmin || !currentProfileData) return;
+  const side = el.dataset.side, field = el.dataset.field;
+  const val = el.innerText.replace(/\n{3,}/g, '\n\n').trim();
+  const parts = field.split('.');
+  let obj = currentProfileData[side];
+  for (let i = 0; i < parts.length - 1; i++) obj = obj[parts[i]];
+  obj[parts[parts.length - 1]] = val;
+  await profileSave();
+}
+
+async function profileMoveSection(side, key, dir) {
+  if (!requireAdmin() || !currentProfileData) return;
+  const order = currentProfileData[side].order;
+  const i = order.indexOf(key);
+  const j = i + dir;
+  if (i < 0 || j < 0 || j >= order.length) return;
+  [order[i], order[j]] = [order[j], order[i]];
+  await profileSave();
+  renderProfileSide(side);
+}
+
+async function profileChangeImage(side) {
+  if (!requireAdmin() || !currentProfileData) return;
+  const url = prompt('이미지 URL을 입력하세요\n(GitHub 이슈에 이미지를 드래그해서 생성된 URL을 붙여넣으세요)', currentProfileData[side].image || '');
+  if (url === null) return;
+  currentProfileData[side].image = url.trim();
+  await profileSave();
+  renderProfileSide(side);
+  showToast('저장됨 ✓');
+}
+
+async function profileSetColor(side, val) {
+  if (!isAdmin || !currentProfileData) return;
+  currentProfileData[side].color = val;
+  document.querySelectorAll(`#profileCol${side==='left'?'Left':'Right'} .profile-section-bar`).forEach(b=>b.style.setProperty('--profile-accent', val));
+  await profileSave();
+}
+
+async function profileAddTag(side, type) {
+  if (!requireAdmin() || !currentProfileData) return;
+  const val = prompt(type === 'likes' ? '좋아하는 것을 입력하세요' : '싫어하는 것을 입력하세요');
+  if (!val || !val.trim()) return;
+  currentProfileData[side][type].push(val.trim());
+  await profileSave();
+  renderProfileSide(side);
+}
+
+async function profileRemoveTag(side, type, idx) {
+  if (!requireAdmin() || !currentProfileData) return;
+  currentProfileData[side][type].splice(idx, 1);
+  await profileSave();
+  renderProfileSide(side);
+}
+
+// ── 프로필 표 값 컬럼 너비 드래그 조절 ──
+function profileAttachColResize(side) {
+  const wrap = document.getElementById('profTableWrap-' + side);
+  if (!wrap) return;
+  wrap.querySelectorAll('.profile-col-handle').forEach(handle => {
+    let startX, startW, col, varName;
+    const onMove = (clientX) => {
+      const newW = Math.min(320, Math.max(50, startW + (clientX - startX)));
+      col.style.width = newW + 'px';
+      wrap.style.setProperty(varName, newW + 'px');
+    };
+    const onEnd = async (clientX) => {
+      document.removeEventListener('mousemove', mouseMove);
+      document.removeEventListener('mouseup', mouseUp);
+      document.removeEventListener('touchmove', touchMove);
+      document.removeEventListener('touchend', touchEnd);
+      document.body.style.userSelect = '';
+      document.body.style.cursor = '';
+      if (!col || !currentProfileData) return;
+      const newW = Math.min(320, Math.max(50, startW + (clientX - startX)));
+      const colKey = handle.dataset.col;
+      currentProfileData[side].colWidths[colKey] = Math.round(newW);
+      await profileSave();
+    };
+    const mouseMove = (e) => onMove(e.clientX);
+    const mouseUp = (e) => onEnd(e.clientX);
+    const touchMove = (e) => { e.preventDefault(); onMove(e.touches[0].clientX); };
+    const touchEnd = (e) => onEnd(e.changedTouches[0].clientX);
+
+    handle.addEventListener('mousedown', (e) => {
+      if (!isAdmin) return;
+      e.preventDefault(); e.stopPropagation();
+      col = wrap.querySelector(handle.dataset.col === 'v1' ? '.profcol-v1' : '.profcol-v2');
+      varName = handle.dataset.col === 'v1' ? '--v1w' : '--v2w';
+      startX = e.clientX;
+      startW = parseInt(col.style.width, 10) || 140;
+      document.body.style.userSelect = 'none';
+      document.body.style.cursor = 'col-resize';
+      document.addEventListener('mousemove', mouseMove);
+      document.addEventListener('mouseup', mouseUp);
+    });
+    handle.addEventListener('touchstart', (e) => {
+      if (!isAdmin) return;
+      e.preventDefault(); e.stopPropagation();
+      col = wrap.querySelector(handle.dataset.col === 'v1' ? '.profcol-v1' : '.profcol-v2');
+      varName = handle.dataset.col === 'v1' ? '--v1w' : '--v2w';
+      startX = e.touches[0].clientX;
+      startW = parseInt(col.style.width, 10) || 140;
+      document.addEventListener('touchmove', touchMove, {passive:false});
+      document.addEventListener('touchend', touchEnd);
+    }, {passive:false});
+  });
+}
 
 // ── 메모 (LOG와 완전히 독립된 메모지) ──
 const MEMO_KEY = () => 'da_memo_notes_' + (currentPairId||'default');
